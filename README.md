@@ -7,6 +7,7 @@ It includes the following components (under development):
 
 * numpy;
 * scikit-learn;
-* PyTorch and;
-* TensorFlow/Keras
+* PyTorch;
+* TensorFlow and;
+* Keras.
 
