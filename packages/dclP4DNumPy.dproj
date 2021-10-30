@@ -153,6 +153,10 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dnumpy.dcp"/>
         <DCCReference Include="..\src\NumPy\RegNumPy.pas"/>
+        <RcItem Include="resources\TNumPy.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TNumPy</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -179,12 +183,17 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\21.0\Bpl\dclP4DNumPy.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DNumPy280.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>dclP4DNumPy.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -192,11 +201,6 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
-                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
