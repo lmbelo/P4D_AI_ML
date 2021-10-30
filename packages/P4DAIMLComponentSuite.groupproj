@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{99E13106-C94F-48F5-B84F-6AD0BCE6FA03}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="P4DPyPackage.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="P4DNumPy.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="dclP4DNumPy.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="P4DPyPackage">
+        <MSBuild Projects="P4DPyPackage.dproj"/>
+    </Target>
+    <Target Name="P4DPyPackage:Clean">
+        <MSBuild Projects="P4DPyPackage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DPyPackage:Make">
+        <MSBuild Projects="P4DPyPackage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="P4DNumPy">
+        <MSBuild Projects="P4DNumPy.dproj"/>
+    </Target>
+    <Target Name="P4DNumPy:Clean">
+        <MSBuild Projects="P4DNumPy.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DNumPy:Make">
+        <MSBuild Projects="P4DNumPy.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DNumPy">
+        <MSBuild Projects="dclP4DNumPy.dproj"/>
+    </Target>
+    <Target Name="dclP4DNumPy:Clean">
+        <MSBuild Projects="dclP4DNumPy.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DNumPy:Make">
+        <MSBuild Projects="dclP4DNumPy.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="P4DPyPackage;P4DNumPy;dclP4DNumPy"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="P4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="P4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
