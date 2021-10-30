@@ -1,0 +1,36 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{0D35FA86-1E78-498D-A52B-FBFA8B862F22}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="NumPyReference.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="NumPyReference">
+        <MSBuild Projects="NumPyReference.dproj"/>
+    </Target>
+    <Target Name="NumPyReference:Clean">
+        <MSBuild Projects="NumPyReference.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NumPyReference:Make">
+        <MSBuild Projects="NumPyReference.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="NumPyReference"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="NumPyReference:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="NumPyReference:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
