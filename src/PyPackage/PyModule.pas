@@ -17,7 +17,8 @@ type
   protected
     procedure Loaded; override;
     procedure EngineLoaded(); override;
-    procedure ImportModule; reintroduce; virtual;
+    procedure ImportModule(); reintroduce; virtual;
+    procedure InstallPackage();
     //Get methods
     function GetPyModuleName(): string; virtual; abstract;
   public
@@ -86,19 +87,9 @@ end;
 
 procedure TPyModuleBase.Import;
 begin
-  var LPyPIP := TPyPip.Create(Self);
-  try
-    if not LPyPIP.IsInstalled() then begin
-      if FAutoInstall then begin
-        LPyPIP.Install();
-      end else
-        raise EPyPackageNotInstalled.CreateFmt('Package %s not installed.', [
-          GetPyModuleName()]);
-    end;
-  finally
-    LPyPIP.Free();
-  end;
-  ImportModule;
+  if not IsSubModule() then
+    InstallPackage();
+  ImportModule();
 end;
 
 function TPyModuleBase.IsImported: boolean;
@@ -117,6 +108,22 @@ begin
     inherited ImportModule(FPyParentModule.PyModuleName, PyModuleName)
   else
     inherited ImportModule(PyModuleName);
+end;
+
+procedure TPyModuleBase.InstallPackage;
+begin
+  var LPyPIP := TPyPip.Create(Self);
+  try
+    if not LPyPIP.IsInstalled() then begin
+      if FAutoInstall then begin
+        LPyPIP.Install();
+      end else
+        raise EPyPackageNotInstalled.CreateFmt('Package %s not installed.', [
+          GetPyModuleName()]);
+    end;
+  finally
+    LPyPIP.Free();
+  end;
 end;
 
 procedure TPyModuleBase.Loaded;
