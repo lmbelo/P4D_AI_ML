@@ -3,10 +3,10 @@ unit MainForm;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PythonEngine, PyProxy, PyModule, NumPy,
-  PyClass, NumPy.NDArray, System.Generics.Collections, System. Rtti,
-  Vcl.StdCtrls, Vcl.PythonGUIInputOutput, PyCommon;
+  System.Generics.Collections, System.Rtti, System.SysUtils, System.Variants,
+  System.Classes, Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Controls,
+  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, PythonEngine, Vcl.PythonGUIInputOutput,
+  PyCommon, PyModule, NumPy;
 
 type
   TForm1 = class(TForm)

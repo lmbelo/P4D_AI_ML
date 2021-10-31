@@ -3,16 +3,17 @@ unit PyModule;
 interface
 
 uses
-  System.Classes, PyCommon, PythonEngine;
+  System.Classes, PythonEngine, PyCommon, System.SysUtils;
 
 type
-  TPyCustomModule = class(TPyCommonCustomModule)
+  TPyModuleBase = class(TPyCommonCustomModule)
   private
-    FPyParentModule: TPyCustomModule; //if this module is a submodule
+    FPyParentModule: TPyModuleBase; //if this module is a submodule
     FAutoImport: boolean;
+    FAutoInstall: boolean;
     function CanImport(): boolean;
     //Set methods
-    procedure SetPyParentModule(const AParentModule: TPyCustomModule);
+    procedure SetPyParentModule(const AParentModule: TPyModuleBase);
   protected
     procedure Loaded; override;
     procedure EngineLoaded(); override;
@@ -26,13 +27,14 @@ type
     function IsImported(): boolean;
     function IsSubModule: boolean;
 
-    property PyParentModule: TPyCustomModule read FPyParentModule write SetPyParentModule;
+    property PyParentModule: TPyModuleBase read FPyParentModule write SetPyParentModule;
   published
     property PyModuleName: string read GetPyModuleName;
     property AutoImport: boolean read FAutoImport write FAutoImport default true;
+    property AutoInstall: boolean read FAutoInstall write FAutoInstall default true;
   end;
 
-  TPyModule = class(TPyCustomModule)
+  TPyModule = class(TPyModuleBase)
   protected
     function GetPyModuleName(): string; override;
   published
@@ -44,54 +46,72 @@ type
     FPyModuleName: string;
   public
     constructor Create(const APyModuleName: string);
-
     property PyModuleName: string read FPyModuleName write FPyModuleName;
+  end;
+
+  EPyPackageNotInstalled = class(Exception)
+  end;
+
+  EPyParentModuleCircularReference = class(Exception)
   end;
 
 implementation
 
 uses
-  System.Rtti, System.SysUtils;
+  PyPIP, System.Rtti;
 
-{ TPyCustomModule }
+{ TPyModuleBase }
 
-constructor TPyCustomModule.Create(AOwner: TComponent);
+constructor TPyModuleBase.Create(AOwner: TComponent);
 begin
   inherited;
   FAutoImport := true;
+  FAutoInstall := true;
 end;
 
-procedure TPyCustomModule.EngineLoaded;
+procedure TPyModuleBase.EngineLoaded;
 begin
   inherited;
-  if CanImport() then
+  if FAutoImport and CanImport() then
     Import();
 end;
 
-function TPyCustomModule.CanImport: boolean;
+function TPyModuleBase.CanImport: boolean;
 begin
   Result := not (csDesigning in ComponentState)
-    and not IsImported()
     and Assigned(PythonEngine)
-    and PythonEngine.Initialized;
+    and PythonEngine.Initialized
+    and not IsImported();
 end;
 
-procedure TPyCustomModule.Import;
+procedure TPyModuleBase.Import;
 begin
+  var LPyPIP := TPyPip.Create(Self);
+  try
+    if not LPyPIP.IsInstalled() then begin
+      if FAutoInstall then begin
+        LPyPIP.Install();
+      end else
+        raise EPyPackageNotInstalled.CreateFmt('Package %s not installed.', [
+          GetPyModuleName()]);
+    end;
+  finally
+    LPyPIP.Free();
+  end;
   ImportModule;
 end;
 
-function TPyCustomModule.IsImported: boolean;
+function TPyModuleBase.IsImported: boolean;
 begin
   Result := Assigned(PyModule);
 end;
 
-function TPyCustomModule.IsSubModule: boolean;
+function TPyModuleBase.IsSubModule: boolean;
 begin
   Result := Assigned(FPyParentModule);
 end;
 
-procedure TPyCustomModule.ImportModule;
+procedure TPyModuleBase.ImportModule;
 begin
   if IsSubModule then
     inherited ImportModule(FPyParentModule.PyModuleName, PyModuleName)
@@ -99,17 +119,17 @@ begin
     inherited ImportModule(PyModuleName);
 end;
 
-procedure TPyCustomModule.Loaded;
+procedure TPyModuleBase.Loaded;
 begin
   inherited;
   if FAutoImport and CanImport() then
     Import();
 end;
 
-procedure TPyCustomModule.SetPyParentModule(const AParentModule: TPyCustomModule);
+procedure TPyModuleBase.SetPyParentModule(const AParentModule: TPyModuleBase);
 begin
   if AParentModule = Self then
-    raise Exception.Create('Circular reference not allowed.');
+    raise EPyParentModuleCircularReference.Create('Circular reference not allowed.');
   FPyParentModule := AParentModule;
 end;
 
@@ -132,7 +152,7 @@ begin
   end;
 end;
 
-{ PyModuleNameAttribute }
+{ ModuleNameAttribute }
 
 constructor PyModuleNameAttribute.Create(const APyModuleName: string);
 begin

@@ -13,8 +13,8 @@ package P4DPyPackage;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -35,6 +35,7 @@ requires
 
 contains
   PyCommon in '..\src\PyPackage\PyCommon.pas',
-  PyModule in '..\src\PyPackage\PyModule.pas';
+  PyModule in '..\src\PyPackage\PyModule.pas',
+  PyPIP in '..\src\PyPackage\PyPIP.pas';
 
 end.
