@@ -47,8 +47,3 @@
 *.Patch
 *.#00
 *.pch
-/Modules/DelphiFMX/pyd
-/Modules/DelphiVCL/pyd
-/Modules/DelphiFMX/dcu
-/Modules/DelphiVCL/dcu
-/Tests/TestInsightSettings.ini

@@ -9,13 +9,13 @@ type
   //http://dcjtech.info/wp-content/uploads/2015/10/Pip-Cheatsheet.pdf
   TPyPip = class
   private
-    FPyModule: TPyModule;
+    FPyModule: TPyModuleBase;
     function IsReady(): boolean;
     function GetPackageName(): string;
     function GetPackageVer(): string;
     function FmtPkgInstallCmd(): string;
   public
-    constructor Create(const APyModule: TPyModule);
+    constructor Create(const APyModule: TPyModuleBase);
     function IsInstalled(): boolean;
     procedure Install();
     procedure UnInstall();
@@ -65,7 +65,7 @@ begin
   end else raise EModuleNotReady.CreateFmt('Module %s not ready', [package]);
 end;
 
-constructor TPyPip.Create(const APyModule: TPyModule);
+constructor TPyPip.Create(const APyModule: TPyModuleBase);
 begin
   FPyModule := APyModule;
 end;
