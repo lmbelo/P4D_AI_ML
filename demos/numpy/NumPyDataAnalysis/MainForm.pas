@@ -38,6 +38,8 @@ uses
   FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo;
 
 type
+  (*https://www.machinelearningplus.com/python/101-numpy-exercises-python/*)
+  //NumPy Data Analysis exercises resolved in the P4D style.
   TForm2 = class(TForm)
     PythonEngine1: TPythonEngine;
     PythonGUIInputOutput1: TPythonGUIInputOutput;
