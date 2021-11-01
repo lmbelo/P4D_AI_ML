@@ -8,6 +8,7 @@ uses
 {$R *.res}
 
 begin
+  ReportMemoryLeaksOnShutdown := true;
   Application.Initialize;
   Application.CreateForm(TForm2, Form2);
   Application.Run;
