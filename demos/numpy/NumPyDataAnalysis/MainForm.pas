@@ -1,3 +1,32 @@
+(**************************************************************************)
+(*                                                                        *)
+(* Module:  Unit 'MainForm'    Copyright (c) 2021                         *)
+(*                                                                        *)
+(*                                  Lucas Moura Belo - lmbelo             *)
+(*                                  lucas.belo@live.com                   *)
+(*                                  Brazil                                *)
+(*                                                                        *)
+(*  Project page:                https://github.com/lmbelo/P4D_AI_ML      *)
+(**************************************************************************)
+(*  Functionality:  NumPy Data Analysis with P4D                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+(* This source code is distributed with no WARRANTY, for no reason or use.*)
+(* Everyone is allowed to use and change this code free for his own tasks *)
+(* and projects, as long as this header and its copyright text is intact. *)
+(* For changed versions of this code, which are public distributed the    *)
+(* following additional conditions have to be fullfilled:                 *)
+(* 1) The header has to contain a comment on the change and the author of *)
+(*    it.                                                                 *)
+(* 2) A copy of the changed source has to be sent to the above E-Mail     *)
+(*    address or my then valid address, if this is possible to the        *)
+(*    author.                                                             *)
+(* The second condition has the target to maintain an up to date central  *)
+(* version of the component. If this condition is not acceptable for      *)
+(* confidential or legal reasons, everyone is free to derive a component  *)
+(* or to generate a diff file to my or other original sources.            *)
+(**************************************************************************)
 unit MainForm;
 
 interface
@@ -5,7 +34,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   System.Generics.Collections, FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, 
-  FMX.Dialogs, PyCommon, PyModule, NumPy, PythonEngine, FMX.PythonGUIInputOutput, 
+  FMX.Dialogs, PyCommon, PyModule, NumPy, PythonEngine, FMX.PythonGUIInputOutput,
   FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo;
 
 type
@@ -14,10 +43,13 @@ type
     PythonGUIInputOutput1: TPythonGUIInputOutput;
     NumPy1: TNumPy;
     Memo1: TMemo;
+    PythonModule1: TPythonModule;
     procedure FormCreate(Sender: TObject);
   private
     FBm: Variant;
     FMm: Variant;
+    function maxx(ASelf, AArgs: PPyObject): PPyObject; cdecl;
+  private
     /// <summary>
     ///  1. Import numpy as np and see the version
     /// </summary>
@@ -162,9 +194,24 @@ var
 implementation
 
 uses
-  VarPyth;
+  WrapDelphi, VarPyth;
 
 {$R *.fmx}
+
+const
+  Eval: function(const APythonExpression: AnsiString): Variant = VarPythonEval;
+
+// Helper methods
+
+function T(const AValues: array of const): variant;
+begin
+  Result := VarPythonCreate(AValues, TSequenceType.stTuple);
+end;
+
+function L(const AValues: array of const): variant;
+begin
+  Result := VarPythonCreate(AValues, TSequenceType.stList);
+end;
 
 procedure TForm2.Exercise1;
 begin
@@ -203,7 +250,7 @@ begin
     var LArr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
     FMm.arr := LArr;
     FBm.print('by Python eval');
-    FBm.print(VarPythonEval('arr[arr %2 == 1]'));
+    FBm.print(Eval('arr[arr %2 == 1]'));
     FBm.print('by Delphi'); 
     var LList := NewPythonList();
     for LVal in VarPyIterate(LArr) do begin
@@ -234,7 +281,7 @@ begin
     var LArr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));        
     LArr := np.arange(10);   
     FMm.arr := LArr;
-    var LOut := np.where(VarPythonEval('arr % 2 == 1'), -1, LArr);
+    var LOut := np.where(Eval('arr % 2 == 1'), -1, LArr);
     FBm.print(LArr);
     FBm.print(LOut);
   end;
@@ -258,11 +305,11 @@ begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
     FBm.print('# Method 1:');
-    FBm.print(np.concatenate(VarPythonCreate([LA, LB], TSequenceType.stTuple), axis := 0));
+    FBm.print(np.concatenate(T([LA, LB]), axis := 0));
     FBm.print('# Method 2:');
-    FBm.print(np.vstack(VarPythonCreate([LA, LB], TSequenceType.stTuple)));
+    FBm.print(np.vstack(T([LA, LB])));
     FBm.print('# Method 3:');
-    FBm.print(np.r_[(VarPythonCreate([LA, LB], TSequenceType.stTuple))]);
+    FBm.print(np.r_[(T([LA, LB]))]);
   end;
   FBm.print('');
 end;
@@ -274,11 +321,11 @@ begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
     FBm.print('# Method 1:');
-    FBm.print(np.concatenate(VarPythonCreate([LA, LB], TSequenceType.stTuple), axis := 1));
+    FBm.print(np.concatenate(T([LA, LB]), axis := 1));
     FBm.print('# Method 2:');
-    FBm.print(np.hstack(VarPythonCreate([LA, LB], TSequenceType.stTuple)));
+    FBm.print(np.hstack(T([LA, LB])));
     FBm.print('# Method 3:');
-    FBm.print(np.c_[(VarPythonCreate([LA, LB], TSequenceType.stTuple))]);
+    FBm.print(np.c_[(T([LA, LB]))]);
   end;
   FBm.print('');
 end;
@@ -288,34 +335,40 @@ begin
   FBm.print('Q. Create the following pattern without hardcoding. Use only numpy functions and the below input array a.');
   with NumPy1 do begin
     var LA := np.array(VarArrayOf([1, 2, 3]));
-    FBm.print(np.r_[(VarPythonCreate([np.repeat(LA, 3), np.tile(LA, 3)], TSequenceType.stTuple))]);
+    FBm.print(np.r_[(T([np.repeat(LA, 3), np.tile(LA, 3)]))]);
   end;
   FBm.print('');
 end;
 
 procedure TForm2.Exercise11;
 begin
-  FBm.print('Q. Get the common items between a and b');
+  FBm.print('Q. Get the common items between a and b.');
   with NumPy1 do begin
-
+    var LA := np.array(L([1, 2, 3, 4, 5, 6]));
+    var LB := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    FBm.print(np.intersect1d(LA, LB));
   end;
   FBm.print('');
 end;
 
 procedure TForm2.Exercise12;
 begin
-  FBm.print('Q. From array a remove all items present in array b');
+  FBm.print('Q. From array a remove all items present in array b.');
   with NumPy1 do begin
-
+    var LA := np.array(L([1, 2, 3, 4, 5]));
+    var LB := np.array(L([5, 6, 7, 8, 9]));
+    FBm.print(np.setdiff1d(LA, LB));
   end;
   FBm.print('');
 end;
 
 procedure TForm2.Exercise13;
 begin
-  FBm.print('Q. Get the positions where elements of a and b match');
+  FBm.print('Q. Get the positions where elements of a and b match.');
   with NumPy1 do begin
-
+    FMm.a := np.array(L([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
+    FMm.b := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    FBm.print(np.where(Eval('a == b')));
   end;
   FBm.print('');
 end;
@@ -324,7 +377,15 @@ procedure TForm2.Exercise14;
 begin
   FBm.print('Q. Get all items between 5 and 10 from a.');
   with NumPy1 do begin
-
+    FMm.a := np.arange(15);
+    FBm.print('# Method 1:');
+    var LIx := np.where(Eval('(a >= 5) & (a <= 10)'));
+    FBm.print(FMm.a[LIx]);
+    FBm.print('# Method 2:');
+    LIx := np.where(np.logical_and(Eval('a >= 5'), Eval('a <= 10')));
+    FBm.print(FMm.a[LIx]);
+    FBm.print('# Method 3:');
+    FBm.print(FMm.a[Eval('(a >= 5) & (a <= 10)')]);
   end;
   FBm.print('');
 end;
@@ -332,8 +393,18 @@ end;
 procedure TForm2.Exercise15;
 begin
   FBm.print('Q. Convert the function maxx that works on two scalars, to work on two arrays.');
-  with NumPy1 do begin
-
+  with NumPy1, PythonModule1 do begin
+    AddDelphiMethod('maxx', maxx, String.Empty);
+    Initialize();
+    try
+      var LEm := VarPyth.Import('exercises');
+      FMm.pair_max := np.vectorize(LEm.maxx, otypes := L([FBm.float]));
+      var LA := np.array(L([5, 7, 9, 8, 6, 4, 5]));
+      var LB := np.array(L([6, 3, 4, 8, 9, 7, 1]));
+      FBm.print(FMm.pair_max(LA, LB)); //advice: add a break point at maxx method.
+    finally
+      Finalize();
+    end;
   end;
   FBm.print('');
 end;
@@ -342,7 +413,9 @@ procedure TForm2.Exercise16;
 begin
   FBm.print('Q. Swap columns 1 and 2 in the array arr.');
   with NumPy1 do begin
-
+    FMm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  FMm.arr[(T([Ellipsis(), L([1, 0, 2])]))]; //arr[:, [1, 0, 2]]
+    FBm.print(LArr);
   end;
   FBm.print('');
 end;
@@ -351,7 +424,9 @@ procedure TForm2.Exercise17;
 begin
   FBm.print('Q. Swap rows 1 and 2 in the array arr:');
   with NumPy1 do begin
-
+    FMm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  FMm.arr[(T([L([1, 0, 2]), Ellipsis()]))]; //arr[[1, 0, 2], :]
+    FBm.print(LArr);
   end;
   FBm.print('');
 end;
@@ -360,7 +435,9 @@ procedure TForm2.Exercise18;
 begin
   FBm.print('Q. Reverse the rows of a 2D array arr.');
   with NumPy1 do begin
-
+    FMm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  FMm.arr[(T([FBm.slice(None(), None(), -1)]))]; //arr[::-1]
+    FBm.print(LArr);
   end;
   FBm.print('');
 end;
@@ -369,7 +446,9 @@ procedure TForm2.Exercise19;
 begin
   FBm.print('Q. Reverse the columns of a 2D array arr.');
   with NumPy1 do begin
-
+    FMm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  FMm.arr[(T([Ellipsis(), FBm.slice(None(), None(), -1)]))]; //arr[:, ::-1]
+    FBm.print(LArr);
   end;
   FBm.print('');
 end;
@@ -378,7 +457,12 @@ procedure TForm2.Exercise20;
 begin
   FBm.print('Q. Create a 2D array of shape 5x3 to contain random decimal numbers between 5 and 10.');
   with NumPy1 do begin
-
+    FBm.print('# Method 1:');
+    var LRand_Arr := np.random.randint(low := 5, high := 10, size := T([5, 3])) + np.random.random(T([5, 3]));
+    FBm.print(LRand_Arr);
+    FBm.print('# Method 2:');
+    LRand_Arr := np.random.uniform(5, 10, size := T([5, 3]));
+    FBm.print(LRand_Arr);
   end;
   FBm.print('');
 end;
@@ -523,6 +607,33 @@ begin
   Exercise8();
   Exercise9();
   Exercise10();
+  Exercise11();
+  Exercise12();
+  Exercise13();
+  Exercise14();
+  Exercise15();
+  Exercise16();
+  Exercise17();
+  Exercise18();
+  Exercise19();
+  Exercise20();
+end;
+
+function TForm2.maxx(ASelf, AArgs: PPyObject): PPyObject;
+var
+  LX, LY: integer;
+begin
+  with NumPy1.PythonEngine do begin
+    if PyArg_ParseTuple(AArgs, 'ii:maxx', @LX, @LY) <> 0 then
+      begin
+        if (LX >= LY) then
+          Result := PyLong_FromLong(LX)
+        else
+          Result := PyLong_FromLong(LY);
+      end
+    else
+      Result := nil;
+  end;
 end;
 
 end.

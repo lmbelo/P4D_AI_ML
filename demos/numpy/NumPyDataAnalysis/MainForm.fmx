@@ -22,19 +22,26 @@ object Form2: TForm2
   end
   object PythonEngine1: TPythonEngine
     IO = PythonGUIInputOutput1
-    Left = 428
-    Top = 16
+    Left = 352
+    Top = 17
   end
   object PythonGUIInputOutput1: TPythonGUIInputOutput
     UnicodeIO = True
     RawOutput = False
     Output = Memo1
-    Left = 536
-    Top = 16
+    Left = 460
+    Top = 17
   end
   object NumPy1: TNumPy
     PythonEngine = PythonEngine1
-    Left = 536
+    Left = 568
     Top = 80
+  end
+  object PythonModule1: TPythonModule
+    Engine = PythonEngine1
+    ModuleName = 'exercises'
+    Errors = <>
+    Left = 568
+    Top = 17
   end
 end
