@@ -5,11 +5,11 @@ Delphi developers turnkey to get started with A.I. solutions.
 
 It includes the following components (under development):
 
-* numpy;
-* scikit-learn;
-* PyTorch;
-* TensorFlow and;
-* Keras.
+* numpy (working);
+* scikit-learn (under dev);
+* PyTorch (under dev);
+* TensorFlow and (under dev);
+* Keras (under dev).
 
 Powered by [Embarcadero Delphi](https://www.embarcadero.com/products/delphi) and the [Python4Delphi library](https://github.com/pyscripter/python4delphi).
 
