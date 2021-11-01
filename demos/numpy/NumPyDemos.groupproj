@@ -6,6 +6,9 @@
         <Projects Include="NumPyReference\NumPyReference.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="NumPyDataAnalysis\NumPyDataAanalysis.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -23,14 +26,23 @@
     <Target Name="NumPyReference:Make">
         <MSBuild Projects="NumPyReference\NumPyReference.dproj" Targets="Make"/>
     </Target>
+    <Target Name="NumPyDataAanalysis">
+        <MSBuild Projects="NumPyDataAnalysis\NumPyDataAanalysis.dproj"/>
+    </Target>
+    <Target Name="NumPyDataAanalysis:Clean">
+        <MSBuild Projects="NumPyDataAnalysis\NumPyDataAanalysis.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NumPyDataAanalysis:Make">
+        <MSBuild Projects="NumPyDataAnalysis\NumPyDataAanalysis.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="NumPyReference"/>
+        <CallTarget Targets="NumPyReference;NumPyDataAanalysis"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="NumPyReference:Clean"/>
+        <CallTarget Targets="NumPyReference:Clean;NumPyDataAanalysis:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="NumPyReference:Make"/>
+        <CallTarget Targets="NumPyReference:Make;NumPyDataAanalysis:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
