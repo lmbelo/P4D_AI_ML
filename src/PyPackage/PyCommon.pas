@@ -40,6 +40,7 @@ type
   private
     FPythonEngine: TPythonEngine;
   protected
+    procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
     procedure SetPythonEngine(const APythonEngine: TPythonEngine);
     procedure EngineLoaded(); virtual;
   public
@@ -68,10 +69,21 @@ begin
   //
 end;
 
+procedure TPyCommon.Notification(AComponent: TComponent;
+  AOperation: TOperation);
+begin
+  inherited;
+  if (AOperation = opRemove) and (AComponent = FPythonEngine) then begin
+    FPythonEngine := nil;
+  end;
+end;
+
 procedure TPyCommon.SetPythonEngine(const APythonEngine: TPythonEngine);
 begin
-  if APythonEngine <> FPythonEngine then begin
+  Exit;
+  if (APythonEngine <> FPythonEngine) then begin
     FPythonEngine := APythonEngine;
+    APythonEngine.FreeNotification(Self);
     EngineLoaded();
   end;
 end;
