@@ -1,5 +1,5 @@
 # P4D_AI_ML
-P4D AI&amp;ML extension for Python packages regarding Artificial Intelligence, Neural Network, Deep Learning and Machine Learning.
+P4D AI&amp;ML extension for Python packages regarding Data Analysis, Artificial Intelligence, Neural Network, Deep Learning and Machine Learning.
 
 Delphi developers turnkey to get started with A.I. solutions.
 
