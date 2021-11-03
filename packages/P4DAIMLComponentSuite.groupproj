@@ -12,6 +12,18 @@
         <Projects Include="dclP4DNumPy.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="P4DScikitLearn.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="dclP4DScikitLearn.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="P4DPyTorch.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="dclP4DPyTorch.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +59,50 @@
     <Target Name="dclP4DNumPy:Make">
         <MSBuild Projects="dclP4DNumPy.dproj" Targets="Make"/>
     </Target>
+    <Target Name="P4DScikitLearn">
+        <MSBuild Projects="P4DScikitLearn.dproj"/>
+    </Target>
+    <Target Name="P4DScikitLearn:Clean">
+        <MSBuild Projects="P4DScikitLearn.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DScikitLearn:Make">
+        <MSBuild Projects="P4DScikitLearn.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DScikitLearn">
+        <MSBuild Projects="dclP4DScikitLearn.dproj"/>
+    </Target>
+    <Target Name="dclP4DScikitLearn:Clean">
+        <MSBuild Projects="dclP4DScikitLearn.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DScikitLearn:Make">
+        <MSBuild Projects="dclP4DScikitLearn.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="P4DPyTorch">
+        <MSBuild Projects="P4DPyTorch.dproj"/>
+    </Target>
+    <Target Name="P4DPyTorch:Clean">
+        <MSBuild Projects="P4DPyTorch.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DPyTorch:Make">
+        <MSBuild Projects="P4DPyTorch.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DPyTorch">
+        <MSBuild Projects="dclP4DPyTorch.dproj"/>
+    </Target>
+    <Target Name="dclP4DPyTorch:Clean">
+        <MSBuild Projects="dclP4DPyTorch.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DPyTorch:Make">
+        <MSBuild Projects="dclP4DPyTorch.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="P4DPyPackage;P4DNumPy;dclP4DNumPy"/>
+        <CallTarget Targets="P4DPyPackage;P4DNumPy;dclP4DNumPy;P4DScikitLearn;dclP4DScikitLearn;P4DPyTorch;dclP4DPyTorch"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="P4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean"/>
+        <CallTarget Targets="P4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean;P4DScikitLearn:Clean;dclP4DScikitLearn:Clean;P4DPyTorch:Clean;dclP4DPyTorch:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="P4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make"/>
+        <CallTarget Targets="P4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make;P4DScikitLearn:Make;dclP4DScikitLearn:Make;P4DPyTorch:Make;dclP4DPyTorch:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
