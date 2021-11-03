@@ -175,17 +175,17 @@ function TPyModule.GetPyModuleName: string;
 var
   LAttr: TCustomAttribute;
 begin
-  var LCtx := TRttiContext.Create();
-  try
-    var LType := LCtx.GetType(ClassType);
-    for LAttr in LType.GetAttributes() do begin
-      if LAttr is PyModuleNameAttribute then begin
-        Exit(PyModuleNameAttribute(LAttr).PyModuleName);
-      end;
-    end;
-  finally
-    LCtx.Free();
-  end;
+//  var LCtx := TRttiContext.Create();
+//  try
+//    var LType := LCtx.GetType(ClassType);
+//    for LAttr in LType.GetAttributes() do begin
+//      if LAttr is PyModuleNameAttribute then begin
+//        Exit(PyModuleNameAttribute(LAttr).PyModuleName);
+//      end;
+//    end;
+//  finally
+//    LCtx.Free();
+//  end;
 end;
 
 { ModuleNameAttribute }

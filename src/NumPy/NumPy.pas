@@ -32,11 +32,12 @@ unit NumPy;
 interface
 
 uses
-  System.Classes, PyModule, PythonEngine;
+  System.Classes, PyModule, PyPIP, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  [PyModuleName('numpy')]
+  //[PyPIPPackage('numpy')]
+  //[PyModuleName('numpy')]
   TNumPy = class(TPyModule)
   private
     Fnp: variant;

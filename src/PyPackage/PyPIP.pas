@@ -50,7 +50,7 @@ type
     procedure UnInstall();
   end;
 
-  PyPIPAttribute = class(TCustomAttribute)
+  PyPIPPackageAttribute = class(TCustomAttribute)
   private
     FPyPackageName: string;
     FPyPackageVer: string;
@@ -112,17 +112,17 @@ function TPyPip.GetPackageName(): string;
 var
   LAttr: TCustomAttribute;
 begin
-  var LCtx := TRttiContext.Create();
-  try
-    var LType := LCtx.GetType(ClassType);
-    for LAttr in LType.GetAttributes() do begin
-      if LAttr is PyPIPAttribute then begin
-        Exit(PyPIPAttribute(LAttr).PyPackageName);
-      end;
-    end;
-  finally
-    LCtx.Free();
-  end;
+//  var LCtx := TRttiContext.Create();
+//  try
+//    var LType := LCtx.GetType(ClassType);
+//    for LAttr in LType.GetAttributes() do begin
+//      if LAttr is PyPIPAttribute then begin
+//        Exit(PyPIPAttribute(LAttr).PyPackageName);
+//      end;
+//    end;
+//  finally
+//    LCtx.Free();
+//  end;
 
   Result := FPyModule.PyModuleName;
 end;
@@ -131,17 +131,17 @@ function TPyPip.GetPackageVer: string;
 var
   LAttr: TCustomAttribute;
 begin
-  var LCtx := TRttiContext.Create();
-  try
-    var LType := LCtx.GetType(FPyModule.ClassType);
-    for LAttr in LType.GetAttributes() do begin
-      if LAttr is PyPIPAttribute then begin
-        Exit(PyPIPAttribute(LAttr).PyPackageVer);
-      end;
-    end;
-  finally
-    LCtx.Free();
-  end;
+//  var LCtx := TRttiContext.Create();
+//  try
+//    var LType := LCtx.GetType(FPyModule.ClassType);
+//    for LAttr in LType.GetAttributes() do begin
+//      if LAttr is PyPIPAttribute then begin
+//        Exit(PyPIPAttribute(LAttr).PyPackageVer);
+//      end;
+//    end;
+//  finally
+//    LCtx.Free();
+//  end;
   Result := String.Empty;
 end;
 
@@ -165,12 +165,12 @@ end;
 
 { PyPIPAttribute }
 
-constructor PyPIPAttribute.Create(const APyPackageName: string);
+constructor PyPIPPackageAttribute.Create(const APyPackageName: string);
 begin
   FPyPackageName := APyPackageName;
 end;
 
-constructor PyPIPAttribute.Create(const APyPackageName, APyPackageVer: string);
+constructor PyPIPPackageAttribute.Create(const APyPackageName, APyPackageVer: string);
 begin
   Create(APyPackageName);
   FPyPackageVer := APyPackageVer;
