@@ -35,6 +35,7 @@
 *.drc
 *.rc
 *.res
+*.dres
 *.local
 
 # Output Folders  #
