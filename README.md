@@ -6,8 +6,9 @@ Delphi developers turnkey to get started with A.I. solutions.
 It includes the following components (under development):
 
 * numpy (working);
-* scikit-learn (under dev);
-* PyTorch (under dev);
+  - samples
+* scikit-learn (working);
+* PyTorch (working);
 * TensorFlow and (under dev);
 * Keras (under dev).
 
