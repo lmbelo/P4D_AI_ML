@@ -57,6 +57,7 @@ uses
 
 function TNumPy.Getnp: variant;
 begin
+  CheckImported();
   if VarIsNull(Fnp) or VarIsEmpty(Fnp) then
     Fnp := VarPythonCreate(PyModule);
   Result := Fnp;

@@ -57,6 +57,7 @@ uses
 
 function TPyTorch.GetTorch: variant;
 begin
+  CheckImported();
   if VarIsNull(FTorch) or VarIsEmpty(FTorch) then
     FTorch := VarPythonCreate(PyModule);
   Result := FTorch;

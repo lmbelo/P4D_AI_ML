@@ -50,6 +50,7 @@ type
     procedure EngineLoaded(); override;
     procedure ImportModule(); reintroduce; virtual;
     procedure InstallPackage();
+    procedure CheckImported();
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -83,12 +84,21 @@ type
   EPyParentModuleCircularReference = class(Exception)
   end;
 
+  EPyModuleNotImported = class(Exception)
+  end;
+
 implementation
 
 uses
   PyContext, PyPIP, System.Rtti;
 
 { TPyModuleBase }
+
+procedure TPyModuleBase.CheckImported;
+begin
+  if not Assigned(PyModule) then
+    raise EPyModuleNotImported.Create('Module not imported.');
+end;
 
 constructor TPyModuleBase.Create(AOwner: TComponent);
 begin

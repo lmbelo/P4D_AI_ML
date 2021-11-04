@@ -57,6 +57,7 @@ uses
 
 function TScikitLearn.Getsklean: variant;
 begin
+  CheckImported();
   if VarIsNull(Fsklearn) or VarIsEmpty(Fsklearn) then
     Fsklearn := VarPythonCreate(PyModule);
   Result := Fsklearn;
