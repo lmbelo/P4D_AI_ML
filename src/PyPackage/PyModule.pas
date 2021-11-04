@@ -78,13 +78,13 @@ type
     property PyModuleName: string read FPyModuleName write FPyModuleName;
   end;
 
-  EPyPackageNotInstalled = class(Exception)
+  EPyPackageNotInstalled = class(EPyCommonException)
   end;
 
-  EPyParentModuleCircularReference = class(Exception)
+  EPyParentModuleCircularReference = class(EPyCommonException)
   end;
 
-  EPyModuleNotImported = class(Exception)
+  EPyModuleNotImported = class(EPyCommonException)
   end;
 
 implementation
@@ -96,7 +96,7 @@ uses
 
 procedure TPyModuleBase.CheckImported;
 begin
-  if not Assigned(PyModule) then
+  if not IsImported() then
     raise EPyModuleNotImported.Create('Module not imported.');
 end;
 

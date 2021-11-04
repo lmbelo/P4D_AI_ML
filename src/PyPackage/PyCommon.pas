@@ -32,7 +32,7 @@ unit PyCommon;
 interface
 
 uses
-  System.Classes, PythonEngine;
+  System.Classes, PythonEngine, System.SysUtils;
 
 type
   //P4D AI&ML extension
@@ -58,6 +58,9 @@ type
     procedure ImportModule(const AModuleName, ASubModuleName: string); overload;
 
     property PyModule: PPyObject read FPyModule;
+  end;
+
+  EPyCommonException = class(Exception)
   end;
 
 implementation

@@ -32,7 +32,7 @@ unit PyPIP;
 interface
 
 uses
-  PyModule, System.SysUtils, System.Rtti;
+  PyCommon, PyModule, System.SysUtils, System.Rtti;
 
 type
   //http://dcjtech.info/wp-content/uploads/2015/10/Pip-Cheatsheet.pdf
@@ -62,7 +62,7 @@ type
     property PyPackageVer: string read FPyPackageVer write FPyPackageVer;
   end;
 
-  EModuleNotReady = class(Exception)
+  EModuleNotReady = class(EPyCommonException)
   end;
 
 implementation
