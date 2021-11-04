@@ -43,13 +43,13 @@ type
     function CanImport(): boolean;
     //Set methods
     procedure SetPyParentModule(const AParentModule: TPyModuleBase);
+    //Get methods
+    function GetPyModuleName(): string;
   protected
     procedure Loaded; override;
     procedure EngineLoaded(); override;
     procedure ImportModule(); reintroduce; virtual;
     procedure InstallPackage();
-    //Get methods
-    function GetPyModuleName(): string; virtual; abstract;
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -65,8 +65,6 @@ type
   end;
 
   TPyModule = class(TPyModuleBase)
-  protected
-    function GetPyModuleName(): string; override;
   published
     property PythonEngine;
   end;
@@ -88,7 +86,7 @@ type
 implementation
 
 uses
-  PyPIP, System.Rtti;
+  PyContext, PyPIP, System.Rtti;
 
 { TPyModuleBase }
 
@@ -104,6 +102,15 @@ begin
   inherited;
   if FAutoImport and CanImport() then
     Import();
+end;
+
+function TPyModuleBase.GetPyModuleName: string;
+begin
+  var LInfo := TPyContext.Instance.FindInfo(Self.ClassType);
+  if Assigned(LInfo) then
+    Result := LInfo.PyModuleInfo.ModuleName
+  else
+    Result := EmptyStr;
 end;
 
 function TPyModuleBase.CanImport: boolean;
@@ -167,25 +174,6 @@ begin
   if AParentModule = Self then
     raise EPyParentModuleCircularReference.Create('Circular reference not allowed.');
   FPyParentModule := AParentModule;
-end;
-
-{ TPyModule }
-
-function TPyModule.GetPyModuleName: string;
-var
-  LAttr: TCustomAttribute;
-begin
-//  var LCtx := TRttiContext.Create();
-//  try
-//    var LType := LCtx.GetType(ClassType);
-//    for LAttr in LType.GetAttributes() do begin
-//      if LAttr is PyModuleNameAttribute then begin
-//        Exit(PyModuleNameAttribute(LAttr).PyModuleName);
-//      end;
-//    end;
-//  finally
-//    LCtx.Free();
-//  end;
 end;
 
 { ModuleNameAttribute }

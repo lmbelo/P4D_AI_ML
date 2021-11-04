@@ -51,7 +51,7 @@ type
 implementation
 
 uses
-  VarPyth, System.Variants;
+  PyContext, VarPyth, System.Variants;
 
 { TNumPy }
 
@@ -71,5 +71,15 @@ begin
     MaskFPUExceptions(false);
   end;
 end;
+
+initialization
+  TPyContext.Instance
+    .RegisterInfo(TNumPy)
+      .RegisterPIPPackage('numpy')
+        .RegisterModule('numpy');
+
+finalization
+  TPyContext.Instance
+    .UnRegisterInfo(TNumPy);
 
 end.

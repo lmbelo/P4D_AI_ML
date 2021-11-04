@@ -36,8 +36,8 @@ uses
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  //[PyPIPPackage('torch')]
-  //[PyModuleName('torch')]
+//  [PyPIPPackage('torch')]
+//  [PyModuleName('torch')]
   TPyTorch = class(TPyModule)
   private
     FTorch: variant;
@@ -51,7 +51,7 @@ type
 implementation
 
 uses
-  VarPyth, System.Variants;
+  PyContext, VarPyth, System.Variants;
 
 { TPyTorch }
 
@@ -71,5 +71,15 @@ begin
     MaskFPUExceptions(false);
   end;
 end;
+
+initialization
+  TPyContext.Instance
+    .RegisterInfo(TPyTorch)
+      .RegisterPIPPackage('torch')
+        .RegisterModule('torch');
+
+finalization
+  TPyContext.Instance
+    .UnRegisterInfo(TPyTorch);
 
 end.

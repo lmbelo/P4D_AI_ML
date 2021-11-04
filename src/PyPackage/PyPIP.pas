@@ -68,7 +68,7 @@ type
 implementation
 
 uses
-  VarPyth, PythonEngine, System.Variants;
+  PyContext, VarPyth, PythonEngine, System.Variants;
 
 { TPyPip }
 
@@ -109,40 +109,21 @@ begin
 end;
 
 function TPyPip.GetPackageName(): string;
-var
-  LAttr: TCustomAttribute;
 begin
-//  var LCtx := TRttiContext.Create();
-//  try
-//    var LType := LCtx.GetType(ClassType);
-//    for LAttr in LType.GetAttributes() do begin
-//      if LAttr is PyPIPAttribute then begin
-//        Exit(PyPIPAttribute(LAttr).PyPackageName);
-//      end;
-//    end;
-//  finally
-//    LCtx.Free();
-//  end;
-
-  Result := FPyModule.PyModuleName;
+  var LInfo := TPyContext.Instance.FindInfo(Self.ClassType);
+  if Assigned(LInfo) then
+    Result := LInfo.PyPipInfo.PackageName
+  else
+    Result := EmptyStr;
 end;
 
 function TPyPip.GetPackageVer: string;
-var
-  LAttr: TCustomAttribute;
 begin
-//  var LCtx := TRttiContext.Create();
-//  try
-//    var LType := LCtx.GetType(FPyModule.ClassType);
-//    for LAttr in LType.GetAttributes() do begin
-//      if LAttr is PyPIPAttribute then begin
-//        Exit(PyPIPAttribute(LAttr).PyPackageVer);
-//      end;
-//    end;
-//  finally
-//    LCtx.Free();
-//  end;
-  Result := String.Empty;
+  var LInfo := TPyContext.Instance.FindInfo(Self.ClassType);
+  if Assigned(LInfo) then
+    Result := LInfo.PyPipInfo.PackageVer
+  else
+    Result := EmptyStr;
 end;
 
 procedure TPyPip.Install();
@@ -163,7 +144,7 @@ begin
   end else raise EModuleNotReady.CreateFmt('Module %s not ready', [GetPackageName()]);
 end;
 
-{ PyPIPAttribute }
+{ PyPIPPackageAttribute }
 
 constructor PyPIPPackageAttribute.Create(const APyPackageName: string);
 begin

@@ -80,7 +80,6 @@ end;
 
 procedure TPyCommon.SetPythonEngine(const APythonEngine: TPythonEngine);
 begin
-  Exit;
   if (APythonEngine <> FPythonEngine) then begin
     FPythonEngine := APythonEngine;
     APythonEngine.FreeNotification(Self);

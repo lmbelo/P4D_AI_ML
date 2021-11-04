@@ -51,9 +51,9 @@ type
 implementation
 
 uses
-  VarPyth, System.Variants;
+  PyContext, VarPyth, System.Variants;
 
-{ TNumPy }
+{ TScikitLearn }
 
 function TScikitLearn.Getsklean: variant;
 begin
@@ -71,5 +71,15 @@ begin
     MaskFPUExceptions(false);
   end;
 end;
+
+initialization
+  TPyContext.Instance
+    .RegisterInfo(TScikitLearn)
+      .RegisterPIPPackage('scikit-learn')
+        .RegisterModule('sklearn');
+
+finalization
+  TPyContext.Instance
+    .UnRegisterInfo(TScikitLearn);
 
 end.
