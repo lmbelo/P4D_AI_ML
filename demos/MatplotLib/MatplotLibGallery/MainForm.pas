@@ -70,6 +70,7 @@ uses
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
+  //https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_masked.html#sphx-glr-gallery-lines-bars-and-markers-scatter-masked-py
   var mm := MainModule;
   with MatplotLib1, NumPy1 do begin
     mm.np := np;
@@ -101,6 +102,7 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
+  //https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_symbol.html#sphx-glr-gallery-lines-bars-and-markers-scatter-symbol-py
   var mm := MainModule;
   with MatplotLib1, NumPy1 do begin
     mm.np := np;
@@ -121,6 +123,7 @@ procedure TForm1.Button3Click(Sender: TObject);
 var
   LZip: variant;
 begin
+  //https://matplotlib.org/stable/gallery/images_contours_and_fields/interpolation_methods.html#sphx-glr-gallery-images-contours-and-fields-interpolation-methods-py
   var bm := BuiltinModule;
   var mm := MainModule;
   with MatplotLib1, NumPy1 do begin
