@@ -32,13 +32,11 @@ unit PyTorch;
 interface
 
 uses
-  System.Classes, PyModule, PythonEngine;
+  System.Classes, PyPackage, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-//  [PyPIPPackage('torch')]
-//  [PyModuleName('torch')]
-  TPyTorch = class(TPyModule)
+  TPyTorch = class(TPyPyPIPackage)
   private
     FTorch: variant;
     function GetTorch: variant;
@@ -51,15 +49,14 @@ type
 implementation
 
 uses
-  PyContext, VarPyth, System.Variants;
+  PyContext, System.Variants;
 
 { TPyTorch }
 
 function TPyTorch.GetTorch: variant;
 begin
-  CheckImported();
   if VarIsNull(FTorch) or VarIsEmpty(FTorch) then
-    FTorch := VarPythonCreate(PyModule);
+    FTorch := AsVariant();
   Result := FTorch;
 end;
 

@@ -50,17 +50,14 @@ type
   //P4D AI&ML module extension
   TPyCommonCustomModule = class(TPyCommon)
   private
-    FPyModule: PPyObject;
+    FPyModuleRef: PPyObject;
   protected
     //https://docs.python.org/3/c-api/import.html?highlight=importmodule#c.PyImport_ImportModule
     procedure ImportModule(const AModuleName: string); overload;
     //https://docs.python.org/3/c-api/import.html?highlight=importmodule#c.PyImport_ImportModule
     procedure ImportModule(const AModuleName, ASubModuleName: string); overload;
-
-    property PyModule: PPyObject read FPyModule;
-  end;
-
-  EPyCommonException = class(Exception)
+  protected
+    property PyModuleRef: PPyObject read FPyModuleRef;
   end;
 
 implementation
@@ -95,7 +92,7 @@ end;
 procedure TPyCommonCustomModule.ImportModule(const AModuleName,
   ASubModuleName: string);
 begin
-  FPyModule := PythonEngine.PyImport_ImportModule(PAnsiChar(AnsiString(
+  FPyModuleRef := PythonEngine.PyImport_ImportModule(PAnsiChar(AnsiString(
     AModuleName
     + '.'
     + ASubModuleName)));
@@ -103,7 +100,7 @@ end;
 
 procedure TPyCommonCustomModule.ImportModule(const AModuleName: string);
 begin
-  FPyModule := PythonEngine.PyImport_ImportModule(PAnsiChar(AnsiString(AModuleName)));
+  FPyModuleRef := PythonEngine.PyImport_ImportModule(PAnsiChar(AnsiString(AModuleName)));
 end;
 
 end.

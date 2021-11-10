@@ -32,25 +32,17 @@ unit MatplotLib;
 interface
 
 uses
-  System.Classes, PyModule, PythonEngine;
+  System.Classes, PyPackage, PythonEngine;
 
 type
-  TPyPlot = class(TPyModule)
-  private
-    FPyPlot: variant;
-    function GetPyPlot: variant;
-  public
-    property plt: variant read GetPyPlot;
-  end;
-
   [ComponentPlatforms(pidAllPlatforms)]
-//  [PyPIPPackage('matplotlib')]
-//  [PyModuleName('matplotlib')]
-  TMatplotLib = class(TPyModule)
+  TMatplotLib = class(TPyPyPIPackage)
   private
     FMatplotLib: variant;
     function GetMatplotLib: variant;
     function GetPyPlot: variant;
+  protected
+    procedure ImportModule; override;
   public
     property matplot: variant read GetMatplotLib;
     property plt: variant read GetPyPlot;
@@ -65,36 +57,31 @@ uses
 
 function TMatplotLib.GetMatplotLib: variant;
 begin
-  CheckImported();
   if VarIsNull(FMatplotLib) or VarIsEmpty(FMatplotLib) then
-    FMatplotLib := VarPythonCreate(PyModule);
+    FMatplotLib := AsVariant();
   Result := FMatplotLib;
 end;
 
 function TMatplotLib.GetPyPlot: variant;
 begin
-  CheckSubModule(TPyPlot);
-  var LSubModule := TPyPlot(GetSubModule(TPyPlot));
-  if Assigned(LSubModule) then
-    Result := LSubModule.plt;
+  Result := PyModule['pyplot'].AsVariant();
 end;
 
-{ TPyPlot }
-
-function TPyPlot.GetPyPlot: variant;
+procedure TMatplotLib.ImportModule;
 begin
-  CheckImported();
-  if VarIsNull(FPyPlot) or VarIsEmpty(FPyPlot) then
-    FPyPlot := VarPythonCreate(PyModule);
-  Result := FPyPlot;
+  MaskFPUExceptions(true);
+  try
+    inherited;
+  finally
+    MaskFPUExceptions(false);
+  end;
 end;
 
 initialization
   TPyContext.Instance
     .RegisterInfo(TMatplotLib)
       .RegisterPIPPackage('matplotlib')
-        .RegisterModule('matplotlib')
-          .RegisterSubModule(TPyPlot, 'pyplot');
+        .RegisterModule('matplotlib');
 
 finalization
   TPyContext.Instance

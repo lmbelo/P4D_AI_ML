@@ -32,13 +32,11 @@ unit ScikitLearn;
 interface
 
 uses
-  System.Classes, PyModule, PythonEngine;
+  System.Classes, PyPackage, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  //[PyPIPPackage('scikit-learn')]
-  //[PyModuleName('sklearn')]
-  TScikitLearn = class(TPyModule)
+  TScikitLearn = class(TPyPyPIPackage)
   private
     Fsklearn: variant;
     function Getsklean: variant;
@@ -51,15 +49,14 @@ type
 implementation
 
 uses
-  PyContext, VarPyth, System.Variants;
+  PyContext, System.Variants;
 
 { TScikitLearn }
 
 function TScikitLearn.Getsklean: variant;
 begin
-  CheckImported();
   if VarIsNull(Fsklearn) or VarIsEmpty(Fsklearn) then
-    Fsklearn := VarPythonCreate(PyModule);
+    Fsklearn := AsVariant();
   Result := Fsklearn;
 end;
 

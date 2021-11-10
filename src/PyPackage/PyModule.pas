@@ -32,84 +32,47 @@ unit PyModule;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, PythonEngine, PyCommon, System.SysUtils;
+  System.Classes, System.Generics.Collections, System.SysUtils, System.Rtti,
+  PythonEngine, PyCommon, PyCore;
 
 type
-  TPyModuleBaseClass = class of TPyModuleBase;
   TPyModuleBase = class(TPyCommonCustomModule)
   private
-    FSubModules: TList<TPyModuleBase>;
-    FPyParentModule: TPyModuleBase; //if this module is a submodule
     FAutoImport: boolean;
-    FAutoImportSubModules: boolean;
-    FAutoInstall: boolean;
     function CanImport(): boolean;
-    //Set methods
-    procedure SetPyParentModule(const AParentModule: TPyModuleBase);
-    //Get methods
-    function GetPyModuleName(): string;
   protected
+    //Get methods
+    function GetPyModuleName(): string; virtual;
+    function GetPyParent(): TPyModuleBase; virtual;
+    //Internal routines
     procedure Loaded; override;
+    //Module routines
     procedure EngineLoaded(); override;
     procedure ImportModule(); reintroduce; virtual;
-    procedure InstallPackage();
     procedure CheckImported();
-    //Submodules rotines
-    procedure CreateSubModules(); virtual;
-    procedure ImportSubModules(); virtual;
-    procedure CheckSubModule(const AClass: TPyModuleBaseClass);
-    function GetSubModule(const AClass: TPyModuleBaseClass): TPyModuleBase;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
-    procedure Import();
     function IsImported(): boolean;
-    function IsSubModule: boolean;
+    procedure Import();
 
-    property PyParentModule: TPyModuleBase read FPyParentModule write SetPyParentModule;
+    //Helper methods
+    function AsVariant(): variant;
+  public
+    property PyParent: TPyModuleBase read GetPyParent;
   published
     property PyModuleName: string read GetPyModuleName;
     property AutoImport: boolean read FAutoImport write FAutoImport default true;
-    property AutoImportSubModules: boolean read FAutoImportSubModules write FAutoImportSubModules default true;
-    property AutoInstall: boolean read FAutoInstall write FAutoInstall default true;
   end;
 
   TPyModule = class(TPyModuleBase)
-  published
-    property PythonEngine;
   end;
-
-  PyModuleNameAttribute = class(TCustomAttribute)
-  private
-    FPyModuleName: string;
-  public
-    constructor Create(const APyModuleName: string);
-    property PyModuleName: string read FPyModuleName write FPyModuleName;
-  end;
-
-  EPyPackageNotInstalled = class(EPyCommonException)
-  end;
-
-  EPyParentModuleCircularReference = class(EPyCommonException)
-  end;
-
-  EPyModuleNotImported = class(EPyCommonException)
-  end;
-
-  EPySubModuleNotFound = class(EPyCommonException)
-  end;
-
-resourcestring
-  ErrPackageNotInstalled = 'Package %s not installed.';
-  ErrModuleNotImported = 'Module not imported.';
-  ErrSubModuleNotFound = 'Submodule not found.';
-  ErrCircularRefNotAllowed = 'Circular reference not allowed.';
 
 implementation
 
 uses
-  PyContext, PyPIP, System.Rtti;
+  PyContext, PyExceptions, VarPyth;
 
 { TPyModuleBase }
 
@@ -119,40 +82,14 @@ begin
     raise EPyModuleNotImported.Create(ErrModuleNotImported);
 end;
 
-procedure TPyModuleBase.CheckSubModule(const AClass: TPyModuleBaseClass);
-begin
-  var LSubModule := GetSubModule(AClass);
-  if not Assigned(LSubModule) then
-    raise EPySubModuleNotFound.Create(ErrSubModuleNotFound);
-end;
-
 constructor TPyModuleBase.Create(AOwner: TComponent);
 begin
   inherited;
   FAutoImport := true;
-  FAutoImportSubModules := true;
-  FAutoInstall := true;
-  FSubModules := TList<TPyModuleBase>.Create();
-  CreateSubModules();
-end;
-
-procedure TPyModuleBase.CreateSubModules;
-var
-  LSubModuleInfo: TPySubModuleInfo;
-begin
-  var LModuleInfo := TPyContext.Instance.FindModuleInfo(Self.ClassType, true);
-  if Assigned(LModuleInfo) then begin
-    for LSubModuleInfo in LModuleInfo.SubModules do begin
-      var LSubModule := TPyModuleBaseClass(LSubModuleInfo.Clazz).Create(Self);
-      LSubModule.PyParentModule := Self;
-      FSubModules.Add(LSubModule);
-    end;
-  end;
 end;
 
 destructor TPyModuleBase.Destroy;
 begin
-  FSubModules.Free();
   inherited;
 end;
 
@@ -165,22 +102,22 @@ end;
 
 function TPyModuleBase.GetPyModuleName: string;
 begin
-  var LModuleInfo := TPyContext.Instance.FindModuleInfo(Self.ClassType, true);
+  var LModuleInfo := TPyContext.Instance.FindModuleInfo(Self.ClassType);
   if Assigned(LModuleInfo) then
     Result := LModuleInfo.ModuleName
   else
     Result := String.Empty;
 end;
 
-function TPyModuleBase.GetSubModule(const AClass: TPyModuleBaseClass): TPyModuleBase;
-var
-  LSubModule: TPyModuleBase;
+function TPyModuleBase.GetPyParent: TPyModuleBase;
 begin
-  for LSubModule in FSubModules do begin
-    if (LSubModule.ClassType = AClass) then
-      Exit(LSubModule);
-  end;
   Result := nil;
+end;
+
+function TPyModuleBase.AsVariant: variant;
+begin
+  CheckImported();
+  Result := VarPythonCreate(PyModuleRef);
 end;
 
 function TPyModuleBase.CanImport: boolean;
@@ -193,55 +130,23 @@ end;
 
 procedure TPyModuleBase.Import;
 begin
-  if not IsSubModule() then
-    InstallPackage();
   ImportModule();
-  if FAutoImportSubModules then
-    ImportSubModules();
 end;
 
 function TPyModuleBase.IsImported: boolean;
 begin
-  Result := Assigned(PyModule);
-end;
-
-function TPyModuleBase.IsSubModule: boolean;
-begin
-  Result := Assigned(FPyParentModule);
+  Result := Assigned(PyModuleRef);
 end;
 
 procedure TPyModuleBase.ImportModule;
 begin
-  if IsSubModule then
-    inherited ImportModule(FPyParentModule.PyModuleName, PyModuleName)
-  else
-    inherited ImportModule(PyModuleName);
-end;
-
-procedure TPyModuleBase.ImportSubModules;
-var
-  LSubModule: TPyModuleBase;
-begin
-  for LSubModule in FSubModules do begin
-    LSubModule.PythonEngine := Self.PythonEngine;
-    LSubModule.Import();
+  var LImport := PyModuleName;
+  var LPyParent := PyParent;
+  while Assigned(LPyParent) do begin
+    LImport := LPyParent.PyModuleName + '.' + LImport;
+    LPyParent := LPyParent.PyParent;
   end;
-end;
-
-procedure TPyModuleBase.InstallPackage;
-begin
-  var LPyPIP := TPyPip.Create(Self);
-  try
-    if not LPyPIP.IsInstalled() then begin
-      if FAutoInstall then begin
-        LPyPIP.Install();
-      end else
-        raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
-          GetPyModuleName()]);
-    end;
-  finally
-    LPyPIP.Free();
-  end;
+  inherited ImportModule(LImport);
 end;
 
 procedure TPyModuleBase.Loaded;
@@ -249,20 +154,6 @@ begin
   inherited;
   if FAutoImport and CanImport() then
     Import();
-end;
-
-procedure TPyModuleBase.SetPyParentModule(const AParentModule: TPyModuleBase);
-begin
-  if AParentModule = Self then
-    raise EPyParentModuleCircularReference.Create(ErrCircularRefNotAllowed);
-  FPyParentModule := AParentModule;
-end;
-
-{ ModuleNameAttribute }
-
-constructor PyModuleNameAttribute.Create(const APyModuleName: string);
-begin
-  FPyModuleName := APyModuleName;
 end;
 
 end.

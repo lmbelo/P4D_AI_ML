@@ -32,13 +32,11 @@ unit NumPy;
 interface
 
 uses
-  System.Classes, PyModule, PyPIP, PythonEngine;
+  System.Classes, PyPackage, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  //[PyPIPPackage('numpy')]
-  //[PyModuleName('numpy')]
-  TNumPy = class(TPyModule)
+  TNumPy = class(TPyPyPIPackage)
   private
     Fnp: variant;
     function Getnp: variant;
@@ -51,15 +49,14 @@ type
 implementation
 
 uses
-  PyContext, VarPyth, System.Variants;
+  PyContext, System.Variants;
 
 { TNumPy }
 
 function TNumPy.Getnp: variant;
 begin
-  CheckImported();
   if VarIsNull(Fnp) or VarIsEmpty(Fnp) then
-    Fnp := VarPythonCreate(PyModule);
+    Fnp := AsVariant();
   Result := Fnp;
 end;
 
