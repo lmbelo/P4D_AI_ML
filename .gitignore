@@ -44,6 +44,7 @@
 /Win64
 /OSX32
 /__history
+/__recovery
 *.bak
 *.Patch
 *.#00
