@@ -110,7 +110,7 @@ end;
 
 function TPyPip.GetPackageName(): string;
 begin
-  var LInfo := TPyContext.Instance.FindInfo(Self.ClassType);
+  var LInfo := TPyContext.Instance.FindInfo(FPyModule.ClassType);
   if Assigned(LInfo) then
     Result := LInfo.PyPipInfo.PackageName
   else
@@ -119,7 +119,7 @@ end;
 
 function TPyPip.GetPackageVer: string;
 begin
-  var LInfo := TPyContext.Instance.FindInfo(Self.ClassType);
+  var LInfo := TPyContext.Instance.FindInfo(FPyModule.ClassType);
   if Assigned(LInfo) then
     Result := LInfo.PyPipInfo.PackageVer
   else
