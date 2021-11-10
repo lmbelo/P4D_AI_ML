@@ -36,7 +36,9 @@ requires
 contains
   PyCommon in '..\src\PyPackage\PyCommon.pas',
   PyModule in '..\src\PyPackage\PyModule.pas',
-  PyPIP in '..\src\PyPackage\PyPIP.pas',
-  PyContext in '..\src\PyPackage\PyContext.pas';
+  PyPackage in '..\src\PyPackage\PyPackage.pas',
+  PyContext in '..\src\PyPackage\PyContext.pas',
+  PyExceptions in '..\src\PyPackage\PyExceptions.pas',
+  PyCore in '..\src\PyPackage\PyCore.pas';
 
 end.
