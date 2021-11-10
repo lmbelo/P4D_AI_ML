@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'S'
+  Caption = 'Form1'
   ClientHeight = 480
   ClientWidth = 640
   FormFactor.Width = 320
@@ -13,11 +13,44 @@ object Form1: TForm1
     DataDetectorTypes = []
     Align = Client
     Size.Width = 640.000000000000000000
-    Size.Height = 480.000000000000000000
+    Size.Height = 425.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 3
     Viewport.Width = 636.000000000000000000
-    Viewport.Height = 476.000000000000000000
+    Viewport.Height = 421.000000000000000000
+  end
+  object Layout1: TLayout
+    Align = Bottom
+    Position.Y = 425.000000000000000000
+    Size.Width = 640.000000000000000000
+    Size.Height = 55.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 7
+    object Button1: TButton
+      Position.X = 552.000000000000000000
+      Position.Y = 25.000000000000000000
+      TabOrder = 0
+      Text = 'Run'
+      OnClick = Button1Click
+    end
+    object GroupBox1: TGroupBox
+      Position.X = 8.000000000000000000
+      Size.Width = 536.000000000000000000
+      Size.Height = 51.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Sample'
+      TabOrder = 1
+      object rbDecisionTreeRegression: TRadioButton
+        GroupName = 'sample'
+        Position.X = 8.000000000000000000
+        Position.Y = 24.000000000000000000
+        Size.Width = 159.000000000000000000
+        Size.Height = 19.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 38
+        Text = 'Decision Tree Regression'
+      end
+    end
   end
   object PythonEngine1: TPythonEngine
     IO = PythonGUIInputOutput1
@@ -35,5 +68,15 @@ object Form1: TForm1
     PythonEngine = PythonEngine1
     Left = 520
     Top = 80
+  end
+  object NumPy1: TNumPy
+    PythonEngine = PythonEngine1
+    Left = 520
+    Top = 131
+  end
+  object MatplotLib1: TMatplotLib
+    PythonEngine = PythonEngine1
+    Left = 520
+    Top = 184
   end
 end
