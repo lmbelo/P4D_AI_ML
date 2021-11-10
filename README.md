@@ -7,6 +7,8 @@ It includes the following components (under development):
 
 * numpy (working);
   - samples
+* matplotlib (working);
+  - samples
 * scikit-learn (working);
 * PyTorch (working);
 * TensorFlow and (under dev);
