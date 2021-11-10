@@ -35,13 +35,14 @@ object Form1: TForm1
     end
     object GroupBox1: TGroupBox
       Position.X = 8.000000000000000000
-      Size.Width = 536.000000000000000000
+      Size.Width = 177.000000000000000000
       Size.Height = 51.000000000000000000
       Size.PlatformDefault = False
       Text = 'Sample'
       TabOrder = 1
       object rbDecisionTreeRegression: TRadioButton
         GroupName = 'sample'
+        IsChecked = True
         Position.X = 8.000000000000000000
         Position.Y = 24.000000000000000000
         Size.Width = 159.000000000000000000

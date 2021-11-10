@@ -40,10 +40,12 @@ type
   private
     Fsklearn: variant;
     function Getsklean: variant;
+    function GetTree: variant;
   protected
     procedure ImportModule; override;
   public
     property sklearn: variant read Getsklean;
+    property tree: variant read GetTree;
   end;
 
 implementation
@@ -58,6 +60,11 @@ begin
   if VarIsNull(Fsklearn) or VarIsEmpty(Fsklearn) then
     Fsklearn := AsVariant();
   Result := Fsklearn;
+end;
+
+function TScikitLearn.GetTree: variant;
+begin
+  Result := PyModule['tree'].AsVariant();
 end;
 
 procedure TScikitLearn.ImportModule;

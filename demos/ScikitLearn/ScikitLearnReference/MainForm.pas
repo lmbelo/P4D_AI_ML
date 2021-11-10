@@ -35,6 +35,9 @@ implementation
 
 {$R *.fmx}
 
+uses
+  VarPyth;
+
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   if rbDecisionTreeRegression.IsChecked then begin
@@ -44,8 +47,38 @@ end;
 
 procedure TForm1.DoDecisionTreeRegression;
 begin
+  var mm := MainModule;
+  var bm := BuiltinModule;
   with ScikitLearn1, NumPy1, MatplotLib1 do begin
-    sklearn.tree;
+    mm.rng := np.random.RandomState(1);
+    mm.x := np.sort(5 * mm.rng.rand(80, 1), axis := 0);
+    mm.y := np.sin(mm.x).ravel();
+    mm.op := 3 * (0.5 - mm.rng.rand(16));
+    mm.sl := VarPythonCreate([bm.slice(None(), None(), 5)], stTuple);    
+    PythonEngine.ExecString('y[sl] = y[sl] + op');
+
+    //Fit regression model
+    mm.regr_1 := tree.DecisionTreeRegressor(max_depth := 2);
+    mm.regr_2 := tree.DecisionTreeRegressor(max_depth := 5);
+    mm.regr_1.fit(mm.x, mm.y);
+    mm.regr_2.fit(mm.x, mm.y);
+    
+    //Predict
+    mm.ar := np.arange(0.0, 5.0, 0.01);
+    mm.x_test := mm.ar[VarPythonCreate([Ellipsis(), np.newaxis], stTuple)];
+    mm.y_1 := mm.regr_1.predict(mm.x_test);
+    mm.y_2 := mm.regr_2.predict(mm.x_test);
+
+    //Plot the result
+    plt.figure();
+    plt.scatter(mm.x, mm.y, s:=20, edgecolor:='black', c:='darkorange', label:='data');
+    plt.plot(mm.x_test, mm.y_1, color:='cornflowerblue', label:='max_depth:=2', linewidth:=2);
+    plt.plot(mm.x_test, mm.y_2, color:='yellowgreen', label:='max_depth:=5', linewidth:=2);
+    plt.xlabel('data');
+    plt.ylabel('target');
+    plt.title('Decision Tree Regression');
+    plt.legend();
+    plt.show();
   end;
 end;
 
