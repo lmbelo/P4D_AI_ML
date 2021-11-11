@@ -41,11 +41,21 @@ type
     Fsklearn: variant;
     function Getsklean: variant;
     function GetTree: variant;
+    function GetDataSets: variant;
+    function GetDecomposition: variant;
+    function GetMetrics: variant;
+    function GetModelSelection: variant;
+    function GetSvm: variant;
   protected
     procedure ImportModule; override;
   public
     property sklearn: variant read Getsklean;
     property tree: variant read GetTree;
+    property model_selection: variant read GetModelSelection;
+    property datasets: variant read GetDataSets;
+    property metrics: variant read GetMetrics;
+    property decomposition: variant read GetDecomposition;
+    property svm: variant read GetSvm;
   end;
 
 implementation
@@ -55,11 +65,36 @@ uses
 
 { TScikitLearn }
 
+function TScikitLearn.GetDataSets: variant;
+begin
+  Result := PyModule['datasets'].AsVariant();
+end;
+
+function TScikitLearn.GetDecomposition: variant;
+begin
+  Result := PyModule['decomposition'].AsVariant();
+end;
+
+function TScikitLearn.GetMetrics: variant;
+begin
+  Result := PyModule['metrics'].AsVariant();
+end;
+
+function TScikitLearn.GetModelSelection: variant;
+begin
+  Result := PyModule['model_selection'].AsVariant();
+end;
+
 function TScikitLearn.Getsklean: variant;
 begin
   if VarIsNull(Fsklearn) or VarIsEmpty(Fsklearn) then
     Fsklearn := AsVariant();
   Result := Fsklearn;
+end;
+
+function TScikitLearn.GetSvm: variant;
+begin
+  Result := PyModule['svm'].AsVariant();
 end;
 
 function TScikitLearn.GetTree: variant;
