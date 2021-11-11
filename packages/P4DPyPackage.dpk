@@ -39,6 +39,7 @@ contains
   PyPackage in '..\src\PyPackage\PyPackage.pas',
   PyContext in '..\src\PyPackage\PyContext.pas',
   PyExceptions in '..\src\PyPackage\PyExceptions.pas',
-  PyCore in '..\src\PyPackage\PyCore.pas';
+  PyCore in '..\src\PyPackage\PyCore.pas',
+  PyUtils in '..\src\PyPackage\PyUtils.pas';
 
 end.
