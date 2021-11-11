@@ -24,11 +24,18 @@ type
   EPySubModuleNotFound = class(EPyCommonException)
   end;
 
+  EPyVarException = class(EPyCommonException)
+  end;
+
+  EPyVarIsNotPython = class(EPyVarException)
+  end;
+
 resourcestring
   ErrPackageNotInstalled = 'Package %s not installed.';
   ErrModuleNotImported = 'Module not imported.';
   ErrSubModuleNotFound = 'Submodule not found.';
   ErrCircularRefNotAllowed = 'Circular reference not allowed.';
+  ErrVarIsNotPython = 'Variant is not a Python variant.';
 
 implementation
 
