@@ -97,7 +97,7 @@ type
     function GetPyPIPackageVer(): string; virtual;
   published
     property PyPIPackageName: string read GetPyPIPackageName;
-    property PyPIPackaveVersion: string read GetPyPIPackageVer;
+    property PyPIPackageVersion: string read GetPyPIPackageVer;
   end;
 
   //PyPI package

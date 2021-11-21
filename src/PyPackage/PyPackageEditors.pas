@@ -46,7 +46,7 @@ type
 
 procedure Register();
 begin
-  RegisterPropertyEditor(TypeInfo(string), TPyPyPIPackageBase, 'PyPIPackaveVersion', TPyPIPPackageVersionProperty);
+  RegisterPropertyEditor(TypeInfo(string), TPyPyPIPackageBase, 'PyPIPackageVersion', TPyPIPPackageVersionProperty);
 end;
 
 { TPyPIPPackageVersionProperty }
