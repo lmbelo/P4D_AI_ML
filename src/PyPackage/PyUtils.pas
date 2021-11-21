@@ -65,8 +65,8 @@ type
   private
     constructor Create();
   private
-    class procedure Initialize();
-    class procedure Finalize();
+    class procedure Initialize(); inline;
+    class procedure Finalize(); inline;
   public
     destructor Destroy(); override;
     //Collection helpers
