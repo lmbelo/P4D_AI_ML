@@ -11,10 +11,10 @@ It includes the following components (under development):
   - samples
 * scikit-learn (working);
   - samples
-* PyTorch (working);
+* pytorch (working);
   - samples
-* TensorFlow and (under dev);
-* Keras (under dev).
+* tensorflow and (under dev);
+* keras (under dev).
 
 Powered by [Embarcadero Delphi](https://www.embarcadero.com/products/delphi) and the [Python4Delphi library](https://github.com/pyscripter/python4delphi).
 
