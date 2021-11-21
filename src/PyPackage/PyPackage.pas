@@ -286,7 +286,7 @@ end;
 
 function TPyPip.GetPackageVer: string;
 begin
-  Result := FPyModule.PyPIPackaveVersion;
+  Result := FPyModule.PyPIPackageVersion;
 end;
 
 procedure TPyPip.Install();
