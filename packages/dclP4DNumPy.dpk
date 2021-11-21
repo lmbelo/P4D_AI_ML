@@ -1,7 +1,6 @@
 package dclP4DNumPy;
 
 {$R *.res}
-{$R *.dres}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -14,8 +13,8 @@ package dclP4DNumPy;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
@@ -36,6 +35,6 @@ requires
   p4dnumpy;
 
 contains
-  RegNumPy in '..\src\NumPy\RegNumPy.pas';
+  NumPyReg in '..\src\NumPy\NumPyReg.pas';
 
 end.

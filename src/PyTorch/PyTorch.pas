@@ -71,13 +71,13 @@ begin
 end;
 
 initialization
-  TPyContext.Instance
+  TPyContext
     .RegisterInfo(TPyTorch)
       .RegisterPIPPackage('torch')
         .RegisterModule('torch');
 
 finalization
-  TPyContext.Instance
+  TPyContext
     .UnRegisterInfo(TPyTorch);
 
 end.

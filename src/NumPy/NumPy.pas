@@ -71,13 +71,13 @@ begin
 end;
 
 initialization
-  TPyContext.Instance
+  TPyContext
     .RegisterInfo(TNumPy)
       .RegisterPIPPackage('numpy')
         .RegisterModule('numpy');
 
 finalization
-  TPyContext.Instance
+  TPyContext
     .UnRegisterInfo(TNumPy);
 
 end.

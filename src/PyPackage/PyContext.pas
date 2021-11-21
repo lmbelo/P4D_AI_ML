@@ -68,10 +68,10 @@ type
     constructor Create();
     destructor Destroy(); override;
 
-    function RegisterInfo(const AComp: TClass): TPyInfo;
-    procedure UnRegisterInfo(const AComp: TClass);
-    function FindInfo(const AComp: TClass): TPyInfo;
-    function FindModuleInfo(const AComp: TClass): TPyModuleInfo;
+    class function RegisterInfo(const AComp: TClass): TPyInfo;
+    class procedure UnRegisterInfo(const AComp: TClass);
+    class function FindInfo(const AComp: TClass): TPyInfo;
+    class function FindModuleInfo(const AComp: TClass): TPyModuleInfo;
   public
     class property Instance: TPyContext read GetInstance;
   end;
@@ -168,19 +168,23 @@ begin
   inherited;
 end;
 
-function TPyContext.FindInfo(const AComp: TClass): TPyInfo;
+class function TPyContext.FindInfo(const AComp: TClass): TPyInfo;
 begin
-  FInfo.TryGetValue(AComp, Result);
+  with Instance do begin
+    FInfo.TryGetValue(AComp, Result);
+  end;
 end;
 
-function TPyContext.FindModuleInfo(const AComp: TClass): TPyModuleInfo;
+class function TPyContext.FindModuleInfo(const AComp: TClass): TPyModuleInfo;
 var
   LInfo: TPyInfo;
 begin
   Result := nil;
-  LInfo := FIndInfo(AComp);
-  if Assigned(LInfo) then
-    Result := LInfo.PyModuleInfo;
+  with Instance do begin
+    LInfo := FIndInfo(AComp);
+    if Assigned(LInfo) then
+      Result := LInfo.PyModuleInfo;
+  end;
 end;
 
 class function TPyContext.GetInstance: TPyContext;
@@ -190,18 +194,22 @@ begin
   Result := FInstance;
 end;
 
-function TPyContext.RegisterInfo(const AComp: TClass): TPyInfo;
+class function TPyContext.RegisterInfo(const AComp: TClass): TPyInfo;
 begin
-  FInfo.TryGetValue(AComp, Result);
-  if Assigned(Result) then
-    Exit();
-  Result := TPyInfo.Create(AComp);
-  FInfo.Add(AComp, Result);
+  with Instance do begin
+    FInfo.TryGetValue(AComp, Result);
+    if Assigned(Result) then
+      Exit();
+    Result := TPyInfo.Create(AComp);
+    FInfo.Add(AComp, Result);
+  end;
 end;
 
-procedure TPyContext.UnRegisterInfo(const AComp: TClass);
+class procedure TPyContext.UnRegisterInfo(const AComp: TClass);
 begin
-  FInfo.Remove(AComp);
+  with Instance do begin
+    FInfo.Remove(AComp);
+  end;
 end;
 
 initialization

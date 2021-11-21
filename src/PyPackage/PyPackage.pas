@@ -93,11 +93,11 @@ type
   //PyPI package base
   TPyPyPIPackageBase = class(TPyPackageBase)
   protected
-    function GetPyPyPIPackageName(): string;
-    function GetPyPyPIPackageVer(): string;
+    function GetPyPIPackageName(): string; virtual;
+    function GetPyPIPackageVer(): string; virtual;
   published
-    property PyPyPIPackageName: string read GetPyPyPIPackageName;
-    property PyPyPIPackaveVersion: string read GetPyPyPIPackageVer;
+    property PyPIPackageName: string read GetPyPIPackageName;
+    property PyPIPackaveVersion: string read GetPyPIPackageVer;
   end;
 
   //PyPI package
@@ -167,7 +167,7 @@ type
 
 { TPyPyPIPackageBase }
 
-function TPyPyPIPackageBase.GetPyPyPIPackageName: string;
+function TPyPyPIPackageBase.GetPyPIPackageName: string;
 begin
   var LInfo := TPyContext.Instance.FindInfo(ClassType);
   if Assigned(LInfo) then
@@ -176,7 +176,7 @@ begin
     Result := EmptyStr;
 end;
 
-function TPyPyPIPackageBase.GetPyPyPIPackageVer: string;
+function TPyPyPIPackageBase.GetPyPIPackageVer: string;
 begin
   var LInfo := TPyContext.Instance.FindInfo(ClassType);
   if Assigned(LInfo) then
@@ -281,12 +281,12 @@ end;
 
 function TPyPip.GetPackageName(): string;
 begin
-  Result := FPyModule.PyPyPIPackageName;
+  Result := FPyModule.PyPIPackageName;
 end;
 
 function TPyPip.GetPackageVer: string;
 begin
-  Result := FPyModule.PyPyPIPackaveVersion;
+  Result := FPyModule.PyPIPackaveVersion;
 end;
 
 procedure TPyPip.Install();

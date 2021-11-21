@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'RegNumPy'         Copyright (c) 2021                    *)
+(* Module:  Unit 'RegMatplotLib'    Copyright (c) 2021                    *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
@@ -8,7 +8,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  NumPy Components registration                         *)
+(*  Functionality:  MatplotLib Components registration                    *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -27,7 +27,7 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit RegNumPy;
+unit MatplotLibReg;
 
 interface
 
@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, NumPy;
+  Classes, MatplotLib;
 
 procedure Register();
 begin
-  RegisterComponents('NumPy', [TNumPy]);
+  RegisterComponents('MatplotLib', [TMatplotLib]);
 end;
 
 end.

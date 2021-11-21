@@ -36,6 +36,6 @@ requires
   p4dmatplotlib;
 
 contains
-  RegMatplotLib in '..\src\MatplotLib\RegMatplotLib.pas';
+  MatplotLibReg in '..\src\MatplotLib\MatplotLibReg.pas';
 
 end.

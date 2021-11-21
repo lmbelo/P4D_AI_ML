@@ -78,13 +78,13 @@ begin
 end;
 
 initialization
-  TPyContext.Instance
+  TPyContext
     .RegisterInfo(TMatplotLib)
       .RegisterPIPPackage('matplotlib')
         .RegisterModule('matplotlib');
 
 finalization
-  TPyContext.Instance
+  TPyContext
     .UnRegisterInfo(TMatplotLib);
 
 end.

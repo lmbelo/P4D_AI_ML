@@ -27,7 +27,7 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit RegPyTorch;
+unit PyTorchReg;
 
 interface
 

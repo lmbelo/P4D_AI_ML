@@ -113,13 +113,13 @@ begin
 end;
 
 initialization
-  TPyContext.Instance
+  TPyContext
     .RegisterInfo(TScikitLearn)
       .RegisterPIPPackage('scikit-learn')
         .RegisterModule('sklearn');
 
 finalization
-  TPyContext.Instance
+  TPyContext
     .UnRegisterInfo(TScikitLearn);
 
 end.

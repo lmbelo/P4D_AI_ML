@@ -35,7 +35,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   System.Generics.Collections, FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, 
   FMX.Dialogs, PyCommon, PyModule, NumPy, PythonEngine, FMX.PythonGUIInputOutput,
-  FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo;
+  FMX.Memo.Types, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo, PyPackage;
 
 type
   (*https://www.machinelearningplus.com/python/101-numpy-exercises-python/*)
