@@ -6,6 +6,9 @@
         <Projects Include="P4DPyPackage.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="dclP4DPyPackage.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="P4DNumPy.dproj">
             <Dependencies/>
         </Projects>
@@ -46,6 +49,15 @@
     </Target>
     <Target Name="P4DPyPackage:Make">
         <MSBuild Projects="P4DPyPackage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DPyPackage">
+        <MSBuild Projects="dclP4DPyPackage.dproj"/>
+    </Target>
+    <Target Name="dclP4DPyPackage:Clean">
+        <MSBuild Projects="dclP4DPyPackage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DPyPackage:Make">
+        <MSBuild Projects="dclP4DPyPackage.dproj" Targets="Make"/>
     </Target>
     <Target Name="P4DNumPy">
         <MSBuild Projects="P4DNumPy.dproj"/>
@@ -120,13 +132,13 @@
         <MSBuild Projects="dclMatplotLib.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="P4DPyPackage;P4DNumPy;dclP4DNumPy;P4DScikitLearn;dclP4DScikitLearn;P4DPyTorch;dclP4DPyTorch;P4DMatplotLib;dclMatplotLib"/>
+        <CallTarget Targets="P4DPyPackage;dclP4DPyPackage;P4DNumPy;dclP4DNumPy;P4DScikitLearn;dclP4DScikitLearn;P4DPyTorch;dclP4DPyTorch;P4DMatplotLib;dclMatplotLib"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="P4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean;P4DScikitLearn:Clean;dclP4DScikitLearn:Clean;P4DPyTorch:Clean;dclP4DPyTorch:Clean;P4DMatplotLib:Clean;dclMatplotLib:Clean"/>
+        <CallTarget Targets="P4DPyPackage:Clean;dclP4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean;P4DScikitLearn:Clean;dclP4DScikitLearn:Clean;P4DPyTorch:Clean;dclP4DPyTorch:Clean;P4DMatplotLib:Clean;dclMatplotLib:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="P4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make;P4DScikitLearn:Make;dclP4DScikitLearn:Make;P4DPyTorch:Make;dclP4DPyTorch:Make;P4DMatplotLib:Make;dclMatplotLib:Make"/>
+        <CallTarget Targets="P4DPyPackage:Make;dclP4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make;P4DScikitLearn:Make;dclP4DScikitLearn:Make;P4DPyTorch:Make;dclP4DPyTorch:Make;P4DMatplotLib:Make;dclMatplotLib:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
