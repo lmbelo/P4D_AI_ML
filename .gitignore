@@ -37,15 +37,14 @@
 *.res
 *.dres
 *.local
-
-# Output Folders  #
-###################
-/Win32
-/Win64
-/OSX32
-/__history
-/__recovery
-*.bak
 *.Patch
 *.#00
 *.pch
+
+# Output Folders  #
+###################
+Win32/
+Win64/
+OSX32/
+__history/
+__recovery/
