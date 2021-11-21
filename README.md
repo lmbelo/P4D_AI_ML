@@ -12,6 +12,7 @@ It includes the following components (under development):
 * scikit-learn (working);
   - samples
 * PyTorch (working);
+  - samples
 * TensorFlow and (under dev);
 * Keras (under dev).
 
