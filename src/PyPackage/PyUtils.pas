@@ -32,10 +32,13 @@ unit PyUtils;
 interface
 
 uses
-  System.Variants, System.Generics.Collections, VarPyth;
+  System.SysUtils, System.Variants, System.Generics.Collections, PythonEngine,
+  VarPyth;
 
 type
   TVarRecArray = array of TVarRec;
+  TClosures = class;
+  TypeClosure = TFunc<Variant, Variant>;
   
   TVariantHelper = record helper for variant
   private
@@ -54,12 +57,56 @@ type
     function ToVarArray(): variant;
   end;
 
-  TPyEx = record
+  TPyEx = class sealed
+  private
+    class var FInstance: TPyEx;
+  private
+    FClosures: TClosures;
+  private
+    constructor Create();
+  private
+    class procedure Initialize();
+    class procedure Finalize();
   public
+    destructor Destroy(); override;
+    //Collection helpers
     class function Collection(const AArgs: array of const): TVarRecArray; static;
     class function Tuple(const AArgs: array of const): variant; static;
     class function List(const AArgs: array of const): variant; static;
+    //Dictionary helper
     class function Dictionary(const AArgs: array of TPair<variant, variant>): variant; static;
+    //Closure helper
+    class function Closure(const AFunc: TypeClosure; const APythonEngine: TPythonEngine = nil): variant;
+  end;
+
+  TClosure = class
+  private
+    FPythonEngine: TPythonEngine;
+    FModule: TPythonModule;
+    FModuleName: string;
+    FAnnMethod: TypeClosure;
+    function PyMethod(PSelf, Args: PPyObject): PPyObject; cdecl;
+  public
+    constructor Create(const AModuleName: string; const AFunc: TypeClosure);
+    destructor Destroy(); override;
+
+    procedure Initialize();
+    procedure Finalize();
+
+    function ToVariant(): variant;
+
+    property PythonEngine: TPythonEngine read FPythonEngine write FPythonEngine;
+    property ModuleName: string read FModuleName;
+    property Closure: TypeClosure read FAnnMethod;
+  end;
+
+  TClosures = class(TObjectList<TClosure>)
+  private
+    class var FId: integer;
+    function CreateId(): integer;
+  public
+    function Add(const APythonEngine: TPythonEngine; const AFunc: TypeClosure): TClosure; reintroduce;
+    procedure Remove(const AModuleName: string); overload;
   end;
 
 implementation
@@ -149,6 +196,29 @@ begin
   end;
 end;
 
+{ TPyEx }
+
+class procedure TPyEx.Initialize;
+begin
+  FInstance := TPyEx.Create();
+end;
+
+class procedure TPyEx.Finalize;
+begin
+  FInstance.Free();
+end;
+
+constructor TPyEx.Create;
+begin
+  FClosures := TClosures.Create(true);
+end;
+
+destructor TPyEx.Destroy;
+begin
+  FClosures.Free();
+  inherited;
+end;
+
 class function TPyEx.Collection(const AArgs: array of const): TVarRecArray;
 begin                                                        
   SetLength(Result, Length(AArgs));
@@ -173,5 +243,88 @@ begin
     Result.SetItem(LItem.Key, LItem.Value);
   end;
 end;
+
+class function TPyEx.Closure(const AFunc: TypeClosure;
+  const APythonEngine: TPythonEngine = nil): variant;
+begin
+  var LPythonEngine := APythonEngine;
+  if not Assigned(LPythonEngine) then
+    LPythonEngine := GetPythonEngine();
+  Result := FInstance.FClosures.Add(LPythonEngine, AFunc).ToVariant();
+end;
+
+{ TClosure }
+
+function TClosure.ToVariant: variant;
+begin
+  var LModule := Import(ModuleName);
+  Result := LModule.closure;
+end;
+
+constructor TClosure.Create(const AModuleName: string; const AFunc: TypeClosure);
+begin
+  FModuleName := AModuleName;
+  FModule := TPythonModule.Create(nil);
+  FModule.ModuleName := AnsiString(AModuleName);
+  FAnnMethod := AFunc;
+end;
+
+destructor TClosure.Destroy;
+begin
+  FModule.Free();
+  inherited;
+end;
+
+procedure TClosure.Finalize;
+begin
+  FModule.Finalize();
+end;
+
+procedure TClosure.Initialize;
+begin
+  FModule.Engine := PythonEngine;
+  FModule.AddDelphiMethod('closure', Self.PyMethod, 'Closure assistent.');
+  FModule.Initialize();
+end;
+
+function TClosure.PyMethod(PSelf, Args: PPyObject): PPyObject; cdecl;
+begin
+  if Assigned(FAnnMethod) then begin
+    Result := ExtractPythonObjectFrom(FAnnMethod(VarPythonCreate(Args)));
+    PythonEngine.Py_INCREF(Result);
+  end else Result := FPythonEngine.ReturnNone;
+end;
+
+{ TClosures }
+
+function TClosures.Add(const APythonEngine: TPythonEngine;
+  const AFunc: TypeClosure): TClosure;
+begin
+  Result := TClosure.Create(Format('p4d_closure_%d', [CreateId()]), AFunc);
+  inherited Add(Result);
+  Result.PythonEngine := APythonEngine;
+  Result.Initialize();
+end;
+
+function TClosures.CreateId: integer;
+begin
+  Inc(FId);
+  Result := FId;
+end;
+
+procedure TClosures.Remove(const AModuleName: string);
+begin
+  for var LClosure in Self do begin
+    if LClosure.ModuleName = AModuleName then begin
+      Remove(LClosure);
+    end;
+  end;
+end;
+
+initialization
+  TPyEx.Initialize();
+
+finalization
+  TPyEx.Finalize();
 
 end.
