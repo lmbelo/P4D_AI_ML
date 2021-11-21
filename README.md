@@ -10,6 +10,7 @@ It includes the following components (under development):
 * matplotlib (working);
   - samples
 * scikit-learn (working);
+  - samples
 * PyTorch (working);
 * TensorFlow and (under dev);
 * Keras (under dev).
