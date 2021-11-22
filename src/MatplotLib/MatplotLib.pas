@@ -38,13 +38,11 @@ type
   [ComponentPlatforms(pidAllPlatforms)]
   TMatplotLib = class(TPyPyPIPackage)
   private
-    FMatplotLib: variant;
-    function GetMatplotLib: variant;
     function GetPyPlot: variant;
   protected
     procedure ImportModule; override;
   public
-    property matplot: variant read GetMatplotLib;
+    property matplot: variant read AsVariant;
     property plt: variant read GetPyPlot;
   end;
 
@@ -54,13 +52,6 @@ uses
   PyContext, VarPyth, System.Variants;
 
 { TMatplotLib }
-
-function TMatplotLib.GetMatplotLib: variant;
-begin
-  if VarIsNull(FMatplotLib) or VarIsEmpty(FMatplotLib) then
-    FMatplotLib := AsVariant();
-  Result := FMatplotLib;
-end;
 
 function TMatplotLib.GetPyPlot: variant;
 begin

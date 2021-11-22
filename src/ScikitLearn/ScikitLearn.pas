@@ -38,8 +38,6 @@ type
   [ComponentPlatforms(pidAllPlatforms)]
   TScikitLearn = class(TPyPyPIPackage)
   private
-    Fsklearn: variant;
-    function Getsklean: variant;
     function GetTree: variant;
     function GetDataSets: variant;
     function GetDecomposition: variant;
@@ -49,7 +47,7 @@ type
   protected
     procedure ImportModule; override;
   public
-    property sklearn: variant read Getsklean;
+    property sklearn: variant read AsVariant;
     property tree: variant read GetTree;
     property model_selection: variant read GetModelSelection;
     property datasets: variant read GetDataSets;
@@ -83,13 +81,6 @@ end;
 function TScikitLearn.GetModelSelection: variant;
 begin
   Result := PyModule['model_selection'].AsVariant();
-end;
-
-function TScikitLearn.Getsklean: variant;
-begin
-  if VarIsNull(Fsklearn) or VarIsEmpty(Fsklearn) then
-    Fsklearn := AsVariant();
-  Result := Fsklearn;
 end;
 
 function TScikitLearn.GetSvm: variant;

@@ -37,13 +37,10 @@ uses
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TPyTorch = class(TPyPyPIPackage)
-  private
-    FTorch: variant;
-    function GetTorch: variant;
   protected
     procedure ImportModule; override;
   public
-    property torch: variant read GetTorch;
+    property torch: variant read AsVariant;
   end;
 
 implementation
@@ -52,13 +49,6 @@ uses
   PyContext, System.Variants;
 
 { TPyTorch }
-
-function TPyTorch.GetTorch: variant;
-begin
-  if VarIsNull(FTorch) or VarIsEmpty(FTorch) then
-    FTorch := AsVariant();
-  Result := FTorch;
-end;
 
 procedure TPyTorch.ImportModule;
 begin

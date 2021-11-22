@@ -37,13 +37,10 @@ uses
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TNumPy = class(TPyPyPIPackage)
-  private
-    Fnp: variant;
-    function Getnp: variant;
   protected
     procedure ImportModule; override;
   public
-    property np: variant read Getnp;
+    property np: variant read AsVariant;
   end;
 
 implementation
@@ -52,13 +49,6 @@ uses
   PyContext, System.Variants;
 
 { TNumPy }
-
-function TNumPy.Getnp: variant;
-begin
-  if VarIsNull(Fnp) or VarIsEmpty(Fnp) then
-    Fnp := AsVariant();
-  Result := Fnp;
-end;
 
 procedure TNumPy.ImportModule;
 begin
