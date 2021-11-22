@@ -33,6 +33,12 @@
         <Projects Include="dclMatplotLib.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="P4DTensorFlow.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="dclP4DTensorFlow.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -131,14 +137,32 @@
     <Target Name="dclMatplotLib:Make">
         <MSBuild Projects="dclMatplotLib.dproj" Targets="Make"/>
     </Target>
+    <Target Name="P4DTensorFlow">
+        <MSBuild Projects="P4DTensorFlow.dproj"/>
+    </Target>
+    <Target Name="P4DTensorFlow:Clean">
+        <MSBuild Projects="P4DTensorFlow.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DTensorFlow:Make">
+        <MSBuild Projects="P4DTensorFlow.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DTensorFlow">
+        <MSBuild Projects="dclP4DTensorFlow.dproj"/>
+    </Target>
+    <Target Name="dclP4DTensorFlow:Clean">
+        <MSBuild Projects="dclP4DTensorFlow.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DTensorFlow:Make">
+        <MSBuild Projects="dclP4DTensorFlow.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="P4DPyPackage;dclP4DPyPackage;P4DNumPy;dclP4DNumPy;P4DScikitLearn;dclP4DScikitLearn;P4DPyTorch;dclP4DPyTorch;P4DMatplotLib;dclMatplotLib"/>
+        <CallTarget Targets="P4DPyPackage;dclP4DPyPackage;P4DNumPy;dclP4DNumPy;P4DScikitLearn;dclP4DScikitLearn;P4DPyTorch;dclP4DPyTorch;P4DMatplotLib;dclMatplotLib;P4DTensorFlow;dclP4DTensorFlow"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="P4DPyPackage:Clean;dclP4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean;P4DScikitLearn:Clean;dclP4DScikitLearn:Clean;P4DPyTorch:Clean;dclP4DPyTorch:Clean;P4DMatplotLib:Clean;dclMatplotLib:Clean"/>
+        <CallTarget Targets="P4DPyPackage:Clean;dclP4DPyPackage:Clean;P4DNumPy:Clean;dclP4DNumPy:Clean;P4DScikitLearn:Clean;dclP4DScikitLearn:Clean;P4DPyTorch:Clean;dclP4DPyTorch:Clean;P4DMatplotLib:Clean;dclMatplotLib:Clean;P4DTensorFlow:Clean;dclP4DTensorFlow:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="P4DPyPackage:Make;dclP4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make;P4DScikitLearn:Make;dclP4DScikitLearn:Make;P4DPyTorch:Make;dclP4DPyTorch:Make;P4DMatplotLib:Make;dclMatplotLib:Make"/>
+        <CallTarget Targets="P4DPyPackage:Make;dclP4DPyPackage:Make;P4DNumPy:Make;dclP4DNumPy:Make;P4DScikitLearn:Make;dclP4DScikitLearn:Make;P4DPyTorch:Make;dclP4DPyTorch:Make;P4DMatplotLib:Make;dclMatplotLib:Make;P4DTensorFlow:Make;dclP4DTensorFlow:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
