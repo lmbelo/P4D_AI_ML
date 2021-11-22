@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'RegMatplotLib'    Copyright (c) 2021                    *)
+(* Module:  Unit 'MatplotLibReg'    Copyright (c) 2021                    *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)

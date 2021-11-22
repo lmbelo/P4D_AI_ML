@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'RegNumPy'         Copyright (c) 2021                    *)
+(* Module:  Unit 'NumPyReg'         Copyright (c) 2021                    *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
