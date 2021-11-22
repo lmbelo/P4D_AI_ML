@@ -13,8 +13,7 @@ It includes the following components (under development):
   - samples
 * pytorch (working);
   - samples
-* tensorflow (under dev) and;
-* keras (under dev).
+* tensorflow and keras (working);
 
 Powered by [Embarcadero Delphi](https://www.embarcadero.com/products/delphi) and the [Python4Delphi library](https://github.com/pyscripter/python4delphi).
 
