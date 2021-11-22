@@ -37,14 +37,24 @@ uses
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TTensorFlow = class(TPyPyPIPackage)
+  private
+    function GetKeras: variant;
   public
     property tf: variant read AsVariant;
+    property keras: variant read GetKeras;
   end;
 
 implementation
 
 uses
   PyContext;
+
+{ TTensorFlow }
+
+function TTensorFlow.GetKeras: variant;
+begin
+  Result := PyModule['keras'].AsVariant();
+end;
 
 initialization
   TPyContext
