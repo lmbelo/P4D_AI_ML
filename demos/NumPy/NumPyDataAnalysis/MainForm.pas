@@ -48,8 +48,8 @@ type
     PythonModule1: TPythonModule;
     procedure FormCreate(Sender: TObject);
   private
-    FBm: Variant;
-    FMm: Variant;
+    bm: Variant;
+    mm: Variant;
     //Interop methods
     function maxx(ASelf, AArgs: PPyObject): PPyObject; cdecl;
     //Helper methods
@@ -220,277 +220,277 @@ end;
 
 procedure TForm2.Exercise1;
 begin
-  FBm.print('Q. Import numpy as np and print the version number.');
+  bm.print('Q. Import numpy as np and print the version number.');
   with NumPy1 do begin
-    FBm.print(np.__version__);
+    bm.print(np.__version__);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise2;
 begin
-  FBm.print('Q. Create a 1D array of numbers from 0 to 9');
+  bm.print('Q. Create a 1D array of numbers from 0 to 9');
   with NumPy1 do begin
-    FBm.print(np.arange(10));
+    bm.print(np.arange(10));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise3;
 begin
-  FBm.print('Q. Create a 3×3 numpy array of all True’s');
+  bm.print('Q. Create a 3×3 numpy array of all True’s');
   with NumPy1 do begin
-    FBm.print(np.full(VarArrayOf([3, 3]), true, dtype := FBm.bool));
+    bm.print(np.full(VarArrayOf([3, 3]), true, dtype := bm.bool));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise4;
 var
   LVal: variant;
 begin
-  FBm.print('Q. Extract all odd numbers from arr');
+  bm.print('Q. Extract all odd numbers from arr');
   with NumPy1 do begin
     var LArr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-    FMm.arr := LArr;
-    FBm.print('by Python eval');
-    FBm.print(Eval('arr[arr %2 == 1]'));
-    FBm.print('by Delphi'); 
+    mm.arr := LArr;
+    bm.print('by Python eval');
+    bm.print(Eval('arr[arr %2 == 1]'));
+    bm.print('by Delphi');
     var LList := NewPythonList();
     for LVal in VarPyIterate(LArr) do begin
       if Odd(VarToStr(LVal).ToInteger()) then
         LList.append(VarToStr(LVal).ToInteger());           
     end;  
-    FBm.print(LList);
+    bm.print(LList);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise5;
 begin
-  FBm.print('Q. Replace all odd numbers in arr with -1');
+  bm.print('Q. Replace all odd numbers in arr with -1');
   with NumPy1, PythonEngine do begin
     var LArr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-    FMm.arr := LArr;
+    mm.arr := LArr;
     ExecString(AnsiString('arr[arr % 2 == 1] = -1'));
-    FBm.print(Fmm.arr);
+    bm.print(mm.arr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise6;
 begin
-  FBm.print('Q. Replace all odd numbers in arr with -1 without changing arr');
+  bm.print('Q. Replace all odd numbers in arr with -1 without changing arr');
   with NumPy1 do begin
     var LArr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));        
     LArr := np.arange(10);   
-    FMm.arr := LArr;
+    mm.arr := LArr;
     var LOut := np.where(Eval('arr % 2 == 1'), -1, LArr);
-    FBm.print(LArr);
-    FBm.print(LOut);
+    bm.print(LArr);
+    bm.print(LOut);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise7;
 begin
-  FBm.print('Q. Convert a 1D array to a 2D array with 2 rows');
+  bm.print('Q. Convert a 1D array to a 2D array with 2 rows');
   with NumPy1 do begin
     var LArr := np.arange(10);    
-    FBm.print(LArr.reshape(2, -1));       
+    bm.print(LArr.reshape(2, -1));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise8;
 begin
-  FBm.print('Q. Stack arrays a and b vertically');
+  bm.print('Q. Stack arrays a and b vertically');
   with NumPy1 do begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
-    FBm.print('# Method 1:');
-    FBm.print(np.concatenate(T([LA, LB]), axis := 0));
-    FBm.print('# Method 2:');
-    FBm.print(np.vstack(T([LA, LB])));
-    FBm.print('# Method 3:');
-    FBm.print(np.r_[(T([LA, LB]))]);
+    bm.print('# Method 1:');
+    bm.print(np.concatenate(T([LA, LB]), axis := 0));
+    bm.print('# Method 2:');
+    bm.print(np.vstack(T([LA, LB])));
+    bm.print('# Method 3:');
+    bm.print(np.r_[(T([LA, LB]))]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise9;
 begin
-  FBm.print('Q. Stack the arrays a and b horizontally.');
+  bm.print('Q. Stack the arrays a and b horizontally.');
   with NumPy1 do begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
-    FBm.print('# Method 1:');
-    FBm.print(np.concatenate(T([LA, LB]), axis := 1));
-    FBm.print('# Method 2:');
-    FBm.print(np.hstack(T([LA, LB])));
-    FBm.print('# Method 3:');
-    FBm.print(np.c_[(T([LA, LB]))]);
+    bm.print('# Method 1:');
+    bm.print(np.concatenate(T([LA, LB]), axis := 1));
+    bm.print('# Method 2:');
+    bm.print(np.hstack(T([LA, LB])));
+    bm.print('# Method 3:');
+    bm.print(np.c_[(T([LA, LB]))]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise10;
 begin
-  FBm.print('Q. Create the following pattern without hardcoding. Use only numpy functions and the below input array a.');
+  bm.print('Q. Create the following pattern without hardcoding. Use only numpy functions and the below input array a.');
   with NumPy1 do begin
     var LA := np.array(VarArrayOf([1, 2, 3]));
-    FBm.print(np.r_[(T([np.repeat(LA, 3), np.tile(LA, 3)]))]);
+    bm.print(np.r_[(T([np.repeat(LA, 3), np.tile(LA, 3)]))]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise11;
 begin
-  FBm.print('Q. Get the common items between a and b.');
+  bm.print('Q. Get the common items between a and b.');
   with NumPy1 do begin
     var LA := np.array(L([1, 2, 3, 4, 5, 6]));
     var LB := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
-    FBm.print(np.intersect1d(LA, LB));
+    bm.print(np.intersect1d(LA, LB));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise12;
 begin
-  FBm.print('Q. From array a remove all items present in array b.');
+  bm.print('Q. From array a remove all items present in array b.');
   with NumPy1 do begin
     var LA := np.array(L([1, 2, 3, 4, 5]));
     var LB := np.array(L([5, 6, 7, 8, 9]));
-    FBm.print(np.setdiff1d(LA, LB));
+    bm.print(np.setdiff1d(LA, LB));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise13;
 begin
-  FBm.print('Q. Get the positions where elements of a and b match.');
+  bm.print('Q. Get the positions where elements of a and b match.');
   with NumPy1 do begin
-    FMm.a := np.array(L([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
-    FMm.b := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
-    FBm.print(np.where(Eval('a == b')));
+    mm.a := np.array(L([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
+    mm.b := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    bm.print(np.where(Eval('a == b')));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise14;
 begin
-  FBm.print('Q. Get all items between 5 and 10 from a.');
+  bm.print('Q. Get all items between 5 and 10 from a.');
   with NumPy1 do begin
-    FMm.a := np.arange(15);
-    FBm.print('# Method 1:');
+    mm.a := np.arange(15);
+    bm.print('# Method 1:');
     var LIx := np.where(Eval('(a >= 5) & (a <= 10)'));
-    FBm.print(FMm.a[LIx]);
-    FBm.print('# Method 2:');
+    bm.print(mm.a[LIx]);
+    bm.print('# Method 2:');
     LIx := np.where(np.logical_and(Eval('a >= 5'), Eval('a <= 10')));
-    FBm.print(FMm.a[LIx]);
-    FBm.print('# Method 3:');
-    FBm.print(FMm.a[Eval('(a >= 5) & (a <= 10)')]);
+    bm.print(mm.a[LIx]);
+    bm.print('# Method 3:');
+    bm.print(mm.a[Eval('(a >= 5) & (a <= 10)')]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise15;
 begin
-  FBm.print('Q. Convert the function maxx that works on two scalars, to work on two arrays.');
+  bm.print('Q. Convert the function maxx that works on two scalars, to work on two arrays.');
   with NumPy1, PythonModule1 do begin
     AddDelphiMethod('maxx', maxx, String.Empty);
     Initialize();
     try
       var LEm := VarPyth.Import('exercises');
-      FMm.pair_max := np.vectorize(LEm.maxx, otypes := L([FBm.float]));
+      mm.pair_max := np.vectorize(LEm.maxx, otypes := L([bm.float]));
       var LA := np.array(L([5, 7, 9, 8, 6, 4, 5]));
       var LB := np.array(L([6, 3, 4, 8, 9, 7, 1]));
-      FBm.print(FMm.pair_max(LA, LB)); //advice: add a break point at maxx method.
+      bm.print(mm.pair_max(LA, LB)); //advice: add a break point at maxx method.
     finally
       Finalize();
     end;
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise16;
 begin
-  FBm.print('Q. Swap columns 1 and 2 in the array arr.');
+  bm.print('Q. Swap columns 1 and 2 in the array arr.');
   with NumPy1 do begin
-    FMm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  FMm.arr[(T([Ellipsis(), L([1, 0, 2])]))]; //arr[:, [1, 0, 2]]
-    FBm.print(LArr);
+    mm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  mm.arr[(T([Ellipsis(), L([1, 0, 2])]))]; //arr[:, [1, 0, 2]]
+    bm.print(LArr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise17;
 begin
-  FBm.print('Q. Swap rows 1 and 2 in the array arr:');
+  bm.print('Q. Swap rows 1 and 2 in the array arr:');
   with NumPy1 do begin
-    FMm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  FMm.arr[(T([L([1, 0, 2]), Ellipsis()]))]; //arr[[1, 0, 2], :]
-    FBm.print(LArr);
+    mm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  mm.arr[(T([L([1, 0, 2]), Ellipsis()]))]; //arr[[1, 0, 2], :]
+    bm.print(LArr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise18;
 begin
-  FBm.print('Q. Reverse the rows of a 2D array arr.');
+  bm.print('Q. Reverse the rows of a 2D array arr.');
   with NumPy1 do begin
-    FMm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  FMm.arr[(T([FBm.slice(None(), None(), -1)]))]; //arr[::-1]
-    FBm.print(LArr);
+    mm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  mm.arr[(T([bm.slice(None(), None(), -1)]))]; //arr[::-1]
+    bm.print(LArr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise19;
 begin
-  FBm.print('Q. Reverse the columns of a 2D array arr.');
+  bm.print('Q. Reverse the columns of a 2D array arr.');
   with NumPy1 do begin
-    FMm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  FMm.arr[(T([Ellipsis(), FBm.slice(None(), None(), -1)]))]; //arr[:, ::-1]
-    FBm.print(LArr);
+    mm.arr := np.arange(9).reshape(3, 3);
+    var LArr :=  mm.arr[(T([Ellipsis(), bm.slice(None(), None(), -1)]))]; //arr[:, ::-1]
+    bm.print(LArr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise20;
 begin
-  FBm.print('Q. Create a 2D array of shape 5x3 to contain random decimal numbers between 5 and 10.');
+  bm.print('Q. Create a 2D array of shape 5x3 to contain random decimal numbers between 5 and 10.');
   with NumPy1 do begin
-    FBm.print('# Method 1:');
+    bm.print('# Method 1:');
     var LRand_Arr := np.random.randint(low := 5, high := 10, size := T([5, 3])) + np.random.random(T([5, 3]));
-    FBm.print(LRand_Arr);
-    FBm.print('# Method 2:');
+    bm.print(LRand_Arr);
+    bm.print('# Method 2:');
     LRand_Arr := np.random.uniform(5, 10, size := T([5, 3]));
-    FBm.print(LRand_Arr);
+    bm.print(LRand_Arr);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise21;
 begin
-  FBm.print('Q. Print or show only 3 decimal places of the numpy array rand_arr.');
+  bm.print('Q. Print or show only 3 decimal places of the numpy array rand_arr.');
   with NumPy1 do begin
-    FMm.rand_arr := np.random.random(T([5, 3]));
+    mm.rand_arr := np.random.random(T([5, 3]));
     //Limit to 3 decimal places
     var LPrintOpts := np.get_printoptions();
     try
       np.set_printoptions(precision := 3);
-      Fbm.print(FMm.rand_arr[T([FBm.slice(None(), 4)])]); //rand_arr[:4]
+      bm.print(mm.rand_arr[T([bm.slice(None(), 4)])]); //rand_arr[:4]
     finally
       RestorePrintOpts(LPrintOpts);
     end;
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise22;
 begin
-  FBm.print('Q. Pretty print rand_arr by suppressing the scientific notation (like 1e10)');
+  bm.print('Q. Pretty print rand_arr by suppressing the scientific notation (like 1e10)');
   with NumPy1 do begin
     //Reset printoptions to default
     var LPrintOpts := np.get_printoptions();
@@ -498,110 +498,110 @@ begin
       np.set_printoptions(suppress := false);
       np.random.seed(100);
       var LRand_Arr := np.random.random(L([3, 3])); //1e3
-      FBm.print(LRand_Arr);
+      bm.print(LRand_Arr);
       np.set_printoptions(suppress := true, precision := 6);
-      FBm.print(LRand_Arr);
+      bm.print(LRand_Arr);
     finally
       RestorePrintOpts(LPrintOpts);
     end;
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise23;
 begin
-  FBm.print('Q. Limit the number of items printed in python numpy array a to a maximum of 6 elements.');
+  bm.print('Q. Limit the number of items printed in python numpy array a to a maximum of 6 elements.');
   with NumPy1 do begin
     var LPrintOpts := np.get_printoptions();
     try
       np.set_printoptions(threshold := 6);
-      FBm.print(np.arange(15));
+      bm.print(np.arange(15));
     finally
       RestorePrintOpts(LPrintOpts);
     end;
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise24;
 begin
-  FBm.print('Q. Print the full numpy array a without truncating.');
+  bm.print('Q. Print the full numpy array a without truncating.');
   with NumPy1 do begin
     var LPrintOpts := np.get_printoptions();
     try
       np.set_printoptions(threshold := 6);
       var LA := np.arange(15);
       np.set_printoptions(threshold := SysModule.maxsize);
-      FBm.print(LA);
+      bm.print(LA);
     finally
       RestorePrintOpts(LPrintOpts);
     end;
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise25;
 begin
-  FBm.print('Q. Import the iris dataset keeping the text intact.');
+  bm.print('Q. Import the iris dataset keeping the text intact.');
   with NumPy1 do begin
     np.set_printoptions(precision := 3);
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
+    mm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
     var LNames := T(['sepallength', 'sepalwidth', 'petallength', 'petalwidth', 'species']);
     //Print first 3 rows
-    FBm.print(FMm.iris[T([FBm.slice(None(), 3)])]);
+    bm.print(mm.iris[T([bm.slice(None(), 3)])]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise26;
 begin
-  FBm.print('Q. Extract the text column species from the 1D iris imported in previous question.');
+  bm.print('Q. Extract the text column species from the 1D iris imported in previous question.');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris_1d := np.genfromtxt(LUrl, delimiter := ',', dtype := None());
-    FBm.print(FMm.iris_1d.shape);
+    mm.iris_1d := np.genfromtxt(LUrl, delimiter := ',', dtype := None());
+    bm.print(mm.iris_1d.shape);
 
-    FMm.species := np.array(Eval('[row[4] for row in iris_1d]'));
-    FBm.print(FMm.species[T([FBm.slice(None(), 5)])]);
+    mm.species := np.array(Eval('[row[4] for row in iris_1d]'));
+    bm.print(mm.species[T([bm.slice(None(), 5)])]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise27;
 begin
-  FBm.print('Q. Convert the 1D iris to 2D array iris_2d by omitting the species text field.');
+  bm.print('Q. Convert the 1D iris to 2D array iris_2d by omitting the species text field.');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris_1d := np.genfromtxt(LUrl, delimiter := ',', dtype := None());
-    FBm.print('# Method 1: Convert each row to a list and get the first 4 items');
-    FMm.iris_2d := np.array(Eval('[row.tolist()[:4] for row in iris_1d]'));
-    FBm.print(FMm.iris_2d[T([FBm.slice(None(), 4)])]);
-    FBm.print('# Method 2: Import only the first 4 columns from source url');
-    FMm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0, 1, 2, 3]));
-    FBm.print(FMm.iris_2d[T([FBm.slice(None(), 4)])]);
+    mm.iris_1d := np.genfromtxt(LUrl, delimiter := ',', dtype := None());
+    bm.print('# Method 1: Convert each row to a list and get the first 4 items');
+    mm.iris_2d := np.array(Eval('[row.tolist()[:4] for row in iris_1d]'));
+    bm.print(mm.iris_2d[T([bm.slice(None(), 4)])]);
+    bm.print('# Method 2: Import only the first 4 columns from source url');
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0, 1, 2, 3]));
+    bm.print(mm.iris_2d[T([bm.slice(None(), 4)])]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise28;
 begin
-  FBm.print('Q. Find the mean, median, standard deviation of iris''s sepallength (1st column)');
+  bm.print('Q. Find the mean, median, standard deviation of iris''s sepallength (1st column)');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
+    mm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
     var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
     var LMu := np.mean(LSepallength);
     var LMed := np.median(LSepallength);
     var LSd := np.std(LSepallength);
-    FBm.print(LMu, LMed, LSd);
+    bm.print(LMu, LMed, LSd);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise29;
 begin
-  FBm.print('Q. Create a normalized form of iris''s sepallength whose values range exactly between 0 and 1 so that the minimum has value 0 and maximum has value 1.');
+  bm.print('Q. Create a normalized form of iris''s sepallength whose values range exactly between 0 and 1 so that the minimum has value 0 and maximum has value 1.');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
@@ -610,98 +610,98 @@ begin
     var LS := (LSepallength - LSmin) / (LSmax - LSmin);
     //or
     LS := (LSepallength - LSmin) / LSepallength.ptp();
-    FBm.print(LS);
+    bm.print(LS);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise30;
 begin
-  FBm.print('Q. Compute the softmax score of sepallength.');
+  bm.print('Q. Compute the softmax score of sepallength.');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
+    mm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
     var LSepallength := np.array(Eval('[float(row[0]) for row in iris]'));
     var softmax := function(const AValue: variant): variant
     begin
       var LE_x := np.exp(AValue - np.max(AValue));
       Result := LE_x / LE_x.sum(axis := 0);
     end;
-    FBm.print(softmax(LSepallength));
+    bm.print(softmax(LSepallength));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise31;
 begin
-  FBm.print('Q. Find the 5th and 95th percentile of iris''s sepallength');
+  bm.print('Q. Find the 5th and 95th percentile of iris''s sepallength');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
-    FBm.print(np.percentile(LSepallength, q := L([5, 95])));
+    bm.print(np.percentile(LSepallength, q := L([5, 95])));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise32;
 begin
-  FBm.print('Q. Insert np.nan values at 20 random positions in iris_2d dataset');
+  bm.print('Q. Insert np.nan values at 20 random positions in iris_2d dataset');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
-    FMm.npNAN := np.NAN;
-    FBm.print('# Method 1:');
-    var LResp := np.where(FMm.iris_2d); //Response with many results (tuple) e.g. i, j = np.where(iris_2d)
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
+    mm.npNAN := np.NAN;
+    bm.print('# Method 1:');
+    var LResp := np.where(mm.iris_2d); //Response with many results (tuple) e.g. i, j = np.where(iris_2d)
     var LI := LResp.GetItem(0);
     var LJ := LResp.GetItem(1);
     np.random.seed(100);
-    FMm.c1 := np.random.choice(LI, 20);
-    FMm.c2 := np.random.choice(LJ, 20);
+    mm.c1 := np.random.choice(LI, 20);
+    mm.c2 := np.random.choice(LJ, 20);
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
-    FBm.print('# Method 2:');
+    bm.print('# Method 2:');
     np.random.seed(100);
-    FMm.c1 := np.random.randint(150, size := 20);
-    FMm.c2 := np.random.randint(4, size := 20);
+    mm.c1 := np.random.randint(150, size := 20);
+    mm.c2 := np.random.randint(4, size := 20);
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
-    FBm.print(FMm.iris_2d[T([FBm.slice(None(), 10)])]);
+    bm.print(mm.iris_2d[T([bm.slice(None(), 10)])]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise33;
 begin
-  FBm.print('Q. Find the number and position of missing values in iris_2d''s sepallength (1st column)');
+  bm.print('Q. Find the number and position of missing values in iris_2d''s sepallength (1st column)');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
-    FMm.c1 := np.random.randint(150, size := 20);
-    FMm.c2 := np.random.randint(4, size := 20);
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
+    mm.c1 := np.random.randint(150, size := 20);
+    mm.c2 := np.random.randint(4, size := 20);
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
-    FBm.print('Number of missing values: \n', np.isnan(FMm.iris_2d[T([Ellipsis(), 0])]).sum());
-    FBm.print('Position of missing values: \n', np.where(np.isnan(FMm.iris_2d[T([Ellipsis(), 0])])));
+    bm.print('Number of missing values: \n', np.isnan(mm.iris_2d[T([Ellipsis(), 0])]).sum());
+    bm.print('Position of missing values: \n', np.where(np.isnan(mm.iris_2d[T([Ellipsis(), 0])])));
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.Exercise34;
 begin
-  FBm.print('Q. Filter the rows of iris_2d that has petallength (3rd column) > 1.5 and sepallength (1st column) < 5.0');
+  bm.print('Q. Filter the rows of iris_2d that has petallength (3rd column) > 1.5 and sepallength (1st column) < 5.0');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    FMm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
-    FMm.c1 := FMm.iris_2d[T([Ellipsis(), 2])];
-    FMm.c1 := Eval('c1 > 1.5');
-    FMm.c2 := FMm.iris_2d[T([Ellipsis(), 0])];
-    FMm.c2 := Eval('c2 < 5.0');
-    FBm.print(FMm.iris_2d[Eval('c1 & c2')]);
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
+    mm.c1 := mm.iris_2d[T([Ellipsis(), 2])];
+    mm.c1 := Eval('c1 > 1.5');
+    mm.c2 := mm.iris_2d[T([Ellipsis(), 0])];
+    mm.c2 := Eval('c2 < 5.0');
+    bm.print(mm.iris_2d[Eval('c1 & c2')]);
   end;
-  FBm.print('');
+  bm.print('');
 end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-  FBm := BuiltinModule;
-  FMm := MainModule;
+  bm := BuiltinModule;
+  mm := MainModule;
   Exercise1();
   Exercise2();
   Exercise3();
