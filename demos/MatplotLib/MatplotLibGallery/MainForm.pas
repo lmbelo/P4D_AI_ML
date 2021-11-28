@@ -36,7 +36,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Memo.Types,
   PyCommon, PyModule, MatplotLib, PythonEngine, FMX.PythonGUIInputOutput,
   FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo, NumPy, FMX.StdCtrls,
-  FMX.Layouts, PyPackage;
+  FMX.Layouts, PyPackage, System.Generics.Collections;
 
 type
   TForm1 = class(TForm)
@@ -67,7 +67,7 @@ implementation
 {$R *.fmx}
 
 uses
-  VarPyth;
+  VarPyth, PyUtils;
 
 procedure TForm1.btnScatterMaskedClick(Sender: TObject);
 begin
@@ -94,13 +94,11 @@ begin
       //                                r >= r0
       var area2 := np.ma.masked_where(op.ge(r, r0), area);
 
-      MaskFPUExceptions(true);
-      try
+      TPyEx.ExecuteMasked(procedure begin
         plt.scatter(x, y, s := area1, marker := '^', c := c);
         plt.scatter(x, y, s := area2, marker := 'o', c := c);
-      finally
-        MaskFPUExceptions(false);
-      end;
+      end);
+
       //Show the boundary between the regions:
       var theta := np.arange(0, np.pi / 2, 0.01);
       plt.plot(r0 * np.cos(theta), r0 * np.sin(theta));
@@ -141,8 +139,6 @@ begin
 end;
 
 procedure TForm1.btnInterpolationsClick(Sender: TObject);
-var
-  LZip: variant;
 begin
   //https://matplotlib.org/stable/gallery/images_contours_and_fields/interpolation_methods.html#sphx-glr-gallery-images-contours-and-fields-interpolation-methods-py
   DisableButtons();
@@ -160,16 +156,18 @@ begin
       np.random.seed(19680801);
 
       mm.grid := np.random.rand(4, 4);
-      var dict := NewPythonDict();
-      dict.SetItem('xticks', VarArrayOf([]));
-      dict.SetItem('yticks', VarArrayOf([]));
+
+      var dict := TPyEx.Dictionary([
+        TDictItem.Create('xticks', VarArrayOf([])),
+        TDictItem.Create('yticks', VarArrayOf([]))
+      ]);
 
       var plots := plt.subplots(nrows := 3, ncols := 6,
-        figsize:= VarPythonCreate([9, 6], stTuple), subplot_kw := dict);
+        figsize:= TPyEx.Tuple([9, 6]), subplot_kw := dict);
       mm.fig := plots.GetItem(0);
       mm.axs := plots.GetItem(1);
 
-      for LZip in VarPyIterate(bm.zip(mm.axs.flat, methods)) do begin
+      for var LZip in bm.zip(mm.axs.flat, methods).GetEnumerator() do begin
         var ax := LZip.GetItem(0);
         var interp_method := LZip.GetItem(1);
         ax.imshow(mm.grid, interpolation := interp_method, cmap := 'viridis');
