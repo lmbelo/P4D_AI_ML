@@ -48,8 +48,9 @@ type
     PythonModule1: TPythonModule;
     procedure FormCreate(Sender: TObject);
   private
-    bm: Variant;
-    mm: Variant;
+    bm: variant;
+    mm: variant;
+    op: variant;
     //Interop methods
     function maxx(ASelf, AArgs: PPyObject): PPyObject; cdecl;
     //Helper methods
@@ -228,7 +229,7 @@ procedure TForm2.Exercise3;
 begin
   bm.print('Q. Create a 3×3 numpy array of all True’s');
   with NumPy1 do begin
-    bm.print(np.full(VarArrayOf([3, 3]), true, dtype := bm.bool));
+    bm.print(np.full(TPyEx.Tuple([3, 3]), true, dtype := bm.bool));
   end;
   bm.print('');
 end;
@@ -237,16 +238,16 @@ procedure TForm2.Exercise4;
 begin
   bm.print('Q. Extract all odd numbers from arr');
   with NumPy1 do begin
-    var arr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    var arr := np.array(TPyEx.Tuple([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
     mm.arr := arr;
     bm.print('by Python eval');
     bm.print(Eval('arr[arr %2 == 1]'));
     bm.print('by Delphi');
-    var list := NewPythonList();
-    for var val in VarPyIterate(arr) do begin
+    var list := TPyEx.List([]);
+    for var val in arr.GetEnumerator() do begin
       if Odd(VarToStr(val).ToInteger()) then
         list.append(VarToStr(val).ToInteger());
-    end;  
+    end;
     bm.print(list);
   end;
   bm.print('');
@@ -256,10 +257,20 @@ procedure TForm2.Exercise5;
 begin
   bm.print('Q. Replace all odd numbers in arr with -1');
   with NumPy1, PythonEngine do begin
-    var arr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    var arr := np.array(TPyEx.Tuple([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
     mm.arr := arr;
+    bm.print('by Python eval');
     ExecString(AnsiString('arr[arr % 2 == 1] = -1'));
     bm.print(mm.arr);
+    bm.print('by Delphi');
+    arr := np.array(TPyEx.Tuple([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    var ix := 0;
+    for var val in arr.GetEnumerator() do begin
+      if Odd(VarToStr(val).ToInteger()) then
+        arr.Values[ix] := -1;
+      Inc(ix);
+    end;
+    bm.print(arr);
   end;
   bm.print('');
 end;
@@ -268,10 +279,17 @@ procedure TForm2.Exercise6;
 begin
   bm.print('Q. Replace all odd numbers in arr with -1 without changing arr');
   with NumPy1 do begin
-    var arr := np.array(VarArrayOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    var arr := np.array(TPyEx.Tuple([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
     arr := np.arange(10);
     mm.arr := arr;
+    bm.print('by Python eval');
     var &out := np.where(Eval('arr % 2 == 1'), -1, arr);
+    bm.print(arr);
+    bm.print(&out);
+    bm.print('by Delphi');
+    arr := np.array(TPyEx.Tuple([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+    arr := np.arange(10);
+    &out := np.where(op.eq(op.mod(arr, 2), 1), -1, arr);
     bm.print(arr);
     bm.print(&out);
   end;
@@ -324,7 +342,7 @@ procedure TForm2.Exercise10;
 begin
   bm.print('Q. Create the following pattern without hardcoding. Use only numpy functions and the below input array a.');
   with NumPy1 do begin
-    var a := np.array(VarArrayOf([1, 2, 3]));
+    var a := np.array(TPyEx.Tuple([1, 2, 3]));
     bm.print(np.r_[(TPyEx.Tuple([np.repeat(a, 3), np.tile(a, 3)]))]);
   end;
   bm.print('');
@@ -356,9 +374,9 @@ procedure TForm2.Exercise13;
 begin
   bm.print('Q. Get the positions where elements of a and b match.');
   with NumPy1 do begin
-    mm.a := np.array(TPyEx.List([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
-    mm.b := np.array(TPyEx.List([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
-    bm.print(np.where(Eval('a == b')));
+    var a := np.array(TPyEx.List([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
+    var b := np.array(TPyEx.List([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    bm.print(np.where(op.eq(a, b)));
   end;
   bm.print('');
 end;
@@ -367,15 +385,16 @@ procedure TForm2.Exercise14;
 begin
   bm.print('Q. Get all items between 5 and 10 from a.');
   with NumPy1 do begin
-    mm.a := np.arange(15);
+    var a := np.arange(15);
     bm.print('# Method 1:');
-    var ix := np.where(Eval('(a >= 5) & (a <= 10)'));
-    bm.print(mm.a[ix]);
+    //                           (a >= 5) & (a <= 10)
+    var ix := np.where(op.and_(op.ge(a, 5), op.le(a, 10)));
+    bm.print(a.Values[ix]);
     bm.print('# Method 2:');
-    ix := np.where(np.logical_and(Eval('a >= 5'), Eval('a <= 10')));
-    bm.print(mm.a[ix]);
+    ix := np.where(np.logical_and(op.ge(a, 5), op.le(a, 10)));
+    bm.print(a.Values[ix]);
     bm.print('# Method 3:');
-    bm.print(mm.a[Eval('(a >= 5) & (a <= 10)')]);
+    bm.print(a.Values[op.and_(op.ge(a, 5), op.le(a, 10))]);
   end;
   bm.print('');
 end;
@@ -383,18 +402,32 @@ end;
 procedure TForm2.Exercise15;
 begin
   bm.print('Q. Convert the function maxx that works on two scalars, to work on two arrays.');
-  with NumPy1, PythonModule1 do begin
-    AddDelphiMethod('maxx', maxx, String.Empty);
-    Initialize();
-    try
-      var em := VarPyth.Import('exercises');
-      mm.pair_max := np.vectorize(em.maxx, otypes := TPyEx.List([bm.float]));
-      var a := np.array(TPyEx.List([5, 7, 9, 8, 6, 4, 5]));
-      var b := np.array(TPyEx.List([6, 3, 4, 8, 9, 7, 1]));
-      bm.print(mm.pair_max(a, b)); //advice: add a break point at maxx method.
-    finally
-      Finalize();
+  //em.maxx or TPyEx.Closure
+  with NumPy1 do begin
+    //em.maxx
+    with PythonModule1 do begin
+      AddDelphiMethod('maxx', maxx, String.Empty);
+      Initialize();
+      try
+        var em := VarPyth.Import('exercises');
+        mm.pair_max := np.vectorize(em.maxx, otypes := TPyEx.List([bm.float]));
+        var a := np.array(TPyEx.List([5, 7, 9, 8, 6, 4, 5]));
+        var b := np.array(TPyEx.List([6, 3, 4, 8, 9, 7, 1]));
+        bm.print(mm.pair_max(a, b)); //advice: add a break point at maxx method.
+      finally
+        Finalize();
+      end;
     end;
+    //or TPyEx.Closure
+    mm.pair_max := np.vectorize(TPyEx.Closure(function(AArg: variant): variant begin
+      if AArg.Values[0] > AArg.Values[1] then
+        Result := AArg.Values[0]
+      else
+        Result := AArg.Values[1]
+    end), otypes := TPyEx.List([bm.float]));
+    var a := np.array(TPyEx.List([5, 7, 9, 8, 6, 4, 5]));
+    var b := np.array(TPyEx.List([6, 3, 4, 8, 9, 7, 1]));
+    bm.print(mm.pair_max(a, b)); //advice: add a break point at maxx method.
   end;
   bm.print('');
 end;
@@ -545,10 +578,19 @@ begin
   bm.print('Q. Extract the text column species from the 1D iris imported in previous question.');
   with NumPy1 do begin
     var url := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    mm.iris_1d := np.genfromtxt(url, delimiter := ',', dtype := None());
+    var iris_1d := np.genfromtxt(url, delimiter := ',', dtype := None());
+    mm.iris_1d := iris_1d;
     bm.print(mm.iris_1d.shape);
-
+    bm.print('by Python eval');
     mm.species := np.array(Eval('[row[4] for row in iris_1d]'));
+    bm.print(mm.species[TPyEx.Tuple([bm.slice(None(), 5)])]);
+    bm.print('by Delphil');
+    var list := TPyEx.List([]);
+    for var row in iris_1d.GetEnumerator() do
+    begin
+      list.append(row.Values[4])
+    end;
+    mm.species := np.array(list);
     bm.print(mm.species[TPyEx.Tuple([bm.slice(None(), 5)])]);
   end;
   bm.print('');
@@ -560,8 +602,19 @@ begin
   with NumPy1 do begin
     var url := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris_1d := np.genfromtxt(url, delimiter := ',', dtype := None());
+
     bm.print('# Method 1: Convert each row to a list and get the first 4 items');
+    //by Python eval
     mm.iris_2d := np.array(Eval('[row.tolist()[:4] for row in iris_1d]'));
+    //or even in Delphi    
+    var list := TPyEx.List([]);
+    for var row in mm.iris_1d.GetEnumerator() do
+    begin
+      list.append(row.tolist().GetSlice(Ellipsis, 4));
+    end;
+    //Compare PythonEval result and Delphi generated result  
+    Assert(VarToStr(np.array_equal(mm.iris_2d, np.array(list))).ToBoolean(), 'Expressions results are not equal.');
+    
     bm.print(mm.iris_2d[TPyEx.Tuple([bm.slice(None(), 4)])]);
     bm.print('# Method 2: Import only the first 4 columns from source url');
     mm.iris_2d := np.genfromtxt(url, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0, 1, 2, 3]));
@@ -607,7 +660,16 @@ begin
   with NumPy1 do begin
     var url := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris := np.genfromtxt(url, delimiter := ',', dtype := 'object');
+    //by Python eval
     var sepal_length := np.array(Eval('[float(row[0]) for row in iris]'));
+    //or even in Delphi
+    var list := TPyEx.List([]);
+    for var row in mm.iris.GetEnumerator() do begin
+      list.append(bm.float(row.Values[0]));  
+    end;
+    //Compare PythonEval result and Delphi generated result  
+    Assert(VarToStr(np.array_equal(sepal_length, np.array(list))).ToBoolean(), 'Expressions results are not equal.');
+     
     var softmax := function(const AValue: variant): variant
     begin
       var e_x := np.exp(AValue - np.max(AValue));
@@ -636,18 +698,24 @@ begin
     var url := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris_2d := np.genfromtxt(url, delimiter := ',', dtype := 'object');
     mm.npNAN := np.NAN;
+    
     bm.print('# Method 1:');
     var resp := np.where(mm.iris_2d); //Response with many results (tuple) e.g. i, j = np.where(iris_2d)
-    var i := resp.GetItem(0);
-    var j := resp.GetItem(1);
+    var i := resp.Values[0];
+    var j := resp.Values[1];
+    
     np.random.seed(100);
     mm.c1 := np.random.choice(i, 20);
     mm.c2 := np.random.choice(j, 20);
-    PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
+
+    //by Python execstr     
+    PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');      
+    
     bm.print('# Method 2:');
     np.random.seed(100);
     mm.c1 := np.random.randint(150, size := 20);
     mm.c2 := np.random.randint(4, size := 20);
+    //by Python execstr     
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
     bm.print(mm.iris_2d[TPyEx.Tuple([bm.slice(None(), 10)])]);
   end;
@@ -676,10 +744,13 @@ begin
     var url := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris_2d := np.genfromtxt(url, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0,1,2,3]));
     mm.c1 := mm.iris_2d[TPyEx.Tuple([Ellipsis(), 2])];
-    mm.c1 := Eval('c1 > 1.5');
+    //             c1 > 1.5
+    mm.c1 := op.gt(mm.c1, 1.5);
     mm.c2 := mm.iris_2d[TPyEx.Tuple([Ellipsis(), 0])];
-    mm.c2 := Eval('c2 < 5.0');
-    bm.print(mm.iris_2d[Eval('c1 & c2')]);
+    //             c2 < 5.0 
+    mm.c2 := op.lt(mm.c2, 5.0);
+    //                             c1 & c2
+    bm.print(mm.iris_2d[op.and_(mm.c1, mm.c2)]);
   end;
   bm.print('');
 end;
@@ -688,6 +759,7 @@ procedure TForm2.FormCreate(Sender: TObject);
 begin
   bm := BuiltinModule;
   mm := MainModule;
+  op := Import('operator');
   Exercise1();
   Exercise2();
   Exercise3();
