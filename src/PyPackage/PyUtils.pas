@@ -39,6 +39,7 @@ type
   TVarRecArray = array of TVarRec;
   TClosures = class;
   TypeClosure = TFunc<Variant, Variant>;
+  TDictItem = TPair<variant, variant>;
   
   TVariantHelper = record helper for variant
   private
@@ -77,6 +78,8 @@ type
     class function Dictionary(const AArgs: array of TPair<variant, variant>): variant; static;
     //Closure helper
     class function Closure(const AFunc: TypeClosure; const APythonEngine: TPythonEngine = nil): variant;
+    //Execute a method decorated with the FPU mask
+    class procedure ExecuteMasked(const AProc: TProc);
   end;
 
   TClosure = class
@@ -241,6 +244,18 @@ begin
   Result := NewPythonDict();
   for var LItem in AArgs do begin
     Result.SetItem(LItem.Key, LItem.Value);
+  end;
+end;
+
+class procedure TPyEx.ExecuteMasked(const AProc: TProc);
+begin
+  if Assigned(AProc) then begin
+    MaskFPUExceptions(true);
+    try
+      AProc();
+    finally
+      MaskFPUExceptions(false);
+    end;
   end;
 end;
 
