@@ -199,24 +199,12 @@ var
 implementation
 
 uses
-  WrapDelphi, VarPyth;
+  WrapDelphi, VarPyth, PyUtils;
 
 {$R *.fmx}
 
 const
   Eval: function(const APythonExpression: AnsiString): Variant = VarPythonEval;
-
-// Helper methods
-
-function T(const AValues: array of const): variant;
-begin
-  Result := VarPythonCreate(AValues, TSequenceType.stTuple);
-end;
-
-function L(const AValues: array of const): variant;
-begin
-  Result := VarPythonCreate(AValues, TSequenceType.stList);
-end;
 
 procedure TForm2.Exercise1;
 begin
@@ -309,11 +297,11 @@ begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
     bm.print('# Method 1:');
-    bm.print(np.concatenate(T([LA, LB]), axis := 0));
+    bm.print(np.concatenate(TPyEx.Tuple([LA, LB]), axis := 0));
     bm.print('# Method 2:');
-    bm.print(np.vstack(T([LA, LB])));
+    bm.print(np.vstack(TPyEx.Tuple([LA, LB])));
     bm.print('# Method 3:');
-    bm.print(np.r_[(T([LA, LB]))]);
+    bm.print(np.r_[(TPyEx.Tuple([LA, LB]))]);
   end;
   bm.print('');
 end;
@@ -325,11 +313,11 @@ begin
     var LA := np.arange(10).reshape(2, -1);
     var LB := np.repeat(1, 10).reshape(2, -1);
     bm.print('# Method 1:');
-    bm.print(np.concatenate(T([LA, LB]), axis := 1));
+    bm.print(np.concatenate(TPyEx.Tuple([LA, LB]), axis := 1));
     bm.print('# Method 2:');
-    bm.print(np.hstack(T([LA, LB])));
+    bm.print(np.hstack(TPyEx.Tuple([LA, LB])));
     bm.print('# Method 3:');
-    bm.print(np.c_[(T([LA, LB]))]);
+    bm.print(np.c_[(TPyEx.Tuple([LA, LB]))]);
   end;
   bm.print('');
 end;
@@ -339,7 +327,7 @@ begin
   bm.print('Q. Create the following pattern without hardcoding. Use only numpy functions and the below input array a.');
   with NumPy1 do begin
     var LA := np.array(VarArrayOf([1, 2, 3]));
-    bm.print(np.r_[(T([np.repeat(LA, 3), np.tile(LA, 3)]))]);
+    bm.print(np.r_[(TPyEx.Tuple([np.repeat(LA, 3), np.tile(LA, 3)]))]);
   end;
   bm.print('');
 end;
@@ -348,8 +336,8 @@ procedure TForm2.Exercise11;
 begin
   bm.print('Q. Get the common items between a and b.');
   with NumPy1 do begin
-    var LA := np.array(L([1, 2, 3, 4, 5, 6]));
-    var LB := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    var LA := np.array(TPyEx.List([1, 2, 3, 4, 5, 6]));
+    var LB := np.array(TPyEx.List([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
     bm.print(np.intersect1d(LA, LB));
   end;
   bm.print('');
@@ -359,8 +347,8 @@ procedure TForm2.Exercise12;
 begin
   bm.print('Q. From array a remove all items present in array b.');
   with NumPy1 do begin
-    var LA := np.array(L([1, 2, 3, 4, 5]));
-    var LB := np.array(L([5, 6, 7, 8, 9]));
+    var LA := np.array(TPyEx.List([1, 2, 3, 4, 5]));
+    var LB := np.array(TPyEx.List([5, 6, 7, 8, 9]));
     bm.print(np.setdiff1d(LA, LB));
   end;
   bm.print('');
@@ -370,8 +358,8 @@ procedure TForm2.Exercise13;
 begin
   bm.print('Q. Get the positions where elements of a and b match.');
   with NumPy1 do begin
-    mm.a := np.array(L([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
-    mm.b := np.array(L([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
+    mm.a := np.array(TPyEx.List([1, 2, 3, 2, 3, 4, 3, 4, 5, 6]));
+    mm.b := np.array(TPyEx.List([7, 2, 10, 2, 7, 4, 9, 4, 9, 8]));
     bm.print(np.where(Eval('a == b')));
   end;
   bm.print('');
@@ -402,9 +390,9 @@ begin
     Initialize();
     try
       var LEm := VarPyth.Import('exercises');
-      mm.pair_max := np.vectorize(LEm.maxx, otypes := L([bm.float]));
-      var LA := np.array(L([5, 7, 9, 8, 6, 4, 5]));
-      var LB := np.array(L([6, 3, 4, 8, 9, 7, 1]));
+      mm.pair_max := np.vectorize(LEm.maxx, otypes := TPyEx.List([bm.float]));
+      var LA := np.array(TPyEx.List([5, 7, 9, 8, 6, 4, 5]));
+      var LB := np.array(TPyEx.List([6, 3, 4, 8, 9, 7, 1]));
       bm.print(mm.pair_max(LA, LB)); //advice: add a break point at maxx method.
     finally
       Finalize();
@@ -418,7 +406,7 @@ begin
   bm.print('Q. Swap columns 1 and 2 in the array arr.');
   with NumPy1 do begin
     mm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  mm.arr[(T([Ellipsis(), L([1, 0, 2])]))]; //arr[:, [1, 0, 2]]
+    var LArr :=  mm.arr[(TPyEx.Tuple([Ellipsis(), TPyEx.List([1, 0, 2])]))]; //arr[:, [1, 0, 2]]
     bm.print(LArr);
   end;
   bm.print('');
@@ -429,7 +417,7 @@ begin
   bm.print('Q. Swap rows 1 and 2 in the array arr:');
   with NumPy1 do begin
     mm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  mm.arr[(T([L([1, 0, 2]), Ellipsis()]))]; //arr[[1, 0, 2], :]
+    var LArr :=  mm.arr[(TPyEx.Tuple([TPyEx.List([1, 0, 2]), Ellipsis()]))]; //arr[[1, 0, 2], :]
     bm.print(LArr);
   end;
   bm.print('');
@@ -440,7 +428,7 @@ begin
   bm.print('Q. Reverse the rows of a 2D array arr.');
   with NumPy1 do begin
     mm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  mm.arr[(T([bm.slice(None(), None(), -1)]))]; //arr[::-1]
+    var LArr :=  mm.arr[(TPyEx.Tuple([bm.slice(None(), None(), -1)]))]; //arr[::-1]
     bm.print(LArr);
   end;
   bm.print('');
@@ -451,7 +439,7 @@ begin
   bm.print('Q. Reverse the columns of a 2D array arr.');
   with NumPy1 do begin
     mm.arr := np.arange(9).reshape(3, 3);
-    var LArr :=  mm.arr[(T([Ellipsis(), bm.slice(None(), None(), -1)]))]; //arr[:, ::-1]
+    var LArr :=  mm.arr[(TPyEx.Tuple([Ellipsis(), bm.slice(None(), None(), -1)]))]; //arr[:, ::-1]
     bm.print(LArr);
   end;
   bm.print('');
@@ -462,10 +450,10 @@ begin
   bm.print('Q. Create a 2D array of shape 5x3 to contain random decimal numbers between 5 and 10.');
   with NumPy1 do begin
     bm.print('# Method 1:');
-    var LRand_Arr := np.random.randint(low := 5, high := 10, size := T([5, 3])) + np.random.random(T([5, 3]));
+    var LRand_Arr := np.random.randint(low := 5, high := 10, size := TPyEx.Tuple([5, 3])) + np.random.random(TPyEx.Tuple([5, 3]));
     bm.print(LRand_Arr);
     bm.print('# Method 2:');
-    LRand_Arr := np.random.uniform(5, 10, size := T([5, 3]));
+    LRand_Arr := np.random.uniform(5, 10, size := TPyEx.Tuple([5, 3]));
     bm.print(LRand_Arr);
   end;
   bm.print('');
@@ -475,12 +463,12 @@ procedure TForm2.Exercise21;
 begin
   bm.print('Q. Print or show only 3 decimal places of the numpy array rand_arr.');
   with NumPy1 do begin
-    mm.rand_arr := np.random.random(T([5, 3]));
+    mm.rand_arr := np.random.random(TPyEx.Tuple([5, 3]));
     //Limit to 3 decimal places
     var LPrintOpts := np.get_printoptions();
     try
       np.set_printoptions(precision := 3);
-      bm.print(mm.rand_arr[T([bm.slice(None(), 4)])]); //rand_arr[:4]
+      bm.print(mm.rand_arr[TPyEx.Tuple([bm.slice(None(), 4)])]); //rand_arr[:4]
     finally
       RestorePrintOpts(LPrintOpts);
     end;
@@ -497,7 +485,7 @@ begin
     try
       np.set_printoptions(suppress := false);
       np.random.seed(100);
-      var LRand_Arr := np.random.random(L([3, 3])); //1e3
+      var LRand_Arr := np.random.random(TPyEx.List([3, 3])); //1e3
       bm.print(LRand_Arr);
       np.set_printoptions(suppress := true, precision := 6);
       bm.print(LRand_Arr);
@@ -547,9 +535,9 @@ begin
     np.set_printoptions(precision := 3);
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
-    var LNames := T(['sepallength', 'sepalwidth', 'petallength', 'petalwidth', 'species']);
+    var LNames := TPyEx.Tuple(['sepallength', 'sepalwidth', 'petallength', 'petalwidth', 'species']);
     //Print first 3 rows
-    bm.print(mm.iris[T([bm.slice(None(), 3)])]);
+    bm.print(mm.iris[TPyEx.Tuple([bm.slice(None(), 3)])]);
   end;
   bm.print('');
 end;
@@ -563,7 +551,7 @@ begin
     bm.print(mm.iris_1d.shape);
 
     mm.species := np.array(Eval('[row[4] for row in iris_1d]'));
-    bm.print(mm.species[T([bm.slice(None(), 5)])]);
+    bm.print(mm.species[TPyEx.Tuple([bm.slice(None(), 5)])]);
   end;
   bm.print('');
 end;
@@ -576,10 +564,10 @@ begin
     mm.iris_1d := np.genfromtxt(LUrl, delimiter := ',', dtype := None());
     bm.print('# Method 1: Convert each row to a list and get the first 4 items');
     mm.iris_2d := np.array(Eval('[row.tolist()[:4] for row in iris_1d]'));
-    bm.print(mm.iris_2d[T([bm.slice(None(), 4)])]);
+    bm.print(mm.iris_2d[TPyEx.Tuple([bm.slice(None(), 4)])]);
     bm.print('# Method 2: Import only the first 4 columns from source url');
-    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0, 1, 2, 3]));
-    bm.print(mm.iris_2d[T([bm.slice(None(), 4)])]);
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0, 1, 2, 3]));
+    bm.print(mm.iris_2d[TPyEx.Tuple([bm.slice(None(), 4)])]);
   end;
   bm.print('');
 end;
@@ -590,7 +578,7 @@ begin
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
     mm.iris := np.genfromtxt(LUrl, delimiter := ',', dtype := 'object');
-    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
+    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0]));
     var LMu := np.mean(LSepallength);
     var LMed := np.median(LSepallength);
     var LSd := np.std(LSepallength);
@@ -604,7 +592,7 @@ begin
   bm.print('Q. Create a normalized form of iris''s sepallength whose values range exactly between 0 and 1 so that the minimum has value 0 and maximum has value 1.');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
+    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0]));
     var LSmax := LSepallength.max();
     var LSmin := LSepallength.min();
     var LS := (LSepallength - LSmin) / (LSmax - LSmin);
@@ -637,8 +625,8 @@ begin
   bm.print('Q. Find the 5th and 95th percentile of iris''s sepallength');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0]));
-    bm.print(np.percentile(LSepallength, q := L([5, 95])));
+    var LSepallength := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0]));
+    bm.print(np.percentile(LSepallength, q := TPyEx.List([5, 95])));
   end;
   bm.print('');
 end;
@@ -663,7 +651,7 @@ begin
     mm.c1 := np.random.randint(150, size := 20);
     mm.c2 := np.random.randint(4, size := 20);
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
-    bm.print(mm.iris_2d[T([bm.slice(None(), 10)])]);
+    bm.print(mm.iris_2d[TPyEx.Tuple([bm.slice(None(), 10)])]);
   end;
   bm.print('');
 end;
@@ -673,12 +661,12 @@ begin
   bm.print('Q. Find the number and position of missing values in iris_2d''s sepallength (1st column)');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0,1,2,3]));
     mm.c1 := np.random.randint(150, size := 20);
     mm.c2 := np.random.randint(4, size := 20);
     PythonEngine.ExecString('iris_2d[c1, c2] = npNAN');
-    bm.print('Number of missing values: \n', np.isnan(mm.iris_2d[T([Ellipsis(), 0])]).sum());
-    bm.print('Position of missing values: \n', np.where(np.isnan(mm.iris_2d[T([Ellipsis(), 0])])));
+    bm.print('Number of missing values: \n', np.isnan(mm.iris_2d[TPyEx.Tuple([Ellipsis(), 0])]).sum());
+    bm.print('Position of missing values: \n', np.where(np.isnan(mm.iris_2d[TPyEx.Tuple([Ellipsis(), 0])])));
   end;
   bm.print('');
 end;
@@ -688,10 +676,10 @@ begin
   bm.print('Q. Filter the rows of iris_2d that has petallength (3rd column) > 1.5 and sepallength (1st column) < 5.0');
   with NumPy1 do begin
     var LUrl := 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data';
-    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := L([0,1,2,3]));
-    mm.c1 := mm.iris_2d[T([Ellipsis(), 2])];
+    mm.iris_2d := np.genfromtxt(LUrl, delimiter := ',', dtype := 'float', usecols := TPyEx.List([0,1,2,3]));
+    mm.c1 := mm.iris_2d[TPyEx.Tuple([Ellipsis(), 2])];
     mm.c1 := Eval('c1 > 1.5');
-    mm.c2 := mm.iris_2d[T([Ellipsis(), 0])];
+    mm.c2 := mm.iris_2d[TPyEx.Tuple([Ellipsis(), 0])];
     mm.c2 := Eval('c2 < 5.0');
     bm.print(mm.iris_2d[Eval('c1 & c2')]);
   end;
