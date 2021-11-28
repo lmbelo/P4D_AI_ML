@@ -1,10 +1,10 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'MainForm'    Copyright (c) 2021                         *)
+(* Module:  Unit 'MainForm'      Copyright (c) 2021                       *)
 (*                                                                        *)
-(*                                  Lucas Moura Belo - lmbelo             *)
-(*                                  lucas.belo@live.com                   *)
-(*                                  Brazil                                *)
+(*                               Lucas Moura Belo - lmbelo                *)
+(*                               lucas.belo@live.com                      *)
+(*                               Brazil                                   *)
 (*                                                                        *)
 (*  Project page:                https://github.com/lmbelo/P4D_AI_ML      *)
 (**************************************************************************)
@@ -75,30 +75,35 @@ begin
   DisableButtons();
   try
     var mm := MainModule;
+    var op := Import('operator');
     with MatplotLib1, NumPy1 do begin
       mm.np := np;
       np.random.seed(19680801);
-      mm.N := 100;
-      mm.r0 := 0.6;
-      mm.x := 0.9 * np.random.rand(mm.N);
-      mm.y := 0.9 * np.random.rand(mm.N);
-      mm.rand := np.random.rand(mm.N);
-      mm.area := VarPythonEval('(20 * np.random.rand(N))**2');
-      mm.c := np.sqrt(mm.area);
-      mm.r := np.sqrt(VarPythonEval('x **2 + y ** 2'));
+      var N := 100;
+      var r0 := 0.6;
+      var x := 0.9 * np.random.rand(N);
+      var y := 0.9 * np.random.rand(N);
+      mm.rand := np.random.rand(N);
+      //                     np.random.rand(N))**2
+      var area := 20 * op.pow(np.random.rand(N), 2);
+      var c := np.sqrt(area);
+      //                     x ** 2 + y ** 2
+      var r := np.sqrt(op.pow(x, 2) + op.pow(y, 2));
+      //                                r < r0
+      var area1 := np.ma.masked_where(op.lt(r, r0), area);
+      //                                r >= r0
+      var area2 := np.ma.masked_where(op.ge(r, r0), area);
 
-      mm.area1 := np.ma.masked_where(VarPythonEval('r < r0'), mm.area);
-      mm.area2 := np.ma.masked_where(VarPythonEval('r >= r0'), mm.area);
       MaskFPUExceptions(true);
       try
-        plt.scatter(mm.x, mm.y, s:=mm.area1, marker:='^', c:=mm.c);
-        plt.scatter(mm.x, mm.y, s:=mm.area2, marker:='o', c:=mm.c);
+        plt.scatter(x, y, s := area1, marker := '^', c := c);
+        plt.scatter(x, y, s := area2, marker := 'o', c := c);
       finally
         MaskFPUExceptions(false);
       end;
       //Show the boundary between the regions:
       var theta := np.arange(0, np.pi / 2, 0.01);
-      plt.plot(mm.r0 * np.cos(theta), mm.r0 * np.sin(theta));
+      plt.plot(r0 * np.cos(theta), r0 * np.sin(theta));
       plt.show();
     end;
   finally
@@ -111,15 +116,20 @@ begin
   //https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_symbol.html#sphx-glr-gallery-lines-bars-and-markers-scatter-symbol-py
   DisableButtons();
   try
+    var bm := BuiltinModule;
     var mm := MainModule;
+    var op := Import('operator');
     with MatplotLib1, NumPy1 do begin
-      mm.np := np;
+      var np := np;
       np.random.seed(19680801);
-      mm.x := np.arange(0.0, 50.0, 2.0);
-      mm.y := VarPythonEval('x ** 1.3 + np.random.rand(*x.shape) * 30.0');
-      mm.s := VarPythonEval('np.random.rand(*x.shape) * 800 + 500');
-
-      plt.scatter(mm.x, mm.y, mm.s, c :='g', alpha := 0.5, marker := VarPythonEval('r"$\clubsuit$"'), label := 'Luck');
+      var x := np.arange(0.0, 50.0, 2.0);
+      //*[x.shape] symbol = unpack tuple and each element is passed to each argument
+      //once shape has a single element, we can get the first element and send as argument
+      //             x ** 1.3 + np.random.rand(*x.shape) * 30.0
+      var y := op.pow(x, 1.3) + np.random.rand(x.shape.GetItem(0)) * 30.0;
+      //                      *x.shape
+      var s := np.random.rand(x.shape.GetItem(0)) * 800 + 500;
+      plt.scatter(x, y, s, c :='g', alpha := 0.5, marker := '$\clubsuit$', label := 'Luck');
       plt.xlabel('Leprechauns');
       plt.ylabel('Gold');
       plt.legend(loc := 'upper left');
