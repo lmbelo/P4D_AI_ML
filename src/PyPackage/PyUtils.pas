@@ -45,10 +45,14 @@ type
   private
     procedure CheckVarPython();
     procedure CheckVarIsArray();
+    function GetValues(const AIndex: variant): variant;
+    procedure SetValues(const AIndex, AValue: variant);
   public       
     function AsList(): variant; //Created by a VarArrayOf 
     function AsTuple(): variant; //Created by a VarArrayOf 
     function GetEnumerator(): TVarPyEnumerateHelper;
+
+    property Values[const AIndex: variant]: variant read GetValues write SetValues;
   end;
 
   TVarRecArrayHelper = record helper for TVarRecArray
@@ -123,6 +127,26 @@ function TVariantHelper.GetEnumerator: TVarPyEnumerateHelper;
 begin
   CheckVarPython();
   Result := VarPyIterate(Self);
+end;
+
+function TVariantHelper.GetValues(const AIndex: variant): variant;
+begin
+  if Assigned(GetPythonEngine.PyObject_GetAttrString(
+    ExtractPythonObjectFrom(Self), PAnsiChar('Values')))
+  and not Assigned(GetPythonEngine().PyErr_Occurred) then
+    Result := Self.Values[AIndex]
+  else
+    Result := Self.GetItem(AIndex)
+end;
+
+procedure TVariantHelper.SetValues(const AIndex, AValue: variant);
+begin
+  if Assigned(GetPythonEngine.PyObject_GetAttrString(
+    ExtractPythonObjectFrom(Self), PAnsiChar('Values')))
+  and not Assigned(GetPythonEngine().PyErr_Occurred) then
+    Self.Values[AIndex] := AValue
+  else
+    Self.GetItem(AIndex) := AValue
 end;
 
 function TVariantHelper.AsList: variant;
