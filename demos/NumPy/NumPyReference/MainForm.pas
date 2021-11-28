@@ -140,31 +140,17 @@ begin
     bm.print(y);
     bm.print('ndarray strides');
     bm.print(y.strides);
-    
     //https://numpy.org/doc/stable/reference/arrays.indexing.html
-    var indexing := NewPythonTuple(3);
-    indexing.SetItem(0, 1);
-    indexing.SetItem(1, 1);
-    indexing.SetItem(2, 1);
-    mm.y := y;
-    bm.print(mm.y[indexing]); //y[1,1,1]
-        
+    bm.print(y.Values[TPyEx.Tuple([1, 1, 1])]); //y[1,1,1]
     var offset := bm.sum(y.strides * np.array(TPyEx.Tuple([1,1,1])));
     bm.print(offset / y.itemsize);
+
     bm.print('ndarray transpose');
     x := np.reshape(np.arange(5*6*7*8), TPyEx.Tuple([5,6,7,8])).transpose(2,3,1,0);
     bm.print(x.strides);
     var i := np.array(TPyEx.Tuple([3,5,2,2]));
-
     //https://numpy.org/doc/stable/reference/arrays.indexing.html
-    indexing := NewPythonTuple(4);
-    indexing.SetItem(0, 3);
-    indexing.SetItem(1, 5);
-    indexing.SetItem(2, 2);
-    indexing.SetItem(3, 2);
-    mm.x := x;
-    bm.print(mm.x[indexing]); //x[3,5,2,2]
-    
+    bm.print(x.Values[TPyEx.Tuple([3, 5, 2, 2])]); //x[3,5,2,2]
     offset := bm.sum(i * x.strides);   
     bm.print(offset / x.itemsize);
 
