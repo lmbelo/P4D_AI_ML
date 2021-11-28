@@ -146,7 +146,7 @@ begin
   and not Assigned(GetPythonEngine().PyErr_Occurred) then
     Self.Values[AIndex] := AValue
   else
-    Self.GetItem(AIndex) := AValue
+    Self.SetItem(AIndex, AValue);
 end;
 
 function TVariantHelper.AsList: variant;
