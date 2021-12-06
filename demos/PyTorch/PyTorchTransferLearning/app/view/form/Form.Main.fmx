@@ -1,0 +1,64 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  ClientHeight = 588
+  ClientWidth = 309
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  inline frmMenu: TMenuFrame
+    Align = Client
+    Size.Width = 309.000000000000000000
+    Size.Height = 588.000000000000000000
+    Size.PlatformDefault = False
+    inherited loContainer: TLayout
+      Size.Width = 309.000000000000000000
+      Size.Height = 588.000000000000000000
+      inherited loCollapse: TLayout
+        Size.Width = 289.000000000000000000
+        inherited loProfile: TLayout
+          Size.Width = 289.000000000000000000
+          inherited ceProfile: TComboEdit
+            Size.Width = 249.000000000000000000
+          end
+          inherited lbProfile: TLabel
+            Size.Width = 249.000000000000000000
+          end
+          inherited lbContinue: TLabel
+            Size.Width = 249.000000000000000000
+          end
+        end
+        inherited loActions: TLayout
+          Size.Width = 289.000000000000000000
+          inherited btnCollectData: TButton
+            Size.Width = 249.000000000000000000
+            OnClick = frmMenubtnCollectDataClick
+          end
+          inherited btnLiveRecognition: TButton
+            Size.Width = 249.000000000000000000
+          end
+          inherited btnQuit: TButton
+            Size.Width = 249.000000000000000000
+            OnClick = frmMenubtnQuitClick
+          end
+        end
+      end
+    end
+  end
+  inline frmClassSelection: TTrainingClassSelectionFrame
+    Align = Client
+    Size.Width = 322.000000000000000000
+    Size.Height = 513.000000000000000000
+    Size.PlatformDefault = False
+    Visible = False
+    inherited loBox: TLayout
+      inherited recContent: TRectangle
+        inherited btnSelect: TSpeedButton
+          OnClick = frmClassSelectionbtnSelectClick
+        end
+      end
+    end
+  end
+end
