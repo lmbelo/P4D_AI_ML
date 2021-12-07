@@ -8,19 +8,22 @@ uses
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Media, FMX.Layouts,
   System.Messaging, System.Permissions, System.Actions, FMX.ActnList,
   FMX.StdActns, FMX.MediaLibrary.Actions, System.ImageList, FMX.ImgList,
-  Frame.CameraLayout;
+  Frame.CameraLayout, FMX.ListBox;
 
 type
   TTrainingClass = (ThumbsUp, ThumbsDown);
 
   TDataCollectionForm = class(TForm)
     camLayout: TCameraLayoutFrame;
+    StyleBook1: TStyleBook;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure camLayoutlbiClearClick(Sender: TObject);
   private
     FProfile: string;
     procedure SaveImageAsync(Sender: TObject; AImageName: string; AImage: TBitmap);
+    procedure DoUpdateCounter();
   public
     function GetTrainingClass(): TTrainingClass; virtual; abstract;
   public
@@ -38,9 +41,35 @@ var
 implementation
 
 uses
-  Remote.ClientModule;
+  Remote.ClientModule, FMX.DialogService;
 
 {$R *.fmx}
+
+procedure TDataCollectionForm.camLayoutlbiClearClick(Sender: TObject);
+begin
+  camLayout.lbiClearClick(Sender);
+  if not camLayout.IsSaving() then begin
+    var LMessage := Format('Are you sure you want to clean all "%s" data?', [
+        GetTrainingClass().ToString()]);
+
+    TDialogService.MessageDialog(LMessage,
+      TMsgDlgType.mtConfirmation, [TMsgDlgBtn.mbYes, TMsgDlgBtn.mbNo], TMsgDlgBtn.mbNo, -1,
+      procedure(const AResult: TModalResult) begin
+        if (AResult = mrYes) then begin
+          ClientModule.TrainingClassClient.Clear(Profile, GetTrainingClass().ToString());
+          DoUpdateCounter();
+        end;
+      end)
+  end else
+    ShowMessage('Wait saving process to finish.');
+end;
+
+procedure TDataCollectionForm.DoUpdateCounter;
+begin
+  var LCount := ClientModule.TrainingClassClient.CountClass(Profile,
+      GetTrainingClass().ToString());
+  camLayout.UpdateCounter(LCount);
+end;
 
 procedure TDataCollectionForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -60,9 +89,7 @@ end;
 procedure TDataCollectionForm.FormCreate(Sender: TObject);
 begin
   camLayout.OnSaveAsync := SaveImageAsync;
-  var LCount := ClientModule.TrainingClassClient.CountClass(Profile,
-      GetTrainingClass().ToString());
-  camLayout.UpdateCounter(LCount);
+  DoUpdateCounter();
 end;
 
 procedure TDataCollectionForm.SaveImageAsync(Sender: TObject; AImageName: string;

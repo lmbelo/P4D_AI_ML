@@ -14,12 +14,14 @@ type
   private
     FCountClassCommand: TDSRestCommand;
     FSendImageCommand: TDSRestCommand;
+    FClearCommand: TDSRestCommand;
   public
     constructor Create(ARestConnection: TDSRestConnection); overload;
     constructor Create(ARestConnection: TDSRestConnection; AInstanceOwner: Boolean); overload;
     destructor Destroy; override;
     function CountClass(AProfile: string; ATrainingClass: string; const ARequestFilter: string = ''): Integer;
     function SendImage(AProfile: string; ATrainingClass: string; AImageName: string; AImage: TStream; const ARequestFilter: string = ''): Integer;
+    procedure Clear(AProfile: string; ATrainingClass: string);
   end;
 
 const
@@ -37,6 +39,12 @@ const
     (Name: 'AImageName'; Direction: 1; DBXType: 26; TypeName: 'string'),
     (Name: 'AImage'; Direction: 1; DBXType: 33; TypeName: 'TStream'),
     (Name: ''; Direction: 4; DBXType: 6; TypeName: 'Integer')
+  );
+
+  TTrainingClass_Clear: array [0..1] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: 'ATrainingClass'; Direction: 1; DBXType: 26; TypeName: 'string')
   );
 
 implementation
@@ -73,6 +81,20 @@ begin
   Result := FSendImageCommand.Parameters[4].Value.GetInt32;
 end;
 
+procedure TTrainingClassClient.Clear(AProfile: string; ATrainingClass: string);
+begin
+  if FClearCommand = nil then
+  begin
+    FClearCommand := FConnection.CreateCommand;
+    FClearCommand.RequestType := 'GET';
+    FClearCommand.Text := 'TTrainingClass.Clear';
+    FClearCommand.Prepare(TTrainingClass_Clear);
+  end;
+  FClearCommand.Parameters[0].Value.SetWideString(AProfile);
+  FClearCommand.Parameters[1].Value.SetWideString(ATrainingClass);
+  FClearCommand.Execute;
+end;
+
 constructor TTrainingClassClient.Create(ARestConnection: TDSRestConnection);
 begin
   inherited Create(ARestConnection);
@@ -87,6 +109,7 @@ destructor TTrainingClassClient.Destroy;
 begin
   FCountClassCommand.DisposeOf;
   FSendImageCommand.DisposeOf;
+  FClearCommand.DisposeOf;
   inherited;
 end;
 

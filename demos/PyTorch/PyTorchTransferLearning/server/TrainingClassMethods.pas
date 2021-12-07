@@ -22,6 +22,7 @@ type
     function CountClass(const AProfile, ATrainingClass: string): integer;
     function SendImage(const AProfile, ATrainingClass, AImageName: string;
       const AImage: TStream): integer;
+    procedure Clear(const AProfile, ATrainingClass: string);
   end;
 
 implementation
@@ -58,6 +59,11 @@ function TTrainingClass.BuildProfileFolder(const ABaseDir,
 begin
   Result := TPath.Combine(ABaseDir, AProfile);
   BuildDir(Result);
+end;
+
+procedure TTrainingClass.Clear(const AProfile, ATrainingClass: string);
+begin
+  TDirectory.Delete(BuildClassFolder(BuildProfileFolder(BuildImagesFolder(), AProfile), ATrainingClass), true);
 end;
 
 function TTrainingClass.CountClass(const AProfile,

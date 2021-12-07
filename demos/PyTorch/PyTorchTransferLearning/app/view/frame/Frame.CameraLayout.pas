@@ -6,7 +6,8 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Objects, FMX.Controls.Presentation, FMX.Layouts, FMX.Media,
-  System.Actions, FMX.ActnList, System.Generics.Collections;
+  System.Actions, FMX.ActnList, System.Generics.Collections, FMX.ListBox,
+  FMX.Effects;
 
 type
   TOnSaveAsync = procedure(Sender: TObject; AImageName: string; AImage: TBitmap) of object;
@@ -39,9 +40,15 @@ type
     loThumbs: TLayout;
     lbCounter: TLabel;
     imgLast: TImage;
-    Layout1: TLayout;
+    loSaving: TLayout;
     imgSave: TImage;
     aiSave: TAniIndicator;
+    lbStopwatch: TListBox;
+    lbi3s: TListBoxItem;
+    lbi10s: TListBoxItem;
+    ShadowEffect1: TShadowEffect;
+    lbOptions: TListBox;
+    lbiClear: TListBoxItem;
     procedure actSwitchExecute(Sender: TObject);
     procedure actAcceptExecute(Sender: TObject);
     procedure actDeclineExecute(Sender: TObject);
@@ -49,6 +56,9 @@ type
     procedure actTakePhotoExecute(Sender: TObject);
     procedure ccCameraCompSampleBufferReady(Sender: TObject;
       const ATime: TMediaTime);
+    procedure imgStopwatchClick(Sender: TObject);
+    procedure imgMenuClick(Sender: TObject);
+    procedure lbiClearClick(Sender: TObject);
   private
     FSavingQueue: TObjectQueue<TBitmap>;
     FSaving: boolean;
@@ -112,6 +122,11 @@ end;
 function TCameraLayoutFrame.IsStreaming: boolean;
 begin
   Result := ccCameraComp.Active;
+end;
+
+procedure TCameraLayoutFrame.lbiClearClick(Sender: TObject);
+begin
+  lbOptions.Visible := false;
 end;
 
 procedure TCameraLayoutFrame.SaveImage(const AImage: TBitmap);
@@ -223,6 +238,9 @@ constructor TCameraLayoutFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FSavingQueue := TBitmapQueue.Create(True);
+  ccCameraComp.FocusMode := TFocusMode.ContinuousAutoFocus;
+  lbStopwatch.Visible := false;
+  lbOptions.Visible := false;
   TMessageManager.DefaultManager.SubscribeToMessage(TApplicationEventMessage,
     procedure(const Sender: TObject; const M: TMessage) begin
       case TApplicationEventMessage(M).Value.Event of
@@ -255,6 +273,27 @@ end;
 function TCameraLayoutFrame.GenerateImageName: string;
 begin
   Result := Format('img_%s.bmp', [lbCounter.Text]);
+end;
+
+procedure TCameraLayoutFrame.imgMenuClick(Sender: TObject);
+begin
+  lbOptions.Visible := not lbOptions.Visible;
+  if lbOptions.Visible then begin
+    lbOptions.ClearSelection();
+    lbOptions.BringToFront();
+    lbOptions.ApplyStyleLookup();
+    lbOptions.RealignContent();
+  end;
+end;
+
+procedure TCameraLayoutFrame.imgStopwatchClick(Sender: TObject);
+begin
+  lbStopwatch.Visible := not lbStopwatch.Visible;
+  if lbStopwatch.Visible then begin
+    lbStopwatch.BringToFront();
+    lbStopwatch.ApplyStyleLookup();
+    lbStopwatch.RealignContent();
+  end;
 end;
 
 { TSafeBitmapQueueHelper }
