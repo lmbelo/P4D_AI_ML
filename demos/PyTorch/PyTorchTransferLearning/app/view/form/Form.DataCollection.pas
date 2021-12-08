@@ -15,7 +15,7 @@ type
 
   TDataCollectionForm = class(TForm)
     camLayout: TCameraLayoutFrame;
-    StyleBook1: TStyleBook;
+    sbCameraLayout: TStyleBook;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -24,6 +24,7 @@ type
     FProfile: string;
     procedure SaveImageAsync(Sender: TObject; AImageName: string; AImage: TBitmap);
     procedure DoUpdateCounter();
+    procedure ConvertBmpToJpg(const AImg: TBitmap; const AStream: TStream);
   public
     function GetTrainingClass(): TTrainingClass; virtual; abstract;
   public
@@ -41,7 +42,7 @@ var
 implementation
 
 uses
-  Remote.ClientModule, FMX.DialogService;
+  System.IOUtils, FMX.DialogService, FMX.Surfaces, FMX.Consts, Remote.ClientModule;
 
 {$R *.fmx}
 
@@ -62,6 +63,19 @@ begin
       end)
   end else
     ShowMessage('Wait saving process to finish.');
+end;
+
+procedure TDataCollectionForm.ConvertBmpToJpg(const AImg: TBitmap;
+  const AStream: TStream);
+begin
+  var LSurface := TBitmapSurface.Create();
+  try
+    LSurface.Assign(AImg);
+    if not TBitmapCodecManager.SaveToStream(AStream, LSurface, '.jpg') then
+      raise EBitmapSavingFailed.Create(SBitmapSavingFailed);
+  finally
+    LSurface.Free();
+  end;
 end;
 
 procedure TDataCollectionForm.DoUpdateCounter;
@@ -98,9 +112,9 @@ begin
   var LCount := 0;
   var LStream := TMemoryStream.Create();
   try
-    AImage.SaveToStream(LStream);
+    ConvertBmpToJpg(AImage, LStream);
     LCount := ClientModule.TrainingClassClient.SendImage(Profile,
-      GetTrainingClass().ToString(), AImageName, LStream);
+      GetTrainingClass().ToString(), TPath.ChangeExtension(AImageName, '.jpg'), LStream);
   finally
     LStream.Free();
   end;
