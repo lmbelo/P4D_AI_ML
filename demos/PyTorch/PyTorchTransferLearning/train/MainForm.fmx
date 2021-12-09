@@ -1,0 +1,60 @@
+object TrainModelMainForm: TTrainModelMainForm
+  Left = 0
+  Top = 0
+  Caption = 'Form2'
+  ClientHeight = 480
+  ClientWidth = 320
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  DesignerMasterStyle = 0
+  object mmOutput: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Align = Client
+    Size.Width = 320.000000000000000000
+    Size.Height = 480.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Viewport.Width = 316.000000000000000000
+    Viewport.Height = 476.000000000000000000
+    object Button1: TButton
+      Position.X = 128.000000000000000000
+      Position.Y = 432.000000000000000000
+      TabOrder = 0
+      Text = 'Button1'
+      OnClick = Button1Click
+    end
+  end
+  object PythonEngine1: TPythonEngine
+    DllName = 'python39.dll'
+    APIVersion = 1013
+    RegVersion = '3.9'
+    UseLastKnownVersion = False
+    IO = PythonGUIInputOutput1
+    Left = 136
+    Top = 72
+  end
+  object PythonGUIInputOutput1: TPythonGUIInputOutput
+    UnicodeIO = True
+    RawOutput = False
+    Left = 136
+    Top = 128
+  end
+  object NumPy1: TNumPy
+    PythonEngine = PythonEngine1
+    Left = 72
+    Top = 232
+  end
+  object PyTorch1: TPyTorch
+    PythonEngine = PythonEngine1
+    Left = 200
+    Top = 232
+  end
+  object TorchVision1: TTorchVision
+    PythonEngine = PythonEngine1
+    Left = 136
+    Top = 232
+  end
+end

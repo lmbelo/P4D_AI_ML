@@ -9,6 +9,9 @@
         <Projects Include="server\ThumbsUpDownServer.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="train\ThumbsUpDownTrainModel.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="ThumbsUpDownServer:Make">
         <MSBuild Projects="server\ThumbsUpDownServer.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ThumbsUpDownTrainModel">
+        <MSBuild Projects="train\ThumbsUpDownTrainModel.dproj"/>
+    </Target>
+    <Target Name="ThumbsUpDownTrainModel:Clean">
+        <MSBuild Projects="train\ThumbsUpDownTrainModel.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ThumbsUpDownTrainModel:Make">
+        <MSBuild Projects="train\ThumbsUpDownTrainModel.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer"/>
+        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer;ThumbsUpDownTrainModel"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean"/>
+        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean;ThumbsUpDownTrainModel:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make"/>
+        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make;ThumbsUpDownTrainModel:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
