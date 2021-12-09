@@ -36,6 +36,7 @@ requires
   p4dpytorch;
 
 contains
-  PyTorchReg in '..\src\PyTorch\PyTorchReg.pas';
+  PyTorchReg in '..\src\PyTorch\PyTorchReg.pas',
+  TorchVisionReg in '..\src\PyTorch\TorchVision\TorchVisionReg.pas';
 
 end.

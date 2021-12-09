@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyTorchReg'       Copyright (c) 2021                    *)
+(* Module:  Unit 'TorchVision'      Copyright (c) 2021                    *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
@@ -8,7 +8,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyTorch Components registration                       *)
+(*  Functionality:  TorchVision Components                                *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -27,23 +27,47 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyTorchReg;
+unit TorchVision;
 
 interface
 
-const
-  PYTORCH_PAGE = 'PyTorch';
+uses
+  System.Classes, PyPackage, PythonEngine;
 
-procedure Register();
+type
+  [ComponentPlatforms(pidAllPlatforms)]
+  TTorchVision = class(TPyPyPIPackage)
+  protected
+    procedure ImportModule; override;
+  public
+    property torchvision: variant read AsVariant;
+  end;
 
 implementation
 
 uses
-  Classes, PyTorch;
+  PyContext;
 
-procedure Register();
+{ TTorchVision }
+
+procedure TTorchVision.ImportModule;
 begin
-  RegisterComponents(PYTORCH_PAGE, [TPyTorch]);
+  MaskFPUExceptions(true);
+  try
+    inherited;
+  finally
+    MaskFPUExceptions(false);
+  end;
 end;
+
+initialization
+  TPyContext
+    .RegisterInfo(TTorchVision)
+      .RegisterPIPPackage('torchvision')
+        .RegisterModule('torchvision');
+
+finalization
+  TPyContext
+    .UnRegisterInfo(TTorchVision);
 
 end.

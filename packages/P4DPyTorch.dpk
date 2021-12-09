@@ -34,6 +34,7 @@ requires
   p4dpypackage;
 
 contains
-  PyTorch in '..\src\PyTorch\PyTorch.pas';
+  PyTorch in '..\src\PyTorch\PyTorch.pas',
+  TorchVision in '..\src\PyTorch\TorchVision\TorchVision.pas';
 
 end.

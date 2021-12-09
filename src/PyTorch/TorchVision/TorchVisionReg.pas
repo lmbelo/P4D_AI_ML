@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyTorchReg'       Copyright (c) 2021                    *)
+(* Module:  Unit 'TorchVisionReg'   Copyright (c) 2021                    *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
@@ -8,7 +8,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyTorch Components registration                       *)
+(*  Functionality:  TorchVision Components registration                   *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -27,23 +27,20 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyTorchReg;
+unit TorchVisionReg;
 
 interface
-
-const
-  PYTORCH_PAGE = 'PyTorch';
 
 procedure Register();
 
 implementation
 
 uses
-  Classes, PyTorch;
+  Classes, TorchVision, PyTorchReg;
 
 procedure Register();
 begin
-  RegisterComponents(PYTORCH_PAGE, [TPyTorch]);
+  RegisterComponents(PYTORCH_PAGE, [TTorchVision]);
 end;
 
 end.
