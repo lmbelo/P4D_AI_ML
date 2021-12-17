@@ -21,6 +21,8 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
+    function GetPythonExePath: string;
+  private
     function CreateDataSet(const AImageFolder: string): variant;
     procedure SplitDataSetTrainAndTest(const ADataSet: variant;
       out ATrainDataSet, ATestDataSet: variant);
@@ -37,11 +39,23 @@ var
 implementation
 
 uses
-  System.StrUtils, PyUtils, VarPyth;
+  System.StrUtils, System.IOUtils, PyUtils, VarPyth;
+
+type
+  TDynamicDllCrack = class(TDynamicDll)
+  end;
 
 {$R *.fmx}
 
-{ TForm2 }
+function TTrainModelMainForm.GetPythonExePath: string;
+begin
+  Result := TPath.Combine(
+    TDynamicDllCrack(PythonEngine1).GetDllPath(),
+    'python.exe'
+  );
+end;
+
+{ TTrainModelMainForm }
 
 function TTrainModelMainForm.CreateDataSet(const AImageFolder: string): variant;
 begin
@@ -75,14 +89,14 @@ begin
     ATrainDataSet,
     batch_size := 16,
     shuffle := true,
-    num_workers := 0
+    num_workers := 3
   );
 
   ATestLoader := PyTorch1.torch.utils.data.DataLoader(
     ATestDataSet,
     batch_size := 16,
     shuffle := true,
-    num_workers := 0
+    num_workers := 3
   );
 end;
 
@@ -93,6 +107,8 @@ begin
     var models := torchvision.models;
     var model := models.alexnet(pretrained := true);
     model.classifier.SetItem(6, torch.nn.Linear(model.classifier.GetItem(6).in_features, 2));
+    //cuda is only available for a portion of NVIDIA graphic cards.
+    //It powers up the model training, reducing its time.
     var device_string := IfThen(torch.cuda.is_available(), 'cuda', 'cpu');
     ADevice := torch.device(device_string);      
     AModel := model.to(ADevice);
@@ -113,7 +129,12 @@ begin
 
     var bm := BuiltinModule();
     for var epoch in bm.range(NUM_EPOCHS).GetEnumerator() do begin
-                       
+      //seting up the new process to launch the python app instead of this one (PyTorchThumbsUpDown),
+      //so we're able to spawn to the new process.
+      //note: this is only required when num_workers > 0 in the DataLoader.
+      var spawn := VarPyth.Import('multiprocessing.spawn');
+      spawn.set_executable(GetPythonExePath());
+      //the iter method triggered here by the GetEnumerator will create new workers, defined in the DataLoader.
       for var tl_tuple in ATrainLoader.GetEnumerator() do begin
         var images := tl_tuple.GetItem(0);
         var labels := tl_tuple.GetItem(1);
@@ -182,11 +203,14 @@ begin
   var device: variant;
   var model: variant;
 
-  var dataset := CreateDataSet('C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\demos\PyTorch\PyTorchTransferLearning\server\Win32\Debug\training_data');  
-  SplitDataSetTrainAndTest(dataset, train_dataset, test_dataset);  
+  var dataset_path := 'C:\Users\lucas\Documents\ThumbsUpDown\training_data';
+  //var dataset_path := 'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\demos\PyTorch\PyTorchTransferLearning\server\Win32\Debug\training_data';
+
+  var dataset := CreateDataSet(dataset_path);
+  SplitDataSetTrainAndTest(dataset, train_dataset, test_dataset);
   CreateDataLoaders(train_dataset, test_dataset, train_loader, test_loader);  
   DefineNeuralNetwork(device, model);
-  TrainNeuralNetwork(train_loader, test_loader, train_dataset, test_dataset, 
+  TrainNeuralNetwork(train_loader, test_loader, train_dataset, test_dataset,
     device, model);
 end;
 
