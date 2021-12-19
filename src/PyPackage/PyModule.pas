@@ -42,7 +42,7 @@ type
     function CanImport(): boolean;
   protected
     //Get methods
-    function GetPyModuleName(): string; virtual;
+    function GetPyModuleName(): string; virtual; abstract;
     function GetPyParent(): TPyModuleBase; virtual;
     //Internal routines
     procedure Loaded; override;
@@ -72,7 +72,7 @@ type
 implementation
 
 uses
-  PyContext, PyExceptions, VarPyth;
+  PyExceptions, VarPyth;
 
 { TPyModuleBase }
 
@@ -98,15 +98,6 @@ begin
   inherited;
   if FAutoImport and CanImport() then
     Import();
-end;
-
-function TPyModuleBase.GetPyModuleName: string;
-begin
-  var LModuleInfo := TPyContext.Instance.FindModuleInfo(Self.ClassType);
-  if Assigned(LModuleInfo) then
-    Result := LModuleInfo.ModuleName
-  else
-    Result := String.Empty;
 end;
 
 function TPyModuleBase.GetPyParent: TPyModuleBase;

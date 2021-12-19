@@ -19,6 +19,10 @@ type
     ///   PIP package cmd builder
     /// </summary>
     property Cmd: IPyPackageManagerCmdIntf read GetCmd;
+
+    procedure Install();
+    procedure Uninstall();
+    function IsInstalled(): boolean;
   end;
 
 implementation

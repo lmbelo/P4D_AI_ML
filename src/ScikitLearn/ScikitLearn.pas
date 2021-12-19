@@ -32,11 +32,11 @@ unit ScikitLearn;
 interface
 
 uses
-  System.Classes, PyPackage, PythonEngine;
+  System.Classes, PyPackage, PyPackage.Model, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  TScikitLearn = class(TPyPyPIPackage)
+  TScikitLearn = class(TPyManagedPackage)
   private
     function GetTree: variant;
     function GetDataSets: variant;
@@ -44,7 +44,9 @@ type
     function GetMetrics: variant;
     function GetModelSelection: variant;
     function GetSvm: variant;
+    function AsVariant: variant;
   protected
+    procedure Prepare(const AModel: TPyPackageModel); override;
     procedure ImportModule; override;
   public
     property sklearn: variant read AsVariant;
@@ -59,9 +61,15 @@ type
 implementation
 
 uses
-  PyContext, System.Variants;
+  System.Variants,
+  PyPackage.Manager.ManagerKind, PyPackage.Manager.Pip;
 
 { TScikitLearn }
+
+function TScikitLearn.AsVariant: variant;
+begin
+  Result := inherited;
+end;
 
 function TScikitLearn.GetDataSets: variant;
 begin
@@ -103,14 +111,15 @@ begin
   end;
 end;
 
-initialization
-  TPyContext
-    .RegisterInfo(TScikitLearn)
-      .RegisterPIPPackage('scikit-learn')
-        .RegisterModule('sklearn');
-
-finalization
-  TPyContext
-    .UnRegisterInfo(TScikitLearn);
+procedure TScikitLearn.Prepare(const AModel: TPyPackageModel);
+begin
+  inherited;
+  with AModel do begin
+    PackageName := 'scikitlearn';
+    PackageManagers.Add(
+      TPyPackageManagerKind.pip,
+      TPyPackageManagerPip.Create('scikitlearn'));
+  end;
+end;
 
 end.

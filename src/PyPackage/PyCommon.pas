@@ -43,6 +43,7 @@ type
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
     procedure SetPythonEngine(const APythonEngine: TPythonEngine);
     procedure EngineLoaded(); virtual;
+    function IsReady(): boolean; virtual;
   public
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
   end;
@@ -69,6 +70,12 @@ begin
   //
 end;
 
+function TPyCommon.IsReady: boolean;
+begin
+  Result := Assigned(FPythonEngine)
+    and FPythonEngine.Initialized;
+end;
+
 procedure TPyCommon.Notification(AComponent: TComponent;
   AOperation: TOperation);
 begin
@@ -81,9 +88,13 @@ end;
 procedure TPyCommon.SetPythonEngine(const APythonEngine: TPythonEngine);
 begin
   if (APythonEngine <> FPythonEngine) then begin
+    if Assigned(FPythonEngine) then
+      FPythonEngine.RemoveFreeNotification(Self);
     FPythonEngine := APythonEngine;
-    APythonEngine.FreeNotification(Self);
-    EngineLoaded();
+    if Assigned(FPythonEngine) then begin
+      FPythonEngine.FreeNotification(Self);
+      EngineLoaded();
+    end;
   end;
 end;
 

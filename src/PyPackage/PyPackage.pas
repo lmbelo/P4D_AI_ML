@@ -33,10 +33,11 @@ interface
 
 uses
   System.SysUtils, System.Rtti, System.Classes, System.Generics.Collections,
-  PyCore, PyCommon, PyModule;
+  PyCore, PyCommon, PyModule,
+  PyPackage.Model, PyPackage.Manager, PyPackage.Manager.ManagerKind,
+  PyPackage.Manager.Intf, PyPackage.Manager.Defs;
 
 type
-  TPyPip = class;
   (*----------------------------------------------------------------------------*)
   (*                                                                            *)
   (*                      Packages structure example                            *)
@@ -84,30 +85,40 @@ type
     property PyModule[const AName: TPyModuleName]: TPyModuleBase read GetModule;
   end;
 
-  //Non PIP package
+  //Non-managed package
   TPyPackage = class(TPyPackageBase)
   published
     property PythonEngine;
   end;
 
-  //PyPI package base
-  TPyPyPIPackageBase = class(TPyPackageBase)
-  protected
-    function GetPyPIPackageName(): string; virtual;
-    function GetPyPIPackageVer(): string; virtual;
-  published
-    property PyPIPackageName: string read GetPyPIPackageName;
-    property PyPIPackageVersion: string read GetPyPIPackageVer;
-  end;
-
-  //PyPI package
-  TPyPyPIPackage = class(TPyPyPIPackageBase)
+  //Managed package
+  TPyManagedPackage = class abstract(TPyPackageBase)
+  private type
+    TPyManagers = class(TPersistent)
+    private
+      FModel: TPyPackageModel;
+        function GetConda: TPyPackageManagerDefs;
+        function GetPip: TPyPackageManagerDefs;
+        procedure SetConda(const Value: TPyPackageManagerDefs);
+        procedure SetPip(const Value: TPyPackageManagerDefs);
+    public
+      constructor Create(const AModel: TPyPackageModel);
+    published
+      property Pip: TPyPackageManagerDefs read GetPip write SetPip;
+      property Conda: TPyPackageManagerDefs read GetConda write SetConda;
+    end;
   private
+    FModel: TPyPackageModel;
+    FManagerKind: TPyPackageManagerKind;
+    FManagers: TPyManagers;
     FAutoInstall: boolean;
-    FPyPIP: TPyPip;
+    procedure SetManagers(const Value: TPyManagers);
   protected
+    function GetPyModuleName(): string; override;
     procedure ImportModule(); override;
-    //PIP commands
+  protected
+    procedure Prepare(const AModel: TPyPackageModel); virtual; abstract;
+  protected
     procedure CheckInstalled();
     procedure InstallPackage(); virtual;
     procedure UnInstallPackage(); virtual;
@@ -116,31 +127,19 @@ type
     destructor Destroy(); override;
 
     procedure Install();
-    procedure UnInstall();
+    procedure Uninstall();
+    function IsInstalled(): boolean;
   published
     property PythonEngine;
+    property ManagerKind: TPyPackageManagerKind read FManagerKind write FManagerKind;
+    property Managers: TPyManagers read FManagers write SetManagers;
     property AutoInstall: boolean read FAutoInstall write FAutoInstall default true;
-  end;
-
-  //http://dcjtech.info/wp-content/uploads/2015/10/Pip-Cheatsheet.pdf
-  TPyPip = class
-  private
-    FPyModule: TPyPyPIPackage;
-    function IsReady(): boolean;
-    function GetPackageName(): string;
-    function GetPackageVer(): string;
-    function FmtPkgInstallCmd(): string;
-  public
-    constructor Create(const APyModule: TPyPyPIPackage);
-    function IsInstalled(): boolean;
-    procedure Install();
-    procedure UnInstall();
   end;
 
 implementation
 
 uses
-  PyContext, PyExceptions, VarPyth, PythonEngine, System.Variants;
+  PyExceptions, VarPyth, PythonEngine, System.Variants;
 
 type
   TPyAnonymousPackage = class(TPyPackageBase)
@@ -164,148 +163,6 @@ type
   public
     constructor Create(const AName: TPyModuleName; const AParent: TPyModuleBase); reintroduce;
   end;
-
-{ TPyPyPIPackageBase }
-
-function TPyPyPIPackageBase.GetPyPIPackageName: string;
-begin
-  var LInfo := TPyContext.Instance.FindInfo(ClassType);
-  if Assigned(LInfo) then
-    Result := LInfo.PyPipInfo.PackageName
-  else
-    Result := EmptyStr;
-end;
-
-function TPyPyPIPackageBase.GetPyPIPackageVer: string;
-begin
-  var LInfo := TPyContext.Instance.FindInfo(ClassType);
-  if Assigned(LInfo) then
-    Result := LInfo.PyPipInfo.PackageVer
-  else
-    Result := EmptyStr;
-end;
-
-{ TPyPIPPackage }
-
-procedure TPyPyPIPackage.CheckInstalled;
-begin
-  if not FPyPIP.IsInstalled() then
-    raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
-      GetPyModuleName()]);
-end;
-
-constructor TPyPyPIPackage.Create(AOwner: TComponent);
-begin
-  inherited;
-  FAutoInstall := true;
-  FPyPIP := TPyPip.Create(Self);
-end;
-
-destructor TPyPyPIPackage.Destroy;
-begin
-  FPyPIP.Free();
-  inherited;
-end;
-
-procedure TPyPyPIPackage.ImportModule;
-begin
-  if FAutoInstall then
-    InstallPackage();
-  CheckInstalled();
-  inherited;
-end;
-
-procedure TPyPyPIPackage.InstallPackage;
-begin
-  if not FPyPIP.IsInstalled() then begin
-    FPyPIP.Install();
-  end;
-end;
-
-procedure TPyPyPIPackage.UnInstallPackage;
-begin
-  if FPyPIP.IsInstalled() then begin
-    FPyPIP.UnInstall();
-  end else
-    raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
-      GetPyModuleName()]);
-end;
-
-procedure TPyPyPIPackage.Install;
-begin
-  InstallPackage();
-end;
-
-procedure TPyPyPIPackage.UnInstall;
-begin
-  UnInstallPackage();
-end;
-
-{ TPyPip }
-
-function TPyPip.IsReady(): boolean;
-begin
-  Result := Assigned(FPyModule)
-        and Assigned(FPyModule.PythonEngine)
-        and FPyModule.PythonEngine.Initialized;
-end;
-
-function TPyPip.IsInstalled(): boolean;
-begin
-  Result := false;
-  var package := GetPackageName();
-  if IsReady() then begin
-    var sp := Import('subprocess');
-    var cmd := 'pip show ' + package;
-    var resp := sp.run(cmd, stdout := sp.PIPE, stderr := sp.STDOUT, shell := true, text := true);
-    var stdout := resp.stdout;
-    if VarIsPythonString(stdout) then begin
-      Result := not (String(stdout).StartsWith('WARNING:') and String(stdout).Contains('Package(s) not found'));
-    end;
-  end else raise EModuleNotReady.CreateFmt('Module %s not ready', [package]);
-end;
-
-constructor TPyPip.Create(const APyModule: TPyPyPIPackage);
-begin
-  FPyModule := APyModule;
-end;
-
-function TPyPip.FmtPkgInstallCmd: string;
-begin
-  var LVer := GetPackageVer();
-  if not LVer.IsEmpty then
-    Result := GetPackageName() + '==' + LVer
-  else
-    Result := GetPackageName();
-end;
-
-function TPyPip.GetPackageName(): string;
-begin
-  Result := FPyModule.PyPIPackageName;
-end;
-
-function TPyPip.GetPackageVer: string;
-begin
-  Result := FPyModule.PyPIPackageVersion;
-end;
-
-procedure TPyPip.Install();
-begin
-  if IsReady() then begin
-    var sp := Import('subprocess');
-    var cmd := 'pip install ' + FmtPkgInstallCmd();
-    var exec := sp.run(cmd, stdout := sp.PIPE, stderr := sp.STDOUT, shell := true, text := true);
-  end else raise EModuleNotReady.CreateFmt('Module %s not ready', [GetPackageName()]);
-end;
-
-procedure TPyPip.UnInstall();
-begin
-  if IsReady() then begin
-    var sp := Import('subprocess');
-    var cmd := 'pip uninstall ' + GetPackageName() + ' -y';
-    sp.run(cmd, stdout := sp.PIPE, stderr := sp.STDOUT, shell := true, text := true);
-  end else raise EModuleNotReady.CreateFmt('Module %s not ready', [GetPackageName()]);
-end;
 
 { TPyPackageBase }
 
@@ -398,6 +255,118 @@ end;
 function TPyAnonymousModule.GetPyParent: TPyModuleBase;
 begin
   Result := FPyParent;
+end;
+
+{ TPyManagedPackage }
+
+constructor TPyManagedPackage.Create(AOwner: TComponent);
+begin
+  inherited;
+  FAutoInstall := true;
+  FModel := TPyPackageModel.Create();
+  FManagers := TPyManagers.Create(FModel);
+  Prepare(FModel);
+end;
+
+destructor TPyManagedPackage.Destroy;
+begin
+  FManagers.Free();
+  FModel.Free();
+  inherited;
+end;
+
+procedure TPyManagedPackage.SetManagers(const Value: TPyManagers);
+begin
+  FManagers.Assign(Value);
+end;
+
+function TPyManagedPackage.GetPyModuleName: string;
+begin
+  Result := FModel.PackageName;
+end;
+
+procedure TPyManagedPackage.ImportModule;
+begin
+  if FAutoInstall then
+    InstallPackage();
+  CheckInstalled();
+  inherited;
+end;
+
+procedure TPyManagedPackage.Install;
+begin
+  InstallPackage();
+end;
+
+procedure TPyManagedPackage.Uninstall;
+begin
+  UnInstallPackage();
+end;
+
+function TPyManagedPackage.IsInstalled: boolean;
+begin
+  Result := FModel.PackageManagers.Items[ManagerKind].IsInstalled();
+end;
+
+procedure TPyManagedPackage.CheckInstalled;
+begin
+  if IsReady() then
+    if not IsInstalled() then
+      raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
+        GetPyModuleName()]);
+end;
+
+procedure TPyManagedPackage.InstallPackage;
+begin
+  if IsReady() then
+    if not IsInstalled() then begin
+      FModel.PackageManagers.Items[ManagerKind].Install();
+    end;
+end;
+
+procedure TPyManagedPackage.UnInstallPackage;
+begin
+  if IsReady() then
+    if IsInstalled() then begin
+      FModel.PackageManagers.Items[ManagerKind].Uninstall();
+    end else
+      raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
+        GetPyModuleName()]);
+end;
+
+{ TPyManagedPackage.TPyManagers }
+
+constructor TPyManagedPackage.TPyManagers.Create(const AModel: TPyPackageModel);
+begin
+  FModel := AModel;
+end;
+
+function TPyManagedPackage.TPyManagers.GetConda: TPyPackageManagerDefs;
+begin
+  if FModel.PackageManagers.ContainsKey(TPyPackageManagerKind.conda) then
+    Result := FModel.PackageManagers.Items[TPyPackageManagerKind.conda].Defs
+  else Result := nil;
+end;
+
+function TPyManagedPackage.TPyManagers.GetPip: TPyPackageManagerDefs;
+begin
+  if FModel.PackageManagers.ContainsKey(TPyPackageManagerKind.pip) then
+    Result := FModel.PackageManagers.Items[TPyPackageManagerKind.pip].Defs
+  else Result := nil;
+end;
+
+procedure TPyManagedPackage.TPyManagers.SetConda(
+  const Value: TPyPackageManagerDefs);
+begin
+  if FModel.PackageManagers.ContainsKey(TPyPackageManagerKind.conda) then
+    FModel.PackageManagers.Items[TPyPackageManagerKind.conda].Defs.Assign(Value);
+end;
+
+procedure TPyManagedPackage.TPyManagers.SetPip(
+  const Value: TPyPackageManagerDefs);
+begin
+  if FModel.PackageManagers.ContainsKey(TPyPackageManagerKind.pip) then
+    FModel.PackageManagers.Items[TPyPackageManagerKind.pip].Defs.Assign(Value);
 end;
 
 end.

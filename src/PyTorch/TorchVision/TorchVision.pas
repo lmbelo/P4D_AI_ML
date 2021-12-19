@@ -32,12 +32,15 @@ unit TorchVision;
 interface
 
 uses
-  System.Classes, PyPackage, PythonEngine;
+  System.Classes, PyPackage, PyPackage.Model, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  TTorchVision = class(TPyPyPIPackage)
-  protected
+  TTorchVision = class(TPyManagedPackage)
+  private
+    function AsVariant: variant;
+   protected
+    procedure Prepare(const AModel: TPyPackageModel); override;
     procedure ImportModule; override;
   public
     property torchvision: variant read AsVariant;
@@ -46,9 +49,14 @@ type
 implementation
 
 uses
-  PyContext;
+  PyPackage.Manager.ManagerKind, PyPackage.Manager.pip;
 
 { TTorchVision }
+
+function TTorchVision.AsVariant: variant;
+begin
+  Result := inherited;
+end;
 
 procedure TTorchVision.ImportModule;
 begin
@@ -60,14 +68,15 @@ begin
   end;
 end;
 
-initialization
-  TPyContext
-    .RegisterInfo(TTorchVision)
-      .RegisterPIPPackage('torchvision')
-        .RegisterModule('torchvision');
-
-finalization
-  TPyContext
-    .UnRegisterInfo(TTorchVision);
+procedure TTorchVision.Prepare(const AModel: TPyPackageModel);
+begin
+  inherited;
+  with AModel do begin
+    PackageName := 'torchvision';
+    PackageManagers.Add(
+      TPyPackageManagerKind.pip,
+      TPyPackageManagerPip.Create('torchvision'));
+  end;
+end;
 
 end.

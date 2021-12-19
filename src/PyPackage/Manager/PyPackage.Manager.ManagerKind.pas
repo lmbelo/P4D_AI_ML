@@ -1,4 +1,4 @@
-unit PyPackage.Manager.Manager;
+unit PyPackage.Manager.ManagerKind;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.Classes, PyPackage.Manager.Defs;
 
 type
-  TPyPackageManagerType = (pip, conda);
+  TPyPackageManagerKind = (pip, conda);
 
 implementation
 

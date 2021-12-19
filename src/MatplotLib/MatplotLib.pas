@@ -32,14 +32,16 @@ unit MatplotLib;
 interface
 
 uses
-  System.Classes, PyPackage, PythonEngine;
+  System.Classes, PyPackage, PyPackage.Model, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  TMatplotLib = class(TPyPyPIPackage)
+  TMatplotLib = class(TPyManagedPackage)
   private
     function GetPyPlot: variant;
+    function AsVariant: variant;
   protected
+    procedure Prepare(const AModel: TPyPackageModel); override;
     procedure ImportModule; override;
   public
     property matplot: variant read AsVariant;
@@ -49,9 +51,15 @@ type
 implementation
 
 uses
-  PyContext, VarPyth, System.Variants;
+  PyPackage.Manager.ManagerKind, PyPackage.Manager.Pip,
+  VarPyth, System.Variants;
 
 { TMatplotLib }
+
+function TMatplotLib.AsVariant: variant;
+begin
+  Result := inherited;
+end;
 
 function TMatplotLib.GetPyPlot: variant;
 begin
@@ -68,14 +76,15 @@ begin
   end;
 end;
 
-initialization
-  TPyContext
-    .RegisterInfo(TMatplotLib)
-      .RegisterPIPPackage('matplotlib')
-        .RegisterModule('matplotlib');
-
-finalization
-  TPyContext
-    .UnRegisterInfo(TMatplotLib);
+procedure TMatplotLib.Prepare(const AModel: TPyPackageModel);
+begin
+  inherited;
+  with AModel do begin
+    PackageName := 'matplotlib';
+    PackageManagers.Add(
+      TPyPackageManagerKind.pip,
+      TPyPackageManagerPip.Create('matplotlib'));
+  end;
+end;
 
 end.

@@ -37,9 +37,24 @@ contains
   PyCommon in '..\src\PyPackage\PyCommon.pas',
   PyModule in '..\src\PyPackage\PyModule.pas',
   PyPackage in '..\src\PyPackage\PyPackage.pas',
-  PyContext in '..\src\PyPackage\PyContext.pas',
   PyExceptions in '..\src\PyPackage\PyExceptions.pas',
   PyCore in '..\src\PyPackage\PyCore.pas',
-  PyUtils in '..\src\PyPackage\PyUtils.pas';
+  PyUtils in '..\src\PyPackage\PyUtils.pas',
+  PyDevice in '..\src\PyPackage\PyDevice.pas',
+  PyPackage.Manager.Pip in '..\src\PyPackage\Manager\PyPackage.Manager.Pip.pas',
+  PyPackage.Manager.Conda in '..\src\PyPackage\Manager\PyPackage.Manager.Conda.pas',
+  PyPackage.Manager.Defs.Conda in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Conda.pas',
+  PyPackage.Manager.Defs.Pip in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Pip.pas',
+  PyPackage.Manager.Defs in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.pas',
+  PyPackage.Manager.Cmd.Conda in '..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Conda.pas',
+  PyPackage.Manager.Cmd.Pip in '..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Pip.pas',
+  PyPackage.Manager.Cmd.Intf in '..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Intf.pas',
+  PyPackage.Manager.Defs.InstallOpts.Pip in '..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.InstallOpts.Pip.pas',
+  PyPackage.Manager.ManagerKind in '..\src\PyPackage\Manager\PyPackage.Manager.ManagerKind.pas',
+  PyPackage.Manager.Intf in '..\src\PyPackage\Manager\PyPackage.Manager.Intf.pas',
+  PyPackage.Manager.Defs.UninstallOpts.Pip in '..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.UninstallOpts.Pip.pas',
+  PyPackage.Manager.Managers in '..\src\PyPackage\Manager\PyPackage.Manager.Managers.pas',
+  PyPackage.Manager in '..\src\PyPackage\Manager\PyPackage.Manager.pas',
+  PyPackage.Model in '..\src\PyPackage\PyPackage.Model.pas';
 
 end.

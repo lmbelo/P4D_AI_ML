@@ -4,6 +4,7 @@ interface
 
 uses
   System.Classes,
+  PyCore,
   PyPackage.Manager.Defs,
   PyPackage.Manager.Defs.InstallOpts.Pip,
   PyPackage.Manager.Defs.UninstallOpts.Pip;
@@ -11,18 +12,14 @@ uses
 type
   TPyPackageManagerDefsPip = class(TPyPackageManagerDefs)
   private
-    FPackageName: string;
-    FPackageVersion: string;
     FInstallOptions: TPyPackageManagerDefsInstallOptsPip;
     FUninstallOptions: TPyPackageManagerDefsUninstallOptsPip;
     procedure SetInstallOptions(const AOpts: TPyPackageManagerDefsInstallOptsPip);
     procedure SetUninstallOptions(const AOpts: TPyPackageManagerDefsUninstallOptsPip);
   public
-    constructor Create();
+    constructor Create(const APackageName: TPyPackageName); override;
     destructor Destroy(); override;
   published
-    property PackageName: string read FPackageName write FPackageName;
-    property PackageVersion: string read FPackageVersion write FPackageVersion;
     property InstallOptions: TPyPackageManagerDefsInstallOptsPip read FInstallOptions write SetInstallOptions;
     property UninstallOptions: TPyPackageManagerDefsUninstallOptsPip read FUninstallOptions write SetUninstallOptions;
   end;
@@ -31,11 +28,11 @@ implementation
 
 { TPyPackageManagerDefsPip }
 
-constructor TPyPackageManagerDefsPip.Create;
+constructor TPyPackageManagerDefsPip.Create(const APackageName: TPyPackageName);
 begin
+  inherited;
   FInstallOptions := TPyPackageManagerDefsInstallOptsPip.Create();
   FUninstallOptions := TPyPackageManagerDefsUninstallOptsPip.Create();
-  inherited Create();
 end;
 
 destructor TPyPackageManagerDefsPip.Destroy;

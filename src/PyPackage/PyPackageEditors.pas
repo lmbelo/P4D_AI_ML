@@ -36,7 +36,8 @@ procedure Register();
 implementation
 
 uses
-  System.SysUtils, Classes, DesignIntf, DesignEditors, PyPackage;
+  System.SysUtils, Classes, DesignIntf, DesignEditors, PyPackage,
+  PyPackage.Manager.Defs;
 
 type
   TPyPIPPackageVersionProperty = class (TStringProperty)
@@ -44,9 +45,15 @@ type
     function GetValue: string; override;
   end;
 
+  TPyPackageManagerDefsProperty = class (TClassProperty)
+  public
+    function GetValue: string; override;
+  end;
+
 procedure Register();
 begin
-  RegisterPropertyEditor(TypeInfo(string), TPyPyPIPackageBase, 'PyPIPackageVersion', TPyPIPPackageVersionProperty);
+  RegisterPropertyEditor(TypeInfo(string), TPyPackageManagerDefs, 'PackageVersion', TPyPIPPackageVersionProperty);
+  RegisterPropertyEditor(TypeInfo(TPyPackageManagerDefs), TPyPackageManagerDefs, '', TPyPackageManagerDefsProperty);
 end;
 
 { TPyPIPPackageVersionProperty }
@@ -57,6 +64,13 @@ begin
   if Result.IsEmpty() then begin
     Result := 'latest';
   end;
+end;
+
+{ TPyPackageManagerDefsProperty }
+
+function TPyPackageManagerDefsProperty.GetValue: string;
+begin
+  Result := inherited;
 end;
 
 end.

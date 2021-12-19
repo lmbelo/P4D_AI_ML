@@ -32,12 +32,15 @@ unit PyTorch;
 interface
 
 uses
-  System.Classes, PyPackage, PythonEngine;
+  System.Classes, PyPackage, PyPackage.Model, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyTorch = class(TPyPyPIPackage)
+  TPyTorch = class(TPyManagedPackage)
+  private
+    function AsVariant: variant;
   protected
+    procedure Prepare(const AModel: TPyPackageModel); override;
     procedure ImportModule; override;
   public
     property torch: variant read AsVariant;
@@ -46,9 +49,29 @@ type
 implementation
 
 uses
-  PyContext, System.Variants;
+  System.Variants, PyPackage.Manager.ManagerKind, PyPackage.Manager.Pip;
 
 { TPyTorch }
+
+procedure TPyTorch.Prepare(const AModel: TPyPackageModel);
+begin
+  inherited;
+  with AModel do begin
+    PackageName := 'torch';
+    PackageManagers.Add(
+      TPyPackageManagerKind.pip,
+      TPyPackageManagerPip.Create('torch'));
+      //torch is available as pytorch under conda
+//    PackageManagers.Add(
+//      TPyPackageManagerType.conda,
+//      TPyPackageManagerConda.Create('pytorch'));
+  end;
+end;
+
+function TPyTorch.AsVariant: variant;
+begin
+  Result := inherited;
+end;
 
 procedure TPyTorch.ImportModule;
 begin
@@ -59,15 +82,5 @@ begin
     MaskFPUExceptions(false);
   end;
 end;
-
-initialization
-  TPyContext
-    .RegisterInfo(TPyTorch)
-      .RegisterPIPPackage('torch')
-        .RegisterModule('torch');
-
-finalization
-  TPyContext
-    .UnRegisterInfo(TPyTorch);
 
 end.

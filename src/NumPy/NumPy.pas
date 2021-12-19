@@ -32,12 +32,15 @@ unit NumPy;
 interface
 
 uses
-  System.Classes, PyPackage, PythonEngine;
+  System.Classes, PyPackage, PyPackage.Model, PythonEngine;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
-  TNumPy = class(TPyPyPIPackage)
+  TNumPy = class(TPyManagedPackage)
+  private
+    function AsVariant: variant;
   protected
+    procedure Prepare(const AModel: TPyPackageModel); override;
     procedure ImportModule; override;
   public
     property np: variant read AsVariant;
@@ -46,9 +49,15 @@ type
 implementation
 
 uses
-  PyContext, System.Variants;
+  System.Variants,
+  PyPackage.Manager.ManagerKind, PyPackage.Manager.Pip;
 
 { TNumPy }
+
+function TNumPy.AsVariant: variant;
+begin
+  Result := inherited;
+end;
 
 procedure TNumPy.ImportModule;
 begin
@@ -60,14 +69,15 @@ begin
   end;
 end;
 
-initialization
-  TPyContext
-    .RegisterInfo(TNumPy)
-      .RegisterPIPPackage('numpy')
-        .RegisterModule('numpy');
-
-finalization
-  TPyContext
-    .UnRegisterInfo(TNumPy);
+procedure TNumPy.Prepare(const AModel: TPyPackageModel);
+begin
+  inherited;
+  with AModel do begin
+    PackageName := 'numpy';
+    PackageManagers.Add(
+      TPyPackageManagerKind.pip,
+      TPyPackageManagerPip.Create('numpy'));
+  end;
+end;
 
 end.
