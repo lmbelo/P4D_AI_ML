@@ -137,10 +137,24 @@
         <DCCReference Include="..\src\PyPackage\PyCommon.pas"/>
         <DCCReference Include="..\src\PyPackage\PyModule.pas"/>
         <DCCReference Include="..\src\PyPackage\PyPackage.pas"/>
-        <DCCReference Include="..\src\PyPackage\PyContext.pas"/>
         <DCCReference Include="..\src\PyPackage\PyExceptions.pas"/>
         <DCCReference Include="..\src\PyPackage\PyCore.pas"/>
         <DCCReference Include="..\src\PyPackage\PyUtils.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.Pip.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.Conda.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Conda.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Pip.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Conda.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Pip.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Cmd\PyPackage.Manager.Cmd.Intf.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.InstallOpts.Pip.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.ManagerKind.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.Intf.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.UninstallOpts.Pip.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.Managers.pas"/>
+        <DCCReference Include="..\src\PyPackage\Manager\PyPackage.Manager.pas"/>
+        <DCCReference Include="..\src\PyPackage\PyPackage.Model.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -173,7 +187,7 @@
                 <Platform value="Win64">False</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="..\..\..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\22.0\Bpl\P4DPyPackage280.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\22.0\Bpl\P4DPyPackage280.bpl" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>P4DPyPackage.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -181,6 +195,12 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\..\..\..\..\..\..\Public\Documents\Embarcadero\Studio\22.0\Bpl\P4DPyPackage280.bpl" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>P4DPyPackage.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -900,10 +920,10 @@
                 </DeployClass>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
