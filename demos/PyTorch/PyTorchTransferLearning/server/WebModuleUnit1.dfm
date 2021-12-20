@@ -10,7 +10,8 @@ object WebModule1: TWebModule1
   Height = 333
   Width = 414
   PixelsPerInch = 96
-  object DSRESTWebDispatcher1: TDSRESTWebDispatcher
+  object DSHTTPWebDispatcher1: TDSHTTPWebDispatcher
+    Filters = <>
     WebDispatch.PathInfo = 'datasnap*'
     Left = 96
     Top = 75

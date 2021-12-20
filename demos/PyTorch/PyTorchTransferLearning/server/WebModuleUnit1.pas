@@ -17,7 +17,7 @@ uses
 
 type
   TWebModule1 = class(TWebModule)
-    DSRESTWebDispatcher1: TDSRESTWebDispatcher;
+    DSHTTPWebDispatcher1: TDSHTTPWebDispatcher;
     WebFileDispatcher1: TWebFileDispatcher;
     DSProxyGenerator1: TDSProxyGenerator;
     DSServerMetaDataProvider1: TDSServerMetaDataProvider;
@@ -74,11 +74,11 @@ end;
 procedure TWebModule1.WebModuleCreate(Sender: TObject);
 begin
   DSServerMetaDataProvider1.Server := DSServer;
-  DSRESTWebDispatcher1.Server := DSServer;
+  DSHTTPWebDispatcher1.Server := DSServer;
   if DSServer.Started then
   begin
-    DSRESTWebDispatcher1.DbxContext := DSServer.DbxContext;
-    DSRESTWebDispatcher1.Start;
+    DSHTTPWebDispatcher1.DbxContext := DSServer.DbxContext;
+    DSHTTPWebDispatcher1.Start;
   end;
 end;
 
@@ -87,4 +87,3 @@ finalization
   Web.WebReq.FreeWebModules;
 
 end.
-

@@ -19,7 +19,8 @@ uses
   Form.DataCollection.ThumbsDown in 'view\form\Form.DataCollection.ThumbsDown.pas' {ThumbsDownForm},
   Frame.TrainingClassSelection in 'view\frame\Frame.TrainingClassSelection.pas' {TrainingClassSelectionFrame: TFrame},
   Remote.ClientClasses in 'remote\Remote.ClientClasses.pas',
-  Remote.ClientModule in 'remote\Remote.ClientModule.pas' {ClientModule: TDataModule};
+  Remote.ClientModule in 'remote\Remote.ClientModule.pas' {ClientModule: TDataModule},
+  Form.TrainModel in 'view\form\Form.TrainModel.pas' {TrainModelForm};
 
 {$R *.res}
 

@@ -34,6 +34,7 @@ object MenuFrame: TMenuFrame
           TabOrder = 0
           ItemHeight = 19.000000000000000000
           ItemIndex = -1
+          Text = 'Default'
           Position.X = 20.000000000000000000
           Position.Y = 44.000000000000000000
           Margins.Left = 20.000000000000000000
@@ -89,7 +90,7 @@ object MenuFrame: TMenuFrame
           Size.Width = 269.000000000000000000
           Size.Height = 40.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 2
+          TabOrder = 3
           Text = 'Collect Data'
         end
         object btnLiveRecognition: TButton
@@ -98,11 +99,11 @@ object MenuFrame: TMenuFrame
           Margins.Top = 40.000000000000000000
           Margins.Right = 20.000000000000000000
           Position.X = 20.000000000000000000
-          Position.Y = 120.000000000000000000
+          Position.Y = 200.000000000000000000
           Size.Width = 269.000000000000000000
           Size.Height = 40.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 1
+          TabOrder = 2
           Text = 'Live Recognition'
         end
         object btnQuit: TButton
@@ -117,6 +118,19 @@ object MenuFrame: TMenuFrame
           Size.PlatformDefault = False
           TabOrder = 0
           Text = 'Quit'
+        end
+        object btnTrainModel: TButton
+          Align = Top
+          Margins.Left = 20.000000000000000000
+          Margins.Top = 40.000000000000000000
+          Margins.Right = 20.000000000000000000
+          Position.X = 20.000000000000000000
+          Position.Y = 120.000000000000000000
+          Size.Width = 269.000000000000000000
+          Size.Height = 40.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          Text = 'Train Model'
         end
       end
     end

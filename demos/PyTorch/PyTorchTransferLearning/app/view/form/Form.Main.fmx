@@ -43,6 +43,10 @@ object MainForm: TMainForm
             Size.Width = 249.000000000000000000
             OnClick = frmMenubtnQuitClick
           end
+          inherited btnTrainModel: TButton
+            Size.Width = 249.000000000000000000
+            OnClick = frmMenubtnTrainModelClick
+          end
         end
       end
     end

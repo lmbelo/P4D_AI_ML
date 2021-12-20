@@ -1,0 +1,51 @@
+object TrainModelForm: TTrainModelForm
+  Left = 0
+  Top = 0
+  Caption = 'Form2'
+  ClientHeight = 557
+  ClientWidth = 377
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Orientations = [Landscape]
+  FormFactor.Devices = [Desktop]
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object ToolBar1: TToolBar
+    Size.Width = 377.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object lbProfile: TLabel
+      Align = Left
+      Margins.Left = 5.000000000000000000
+      Position.X = 5.000000000000000000
+      Size.Width = 193.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Default'
+      TabOrder = 0
+    end
+  end
+  object mmPipe: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Align = Client
+    Size.Width = 377.000000000000000000
+    Size.Height = 460.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    Viewport.Width = 373.000000000000000000
+    Viewport.Height = 456.000000000000000000
+  end
+  object btnTrain: TButton
+    Align = Bottom
+    Position.Y = 500.000000000000000000
+    Size.Width = 377.000000000000000000
+    Size.Height = 57.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'arrowrighttoolbutton'
+    TabOrder = 0
+    Text = 'btnTrain'
+    OnClick = btnTrainClick
+  end
+end

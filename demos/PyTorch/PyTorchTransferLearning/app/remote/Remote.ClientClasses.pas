@@ -15,6 +15,8 @@ type
     FCountClassCommand: TDSRestCommand;
     FSendImageCommand: TDSRestCommand;
     FClearCommand: TDSRestCommand;
+    FTrainModelCommand: TDSRestCommand;
+    FTrainModelCommand_Cache: TDSRestCommand;
   public
     constructor Create(ARestConnection: TDSRestConnection); overload;
     constructor Create(ARestConnection: TDSRestConnection; AInstanceOwner: Boolean); overload;
@@ -22,6 +24,8 @@ type
     function CountClass(AProfile: string; ATrainingClass: string; const ARequestFilter: string = ''): Integer;
     function SendImage(AProfile: string; ATrainingClass: string; AImageName: string; AImage: TStream; const ARequestFilter: string = ''): Integer;
     procedure Clear(AProfile: string; ATrainingClass: string);
+    function TrainModel(AProfile: string; const ARequestFilter: string = ''): TJSONValue;
+    function TrainModel_Cache(AProfile: string; const ARequestFilter: string = ''): IDSRestCachedJSONValue;
   end;
 
 const
@@ -45,6 +49,18 @@ const
   (
     (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
     (Name: 'ATrainingClass'; Direction: 1; DBXType: 26; TypeName: 'string')
+  );
+
+  TTrainingClass_TrainModel: array [0..1] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: ''; Direction: 4; DBXType: 37; TypeName: 'TJSONValue')
+  );
+
+  TTrainingClass_TrainModel_Cache: array [0..1] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: ''; Direction: 4; DBXType: 26; TypeName: 'String')
   );
 
 implementation
@@ -95,6 +111,34 @@ begin
   FClearCommand.Execute;
 end;
 
+function TTrainingClassClient.TrainModel(AProfile: string; const ARequestFilter: string): TJSONValue;
+begin
+  if FTrainModelCommand = nil then
+  begin
+    FTrainModelCommand := FConnection.CreateCommand;
+    FTrainModelCommand.RequestType := 'GET';
+    FTrainModelCommand.Text := 'TTrainingClass.TrainModel';
+    FTrainModelCommand.Prepare(TTrainingClass_TrainModel);
+  end;
+  FTrainModelCommand.Parameters[0].Value.SetWideString(AProfile);
+  FTrainModelCommand.Execute(ARequestFilter);
+  Result := TJSONValue(FTrainModelCommand.Parameters[1].Value.GetJSONValue(FInstanceOwner));
+end;
+
+function TTrainingClassClient.TrainModel_Cache(AProfile: string; const ARequestFilter: string): IDSRestCachedJSONValue;
+begin
+  if FTrainModelCommand_Cache = nil then
+  begin
+    FTrainModelCommand_Cache := FConnection.CreateCommand;
+    FTrainModelCommand_Cache.RequestType := 'GET';
+    FTrainModelCommand_Cache.Text := 'TTrainingClass.TrainModel';
+    FTrainModelCommand_Cache.Prepare(TTrainingClass_TrainModel_Cache);
+  end;
+  FTrainModelCommand_Cache.Parameters[0].Value.SetWideString(AProfile);
+  FTrainModelCommand_Cache.ExecuteCache(ARequestFilter);
+  Result := TDSRestCachedJSONValue.Create(FTrainModelCommand_Cache.Parameters[1].Value.GetString);
+end;
+
 constructor TTrainingClassClient.Create(ARestConnection: TDSRestConnection);
 begin
   inherited Create(ARestConnection);
@@ -110,8 +154,9 @@ begin
   FCountClassCommand.DisposeOf;
   FSendImageCommand.DisposeOf;
   FClearCommand.DisposeOf;
+  FTrainModelCommand.DisposeOf;
+  FTrainModelCommand_Cache.DisposeOf;
   inherited;
 end;
 
 end.
-

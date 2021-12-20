@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   System.Permissions, System.Messaging, Form.DataCollection, Frame.Menu,
-  Frame.TrainingClassSelection;
+  Frame.TrainingClassSelection, Form.TrainModel;
 
 type
   TMainForm = class(TForm)
@@ -16,6 +16,7 @@ type
     procedure frmMenubtnCollectDataClick(Sender: TObject);
     procedure frmMenubtnQuitClick(Sender: TObject);
     procedure frmClassSelectionbtnSelectClick(Sender: TObject);
+    procedure frmMenubtnTrainModelClick(Sender: TObject);
   private
     procedure ApplicationEventChangedHandler(const Sender: TObject; const AMessage: TMessage);
     procedure ActivateCameraPermissionRequestResult(Sender: TObject; const APermissions: TClassicStringDynArray; const AGrantResults: TClassicPermissionStatusDynArray);
@@ -134,6 +135,12 @@ end;
 procedure TMainForm.frmMenubtnQuitClick(Sender: TObject);
 begin
   Application.Terminate();
+end;
+
+procedure TMainForm.frmMenubtnTrainModelClick(Sender: TObject);
+begin
+  var LForm := TTrainModelForm.Create(Self, frmMenu.ceProfile.Text);
+  LForm.Show();
 end;
 
 end.

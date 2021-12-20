@@ -19,6 +19,7 @@ type
     btnCollectData: TButton;
     btnLiveRecognition: TButton;
     btnQuit: TButton;
+    btnTrainModel: TButton;
   private
     { Private declarations }
   public
