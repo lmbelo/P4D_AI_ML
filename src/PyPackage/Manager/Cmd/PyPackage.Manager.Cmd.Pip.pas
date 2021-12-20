@@ -3,6 +3,7 @@ unit PyPackage.Manager.Cmd.Pip;
 interface
 
 uses
+  System.SysUtils,
   PyPackage.Manager.Cmd.Intf,
   PyPackage.Manager.Defs,
   PyPackage.Manager.Defs.Pip,
@@ -65,9 +66,6 @@ type
 
 implementation
 
-uses
-  System.SysUtils;
-
 { TPyPackageManagerCmdPip }
 
 function TPyPackageManagerCmdPip.BuildInstallCmd(
@@ -125,7 +123,8 @@ function TPyPackageManagerCmdPip.BuildIsInstalledCmd(
 begin
   FDefs := ADefs as TPyPackageManagerDefsPip;
   try
-    Result := ' pip list';
+    Result := ' pip show'
+      + MakePackageCmd();
   finally
     FDefs := nil;
   end;

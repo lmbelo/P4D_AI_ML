@@ -54,6 +54,8 @@ contains
   PyPackage.Manager.Defs.UninstallOpts.Pip in '..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.UninstallOpts.Pip.pas',
   PyPackage.Manager.Managers in '..\src\PyPackage\Manager\PyPackage.Manager.Managers.pas',
   PyPackage.Manager in '..\src\PyPackage\Manager\PyPackage.Manager.pas',
-  PyPackage.Model in '..\src\PyPackage\PyPackage.Model.pas';
+  PyPackage.Model in '..\src\PyPackage\PyPackage.Model.pas',
+  PyPackage.Manager.Exec.Intf in '..\src\PyPackage\Manager\Exec\PyPackage.Manager.Exec.Intf.pas',
+  PyPackage.Manager.Exec.SubProcess.Pip in '..\src\PyPackage\Manager\Exec\PyPackage.Manager.Exec.SubProcess.Pip.pas';
 
 end.

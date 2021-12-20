@@ -7,7 +7,8 @@ uses
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
-  PyPackage.Manager.Cmd.Intf;
+  PyPackage.Manager.Cmd.Intf,
+  PyPackage.Manager.Exec.Intf;
 
 type
   TPyPackageManagerConda = class(TPyPackageManager, IPyPackageManager)
@@ -15,6 +16,7 @@ type
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
+    function GetExec(): IPyPackageManagerCmdExec;
     procedure Install();
     procedure Uninstall();
     function IsInstalled(): boolean;
@@ -46,6 +48,11 @@ begin
 end;
 
 function TPyPackageManagerConda.GetDefs: TPyPackageManagerDefs;
+begin
+  raise ENotImplemented.Create('Not implemented');
+end;
+
+function TPyPackageManagerConda.GetExec: IPyPackageManagerCmdExec;
 begin
   raise ENotImplemented.Create('Not implemented');
 end;

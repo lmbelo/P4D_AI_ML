@@ -34,7 +34,7 @@ interface
 uses
   System.SysUtils, System.Rtti, System.Classes, System.Generics.Collections,
   PyCore, PyCommon, PyModule,
-  PyPackage.Model, PyPackage.Manager, PyPackage.Manager.ManagerKind,
+  PyPackage.Model, PyPackage.Manager.ManagerKind,
   PyPackage.Manager.Intf, PyPackage.Manager.Defs;
 
 type
@@ -97,10 +97,10 @@ type
     TPyManagers = class(TPersistent)
     private
       FModel: TPyPackageModel;
-        function GetConda: TPyPackageManagerDefs;
-        function GetPip: TPyPackageManagerDefs;
-        procedure SetConda(const Value: TPyPackageManagerDefs);
-        procedure SetPip(const Value: TPyPackageManagerDefs);
+      function GetConda: TPyPackageManagerDefs;
+      function GetPip: TPyPackageManagerDefs;
+      procedure SetConda(const Value: TPyPackageManagerDefs);
+      procedure SetPip(const Value: TPyPackageManagerDefs);
     public
       constructor Create(const AModel: TPyPackageModel);
     published
