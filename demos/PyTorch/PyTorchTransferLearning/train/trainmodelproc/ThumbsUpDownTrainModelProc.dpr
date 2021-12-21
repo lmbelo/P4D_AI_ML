@@ -5,7 +5,10 @@ program ThumbsUpDownTrainModelProc;
 {$R *.res}
 
 uses
-  System.SysUtils, Windows,
+  System.SysUtils,
+  {$IFDEF MSWINDOWS}
+  Windows,
+  {$ENDIF}
   TrainModel in '..\TrainModel.pas',
   CompModule in '..\CompModule.pas' {PyComps: TDataModule};
 
@@ -30,6 +33,7 @@ begin
           Writeln('Reading images from: ' + dataset_path);
           Writeln('Writing model to: ' + trained_model_path);
 
+          {$IFDEF MSWINDOWS}
           //If you want to attach this process to a debuger
           if ParamCount = 4 then begin
             Writeln('Hanging on debugger...');
@@ -44,6 +48,7 @@ begin
             else
               Writeln('Debugger not attached');
           end;
+          {$ENDIF}
 
           LTrainModel.Train(dataset_path, trained_model_path);
         end;

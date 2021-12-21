@@ -48,7 +48,7 @@ begin
           var LStatus: boolean;
           if AValue is TJSONObject then begin
             if AValue.TryGetValue<string>('pipe', LValue) then
-              mmPipe.Lines.Add(LValue.Replace('\r\n', sLineBreak))
+              mmPipe.Lines.Text := mmPipe.Lines.Text + LValue
             else if AValue.TryGetValue<boolean>('done', LStatus) then begin
               if LStatus then
                 mmPipe.Lines.Add('Model successfuly trained.')
@@ -56,6 +56,7 @@ begin
                 mmPipe.Lines.Add('Model not trained. Check the pipe lines for errors.');
             end else if AValue.TryGetValue<string>('error', LValue) then
               mmPipe.Lines.Add('Error: ' + LValue);
+            mmPipe.GoToTextEnd();
           end;
         end);
         Result := true;

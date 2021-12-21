@@ -108,7 +108,7 @@ var
   LStartupInfo: TStartupInfo;
   LProcessInfo: TProcessInformation;
   LStdOutPipeRead, LStdOutPipeWrite: THandle;
-  LBuffer: array[0..255] of AnsiChar;
+  LBuffer: array[0..4095] of AnsiChar;
   LHandle: Boolean;
 begin
   Result := -1;
@@ -158,7 +158,7 @@ begin
             var LWasOK: boolean;
             var LBytesRead: cardinal;
             repeat
-              LWasOK := ReadFile(LStdOutPipeRead, LBuffer, 255, LBytesRead, nil);
+              LWasOK := ReadFile(LStdOutPipeRead, LBuffer, SizeOf(LBuffer), LBytesRead, nil);
               if (LBytesRead > 0) then
               begin
                 LBuffer[LBytesRead] := #0;
@@ -247,6 +247,10 @@ begin
       and TDSSessionManager.Instance.Session[Data].IsValid;
   end;
 
+  var LStdOutLogPath := TPath.Combine(BuildProfileFolder(BuildImagesFolder(), AProfile), 'stdout.log');
+  if TFile.Exists(LStdOutLogPath) then
+    TFile.Delete(LStdOutLogPath);
+
   var LSessionId := TDSSessionManager.GetThreadSession().SessionName;
   var LCallbackId := LChannel + '_' + LSessionId;
   var LSessionActive := true;
@@ -255,6 +259,7 @@ begin
     var LResultCode := ExecCmdPipeOut(LCmd,
       procedure(AText: string) begin
         DSServer.BroadcastMessage(LChannel, LCallbackId, TJSONObject.Create(TJSONPair.Create('pipe', AText)));
+        TFile.AppendAllText(LStdOutLogPath, AText);
       end,
       function(): boolean begin
         Result := (not LSessionActive)

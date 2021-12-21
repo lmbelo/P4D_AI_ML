@@ -23,7 +23,7 @@ type
 implementation
 
 uses
-  System.StrUtils, System.IOUtils, System.Variants,
+  System.SysUtils, System.StrUtils, System.IOUtils, System.Variants,
   PythonEngine, VarPyth,
   PyUtils,
   CompModule;
@@ -137,7 +137,9 @@ begin
       var spawn := VarPyth.Import('multiprocessing.spawn');
       spawn.set_executable(GetPythonExePath());
       //the iter method triggered here by the GetEnumerator will create new workers, defined in the DataLoader.
+      var LBatchNum := 1;
       for var tl_tuple in ATrainLoader.GetEnumerator() do begin
+        bm.print('Train batch: ' + LBatchNum.ToString());
         var images := tl_tuple.GetItem(0);
         var labels := tl_tuple.GetItem(1);
 
@@ -152,10 +154,14 @@ begin
         end);
         loss.backward();
         optimizer.step();
+
+        Inc(LBatchNum);
       end;
 
+      LBatchNum := 1;
       var test_error_count := 0.0;
       for var tl_tuple in ATestLoader.GetEnumerator() do begin
+        bm.print('Test batch: ' + LBatchNum.ToString());
         var images := tl_tuple.GetItem(0);
         var labels := tl_tuple.GetItem(1);
 
@@ -164,10 +170,11 @@ begin
 
         var outputs := AModel.__call__(images);
         test_error_count := 1.0 - bm.float((torch.sum(torch.abs(labels - outputs.argmax(1)))));
+        Inc(LBatchNum);
       end;
 
       var test_accuracy := 1.0 - (bm.float(test_error_count) / bm.float(ATestDataSet.length));
-      bm.print(op.mod('%d: %f', TPyEx.Tuple([epoch, test_accuracy])));
+      bm.print(op.mod('Accuracy: %d: %f', TPyEx.Tuple([epoch, test_accuracy])));
       if (test_accuracy > best_accuracy) then begin
         torch.save(AModel.state_dict(), ATrainedModelPath);
         best_accuracy := test_accuracy;
