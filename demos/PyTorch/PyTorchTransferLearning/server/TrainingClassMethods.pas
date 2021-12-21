@@ -4,7 +4,7 @@ interface
 
 uses System.SysUtils, System.Classes, System.Json,
     DataSnap.DSProviderDataModuleAdapter,
-    Datasnap.DSServer, Datasnap.DSAuth, Winapi.Windows, FMX.Forms;
+    Datasnap.DSServer, Datasnap.DSAuth, FMX.Forms;
 
 type
   TTrainingClass = class(TDSServerModule)
@@ -30,7 +30,8 @@ type
 implementation
 
 uses
-  System.IOUtils, ServerContainerUnit1, DSSession;
+  System.IOUtils, ServerContainerUnit1, DSSession,
+  ExecProc.Win;
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
@@ -102,93 +103,6 @@ begin
   Result := GetCount(LDir);
 end;
 
-function ExecCmdPipeOut(const ACmd: string; const AYield: TProc<string>;
-  const ATerminate: TFunc<boolean>): integer;
-var
-  LSecurityAttributes: TSecurityAttributes;
-  LStartupInfo: TStartupInfo;
-  LProcessInfo: TProcessInformation;
-  LStdOutPipeRead, LStdOutPipeWrite: THandle;
-  LBuffer: array[0..4095] of AnsiChar;
-  LHandle: Boolean;
-begin
-  Result := -1;
-  with LSecurityAttributes do begin
-    nLength := SizeOf(LSecurityAttributes);
-    bInheritHandle := True;
-    lpSecurityDescriptor := nil;
-  end;
-
-  CreatePipe(LStdOutPipeRead, LStdOutPipeWrite, @LSecurityAttributes, 0);
-  try
-    with LStartupInfo do
-    begin
-      FillChar(LStartupInfo, SizeOf(LStartupInfo), 0);
-      cb := SizeOf(LStartupInfo);
-      dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
-      wShowWindow := SW_SHOW;
-      hStdInput := GetStdHandle(STD_INPUT_HANDLE); // don't redirect stdin
-      hStdOutput := LStdOutPipeWrite;
-      hStdError := LStdOutPipeWrite;
-    end;
-
-    var LTerminate := ATerminate();
-    if LTerminate then
-      Exit(-1);
-
-    LHandle := CreateProcess(nil, PChar(ACmd),
-                            nil, nil, True, 0, nil,
-                            nil, LStartupInfo, LProcessInfo);
-    CloseHandle(LStdOutPipeWrite);
-
-    if LHandle then begin
-      var LJob := CreateJobObject(nil, nil);
-      //Kill the subprocess when parent dies
-      if (LJob <> 0) then begin
-        var LExInfo: TJobObjectExtendedLimitInformation;
-        LExInfo.BasicLimitInformation.LimitFlags := JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-        if SetInformationJobObject(LJob, JobObjectExtendedLimitInformation, @LExInfo, SizeOf(TJobObjectExtendedLimitInformation)) then
-          AssignProcessToJobObject(LJob, LProcessInfo.hProcess);
-      end;
-
-      try
-        //This thread keeps calling the bloking readfile method
-        var LRunning := WaitForSingleObject(LProcessInfo.hProcess, 0);
-        TThread.CreateAnonymousThread(procedure() begin
-          repeat
-            var LWasOK: boolean;
-            var LBytesRead: cardinal;
-            repeat
-              LWasOK := ReadFile(LStdOutPipeRead, LBuffer, SizeOf(LBuffer), LBytesRead, nil);
-              if (LBytesRead > 0) then
-              begin
-                LBuffer[LBytesRead] := #0;
-                if Assigned(AYield) then
-                  AYield(String(LBuffer));
-              end;
-            until not LWasOK or (LBytesRead = 0);
-          until (LRunning <> WAIT_TIMEOUT);
-        end).Start();
-
-        repeat
-          LTerminate := ATerminate();
-          if LTerminate then
-            TerminateProcess(LProcessInfo.hProcess, 1);
-
-          LRunning := WaitForSingleObject(LProcessInfo.hProcess, 100);
-        until (LRunning <> WAIT_TIMEOUT);
-        //The ReadFile thread is automatically finalized after process finishes
-        GetExitCodeProcess(LProcessInfo.hProcess, Cardinal(Result));
-      finally
-        CloseHandle(LProcessInfo.hThread);
-        CloseHandle(LProcessInfo.hProcess);
-      end;
-    end;
-  finally
-    CloseHandle(LStdOutPipeRead);
-  end;
-end;
-
 function TTrainingClass.TrainModel(const AProfile: string): TJSONValue;
 const
   CHANNEL_SUFIX = '_TRAIN_MODEL_CALLBACK';
@@ -230,9 +144,10 @@ begin
   var LSessionActive := true;
   TThread.CreateAnonymousThread(procedure() begin
 
-    var LResultCode := ExecCmdPipeOut(LCmd,
+    var LResultCode := ExecCmd(LCmd,
       procedure(AText: string) begin
-        DSServer.BroadcastMessage(LChannel, LCallbackId, TJSONObject.Create(TJSONPair.Create('pipe', AText)));
+        DSServer.BroadcastMessage(LChannel, LCallbackId,
+          TJSONObject.Create(TJSONPair.Create('pipe', AText)));
         TFile.AppendAllText(LStdOutLogPath, AText);
       end,
       function(): boolean begin
@@ -242,9 +157,11 @@ begin
       end);
 
     if (LResultCode = 0) and TFile.Exists(LModel) then begin
-      DSServer.BroadcastMessage(LChannel, LCallbackId, TJSONObject.Create(TJSONPair.Create('done', true)));
+      DSServer.BroadcastMessage(LChannel, LCallbackId,
+        TJSONObject.Create(TJSONPair.Create('done', true)));
     end else begin
-      DSServer.BroadcastMessage(LChannel, LCallbackId, TJSONObject.Create(TJSONPair.Create('done', false)));
+      DSServer.BroadcastMessage(LChannel, LCallbackId,
+        TJSONObject.Create(TJSONPair.Create('done', false)));
     end;
 
     if LSessionPredicate(LSessionId) then

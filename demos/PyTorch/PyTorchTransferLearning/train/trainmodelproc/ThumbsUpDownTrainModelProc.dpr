@@ -13,8 +13,8 @@ uses
   CompModule in '..\CompModule.pas', PythonEngine {PyComps: TDataModule};
 
 const
-  cGENERIC_ERROR_EXIT_CODE = 999;
-  cPYTHON_ERROR_EXIT_CODE = 10000;
+  cGENERIC_ERROR_EXIT_CODE = $000A;
+  cPYTHON_ERROR_EXIT_CODE  = $000B;
 
 begin
   try

@@ -8,7 +8,8 @@ uses
   MainForm in 'MainForm.pas' {Form1},
   TrainingClassMethods in 'TrainingClassMethods.pas' {TrainingClass: TDSServerModule},
   ServerContainerUnit1 in 'ServerContainerUnit1.pas' {ServerContainer1: TDataModule},
-  WebModuleUnit1 in 'WebModuleUnit1.pas' {WebModule1: TWebModule};
+  WebModuleUnit1 in 'WebModuleUnit1.pas' {WebModule1: TWebModule},
+  ExecProc.Win in 'ExecProc.Win.pas';
 
 {$R *.res}
 
