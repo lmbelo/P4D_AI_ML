@@ -12,11 +12,14 @@ type
   TMainForm = class(TForm)
     frmMenu: TMenuFrame;
     frmClassSelection: TTrainingClassSelectionFrame;
+    StyleBook1: TStyleBook;
     procedure FormCreate(Sender: TObject);
     procedure frmMenubtnCollectDataClick(Sender: TObject);
     procedure frmMenubtnQuitClick(Sender: TObject);
     procedure frmClassSelectionbtnSelectClick(Sender: TObject);
     procedure frmMenubtnTrainModelClick(Sender: TObject);
+    procedure FormSaveState(Sender: TObject);
+    procedure frmMenubtnContinueClick(Sender: TObject);
   private
     procedure ApplicationEventChangedHandler(const Sender: TObject; const AMessage: TMessage);
     procedure ActivateCameraPermissionRequestResult(Sender: TObject; const APermissions: TClassicStringDynArray; const AGrantResults: TClassicPermissionStatusDynArray);
@@ -116,8 +119,32 @@ end;
 
 procedure TMainForm.FormCreate(Sender: TObject);
 begin
+  SaveState.StoragePath := TPath.GetHomePath();
+  frmMenu.loActions.Visible := false;
+  if (SaveState.Stream.Size > 0) then begin
+    var LReader := TBinaryReader.Create(SaveState.Stream, TEncoding.UTF8);
+    try
+       frmMenu.ceProfile.Items.Text := LReader.ReadString();
+    finally
+      LReader.Free();
+    end;
+  end;
   TMessageManager.DefaultManager.SubscribeToMessage(TApplicationEventMessage, ApplicationEventChangedHandler);
   frmMenu.DisableActions();
+end;
+
+procedure TMainForm.FormSaveState(Sender: TObject);
+begin
+  if frmMenu.ceProfile.Items.IndexOf(frmMenu.ceProfile.Text) = -1 then begin
+    frmMenu.ceProfile.Items.Add(frmMenu.ceProfile.Text);
+    SaveState.Stream.Clear();
+    var LWriter := TBinaryWriter.Create(SaveState.Stream);
+    try
+      LWriter.Write(frmMenu.ceProfile.Items.Text);
+    finally
+      LWriter.Free();
+    end;
+  end;
 end;
 
 procedure TMainForm.frmClassSelectionbtnSelectClick(Sender: TObject);
@@ -130,6 +157,13 @@ end;
 procedure TMainForm.frmMenubtnCollectDataClick(Sender: TObject);
 begin
   frmClassSelection.Visible := true;
+end;
+
+procedure TMainForm.frmMenubtnContinueClick(Sender: TObject);
+begin
+  if frmMenu.ceProfile.Items.Text.Trim().IsEmpty() then
+    raise Exception.Create('Select or create a profile.');
+  frmMenu.loActions.Visible := true;
 end;
 
 procedure TMainForm.frmMenubtnQuitClick(Sender: TObject);

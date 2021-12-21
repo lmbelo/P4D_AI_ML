@@ -10,7 +10,11 @@ uses
   Windows,
   {$ENDIF}
   TrainModel in '..\TrainModel.pas',
-  CompModule in '..\CompModule.pas' {PyComps: TDataModule};
+  CompModule in '..\CompModule.pas', PythonEngine {PyComps: TDataModule};
+
+const
+  cGENERIC_ERROR_EXIT_CODE = 999;
+  cPYTHON_ERROR_EXIT_CODE = 10000;
 
 begin
   try
@@ -50,6 +54,7 @@ begin
           end;
           {$ENDIF}
 
+          { TODO : Handle errors returning an error code. }
           LTrainModel.Train(dataset_path, trained_model_path);
         end;
       finally
@@ -60,8 +65,13 @@ begin
     end;
     ReadLn;
   except
+    on E: EPythonError do begin
+      Writeln(E.ClassName, ': ', E.Message);
+      ExitCode := cPYTHON_ERROR_EXIT_CODE;
+    end;
     on E: Exception do begin
       Writeln(E.ClassName, ': ', E.Message);
+      ExitCode := cGENERIC_ERROR_EXIT_CODE;
     end;
   end;
 end.

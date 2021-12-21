@@ -102,7 +102,8 @@ begin
   Result := GetCount(LDir);
 end;
 
-function ExecCmdPipeOut(const ACmd: string; const AYield: TProc<string>; const ATerminate: TFunc<boolean>): integer;
+function ExecCmdPipeOut(const ACmd: string; const AYield: TProc<string>;
+  const ATerminate: TFunc<boolean>): integer;
 var
   LSecurityAttributes: TSecurityAttributes;
   LStartupInfo: TStartupInfo;
@@ -176,7 +177,7 @@ begin
 
           LRunning := WaitForSingleObject(LProcessInfo.hProcess, 100);
         until (LRunning <> WAIT_TIMEOUT);
-
+        //The ReadFile thread is automatically finalized after process finishes
         GetExitCodeProcess(LProcessInfo.hProcess, Cardinal(Result));
       finally
         CloseHandle(LProcessInfo.hThread);
@@ -185,35 +186,6 @@ begin
     end;
   finally
     CloseHandle(LStdOutPipeRead);
-  end;
-end;
-
-function ExecCmd(const ACmd: string): integer;
-var
-  LStartupInfo: TStartupInfo;
-  LProcessInformation: TProcessInformation;
-begin
-  FillChar(LStartupInfo, SizeOf(LStartupInfo), 0);
-  with LStartupInfo do
-  begin
-    cb := SizeOf(TStartupInfo);
-    wShowWindow := SW_SHOW;
-    dwFlags := STARTF_USESHOWWINDOW or STARTF_FORCEONFEEDBACK;
-  end;
-
-  { TODO : Handle this better }
-  if CreateProcess(nil, pchar(ACmd), nil, nil, true,
-    CREATE_NEW_CONSOLE or NORMAL_PRIORITY_CLASS,
-    nil, nil, LStartupInfo, LProcessInformation) then begin
-    // loop every 10 ms
-    while WaitForSingleObject(LProcessInformation.hProcess, 10) > 0 do begin
-    end;
-
-    GetExitCodeProcess(LProcessInformation.hProcess, Cardinal(Result));
-    CloseHandle(LProcessInformation.hProcess);
-    CloseHandle(LProcessInformation.hThread);
-  end else begin
-    Result := -1;
   end;
 end;
 
@@ -226,7 +198,9 @@ begin
   var LChannel := AProfile + CHANNEL_SUFIX;
   //Only one training execution per profile session
   if TDSSessionManager.GetThreadSession().HasData(LChannel) then
-    Exit(TJSONObject.Create(TJSONPair.Create('error', 'Another training set is already running on the current session.')));
+    Exit(TJSONObject.Create(TJSONPair.Create(
+      'error',
+      'Another training set is already running on the current session.')));
 
   TDSSessionManager.GetThreadSession().PutData(LChannel, DateTimeToStr(Now));
 
@@ -254,7 +228,7 @@ begin
   var LSessionId := TDSSessionManager.GetThreadSession().SessionName;
   var LCallbackId := LChannel + '_' + LSessionId;
   var LSessionActive := true;
-  var LThread := TThread.CreateAnonymousThread(procedure() begin
+  TThread.CreateAnonymousThread(procedure() begin
 
     var LResultCode := ExecCmdPipeOut(LCmd,
       procedure(AText: string) begin
@@ -275,8 +249,8 @@ begin
 
     if LSessionPredicate(LSessionId) then
       TDSSessionManager.Instance.Session[LSessionId].RemoveData(LChannel);
-  end);
-  LThread.Start();
+
+  end).Start();
 
   TDSSessionManager.Instance.AddSessionEvent(
     procedure(Sender: TObject; const EventType: TDSSessionEventType; const Session: TDSSession) begin

@@ -14,6 +14,7 @@ type
     lbProfile: TLabel;
     mmPipe: TMemo;
     btnTrain: TButton;
+    StyleBook1: TStyleBook;
     procedure btnTrainClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -51,7 +52,7 @@ begin
               mmPipe.Lines.Text := mmPipe.Lines.Text + LValue
             else if AValue.TryGetValue<boolean>('done', LStatus) then begin
               if LStatus then
-                mmPipe.Lines.Add('Model successfuly trained.')
+                mmPipe.Lines.Add('Model successfully trained.')
               else
                 mmPipe.Lines.Add('Model not trained. Check the pipe lines for errors.');
             end else if AValue.TryGetValue<string>('error', LValue) then
@@ -77,7 +78,7 @@ const
 begin
   inherited Create(AOwner);
   FProfile := AProfile;
-  lbProfile.Text := AProfile;
+  lbProfile.Text := 'Profile: ' + AProfile;
   FChannel := TDSRestClientChannel.Create('', FProfile + CHANNEL_SUFIX, ClientModule.DSRestConnection1);
 end;
 

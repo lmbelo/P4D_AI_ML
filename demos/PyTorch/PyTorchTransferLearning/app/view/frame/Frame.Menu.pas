@@ -14,12 +14,12 @@ type
     loProfile: TLayout;
     ceProfile: TComboEdit;
     lbProfile: TLabel;
-    lbContinue: TLabel;
     loActions: TLayout;
     btnCollectData: TButton;
     btnLiveRecognition: TButton;
     btnQuit: TButton;
     btnTrainModel: TButton;
+    btnContinue: TSpeedButton;
   private
     { Private declarations }
   public

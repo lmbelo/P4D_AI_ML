@@ -24,33 +24,33 @@ object MenuFrame: TMenuFrame
       object loProfile: TLayout
         Align = Top
         Size.Width = 309.000000000000000000
-        Size.Height = 113.000000000000000000
+        Size.Height = 160.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object ceProfile: TComboEdit
           Touch.InteractiveGestures = [LongTap, DoubleTap]
-          Align = Bottom
+          Align = Top
           StyleLookup = 'comboeditstyle'
           TabOrder = 0
           ItemHeight = 19.000000000000000000
           ItemIndex = -1
           Text = 'Default'
           Position.X = 20.000000000000000000
-          Position.Y = 44.000000000000000000
+          Position.Y = 67.000000000000000000
           Margins.Left = 20.000000000000000000
+          Margins.Top = 30.000000000000000000
           Margins.Right = 20.000000000000000000
-          Margins.Bottom = 10.000000000000000000
           Size.Width = 269.000000000000000000
           Size.Height = 22.000000000000000000
           Size.PlatformDefault = False
         end
         object lbProfile: TLabel
-          Align = Bottom
+          Align = Top
           Margins.Left = 20.000000000000000000
+          Margins.Top = 20.000000000000000000
           Margins.Right = 20.000000000000000000
-          Margins.Bottom = 5.000000000000000000
           Position.X = 20.000000000000000000
-          Position.Y = 22.000000000000000000
+          Position.Y = 20.000000000000000000
           Size.Width = 269.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
@@ -59,25 +59,25 @@ object MenuFrame: TMenuFrame
           Text = 'Profile'
           TabOrder = 1
         end
-        object lbContinue: TLabel
+        object btnContinue: TSpeedButton
           Align = Bottom
+          StyledSettings = [Family, Size, Style]
           Margins.Left = 20.000000000000000000
           Margins.Right = 20.000000000000000000
           Margins.Bottom = 20.000000000000000000
           Position.X = 20.000000000000000000
-          Position.Y = 76.000000000000000000
+          Position.Y = 118.000000000000000000
           Size.Width = 269.000000000000000000
-          Size.Height = 17.000000000000000000
+          Size.Height = 22.000000000000000000
           Size.PlatformDefault = False
-          TextSettings.HorzAlign = Center
           Text = 'continue'
-          TabOrder = 2
+          TextSettings.FontColor = claAqua
         end
       end
       object loActions: TLayout
         Align = Client
         Size.Width = 309.000000000000000000
-        Size.Height = 454.000000000000000000
+        Size.Height = 407.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
         object btnCollectData: TButton
@@ -112,7 +112,7 @@ object MenuFrame: TMenuFrame
           Margins.Right = 20.000000000000000000
           Margins.Bottom = 40.000000000000000000
           Position.X = 20.000000000000000000
-          Position.Y = 374.000000000000000000
+          Position.Y = 327.000000000000000000
           Size.Width = 269.000000000000000000
           Size.Height = 40.000000000000000000
           Size.PlatformDefault = False

@@ -1960,7 +1960,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor-min.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
@@ -1969,7 +1969,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor-min.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
