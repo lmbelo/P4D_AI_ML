@@ -141,6 +141,8 @@ end;
 
 destructor TExecCmdWin.Destroy;
 begin
+  if IsAlive then
+    Kill();
   CloseHandle(FProcessInfo.hThread);
   CloseHandle(FProcessInfo.hProcess);
   CloseHandle(FStdOutPipeRead);

@@ -170,6 +170,7 @@ end;
 procedure TMainForm.frmMenubtnLiveRecognitionClick(Sender: TObject);
 begin
   var LForm := TClassifyForm.Create(Self);
+  LForm.Profile := frmMenu.ceProfile.Text;
   LForm.Show();
 end;
 

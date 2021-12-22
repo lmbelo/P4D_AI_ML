@@ -7,10 +7,9 @@ program ThumbsUpDownTrainedModelProc;
 uses
   System.SysUtils,
   System.IOUtils,
-  {$IFDEF MSWINDOWS}
   Windows,
-  {$ENDIF}
-  LoadModel in 'LoadModel.pas';
+  LoadModel in 'LoadModel.pas',
+  CompModule in 'CompModule.pas' {PyComps: TDataModule};
 
 const
   BUFFSIZE = 4096;
@@ -38,17 +37,38 @@ begin
   WriteFile(LStdOut, LText[1], Length(LText), LBytesWritten, nil);
 end;
 
-function ProcessImage(const APath: string): integer;
+procedure RunInChildProcessMode(const ALoadModel: TLoadModel);
 begin
-  Result := 1;
+  LStdOut := GetStdHandle(STD_OUTPUT_HANDLE);
+  LStdIn := GetStdHandle(STD_INPUT_HANDLE);
+  if (LStdOut <> INVALID_HANDLE_VALUE) and (LStdIn <> INVALID_HANDLE_VALUE) then begin
+    var LCmd := Read();
+    while (LCmd = 'RUN') do begin
+      Write('WAITING');
+      var LImagePath := Read();
+      if not TFile.Exists(LImagePath) then begin
+        Write('ERROR: File not found.');
+      end else begin
+        Write(ALoadModel.ProbabilisticClassification(LImagePath).ToString());
+      end;
+      LCmd := Read();
+    end;
+  end;
 end;
 
 begin
+  while True do begin
+    Sleep(100);
+  end;
+
   try
     var LMode := 0; //interactive mode
     var LDebug := false;
+    var LModelPath: string;
     for var I := 0 to ParamCount do begin
-      if ParamStr(I).Trim().StartsWith('-m')
+      if ParamStr(I).Trim().StartsWith('-o') then begin
+        LModelPath := ParamStr(I).Replace('-o', String.Empty);
+      end else if ParamStr(I).Trim().StartsWith('-m')
         and ParamStr(I).Trim().EndsWith('CHILD_PROC') then begin
           LMode := 1;
       end else if (ParamStr(I).Trim().Equals('DEBUG')) then
@@ -56,7 +76,6 @@ begin
     end;
 
     if LDebug then begin
-      {$IFDEF MSWINDOWS}
       //If you want to attach this process to a debuger
       if ParamCount = 2 then begin
         var LTimer := 30;
@@ -68,25 +87,20 @@ begin
         if (DebugHook <> 0) then
           DebugBreak();
       end;
-      {$ENDIF}
     end;
 
-    if (LMode = 1) then begin
-      LStdOut := GetStdHandle(STD_OUTPUT_HANDLE);
-      LStdIn := GetStdHandle(STD_INPUT_HANDLE);
-      if (LStdOut <> INVALID_HANDLE_VALUE) and (LStdIn <> INVALID_HANDLE_VALUE) then begin
-        var LCmd := Read();
-        while (LCmd = 'RUN') do begin
-          Write('WAITING');
-          var LFilePath := Read();
-          if not TFile.Exists(LFilePath) then begin
-            Write('ERROR: File not found.');
-          end else begin
-            Write(ProcessImage(LFilePath).ToString());
-          end;
-          LCmd := Read();
+    PyComps := TPyComps.Create(nil);
+    try
+      var LLoadModel := TLoadModel.Create(LModelPath);
+      try
+        if (LMode = 1) then begin
+          RunInChildProcessMode(LLoadModel);
         end;
+      finally
+        LLoadModel.Free();
       end;
+    finally
+      PyComps.Free();
     end;
   except
     on E: Exception do

@@ -3,8 +3,9 @@ unit TrainingClassMethods;
 interface
 
 uses System.SysUtils, System.Classes, System.Json,
-    DataSnap.DSProviderDataModuleAdapter,
-    Datasnap.DSServer, Datasnap.DSAuth, FMX.Forms;
+  DataSnap.DSProviderDataModuleAdapter,
+  Datasnap.DSServer, Datasnap.DSAuth, FMX.Forms,
+  ExecProc.Win;
 
 type
   TTrainingClass = class(TDSServerModule)
@@ -15,6 +16,7 @@ type
     function BuildClassFolder(const ABaseDir, ATrainingClass: string): string;
     function BuildImagePath(const ABaseDir, AImageName: string): string;
     function GetCount(const ABaseDir: string): integer;
+    function GetTrainedModelProc(const AProfile: string): TExecCmdWin;
   public
     const IMAGES_FOLDER = 'training_data';
   public
@@ -31,8 +33,7 @@ type
 implementation
 
 uses
-  System.IOUtils, ServerContainerUnit1, DSSession,
-  ExecProc.Win;
+  System.IOUtils, ServerContainerUnit1, DSSession;
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
@@ -79,6 +80,38 @@ end;
 function TTrainingClass.GetCount(const ABaseDir: string): integer;
 begin
   Result := Length(TDirectory.GetFiles(ABaseDir));
+end;
+
+function TTrainingClass.GetTrainedModelProc(const AProfile: string): TExecCmdWin;
+const
+  PROC = 'ThumbsUpDownTrainedModelProc.exe';
+  DEBUG_FLAG = 'DEBUG';
+begin
+  var LProcName := 'AProfile' + '_TRAINED_MODEL_PROC';
+  if not TDSSessionManager.GetThreadSession().HasObject(LProcName) then begin
+    if not TFile.Exists(PROC) then
+      raise Exception.Create('Trained model application not found.');
+
+    var LModel := TPath.Combine(BuildProfileFolder(
+      BuildImagesFolder(), AProfile), 'best_model.pth');
+
+    var LCmd := PROC
+      + ' -o' + LModel
+      + ' -mCHILD_PROC';
+  //    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
+
+    var LProc := TExecCmdWin.Create(LCmd, [TRedirect.stdout, TRedirect.stdin]);
+
+    TDSSessionManager.GetThreadSession().PutObject(LProcName, LProc);
+  end;
+
+  Result := TExecCmdWin(TDSSessionManager.GetThreadSession().GetObject(LProcName));
+
+  //If the process has died in some manner
+  if not Result.IsAlive then begin
+    TDSSessionManager.GetThreadSession().RemoveObject(LProcName, true);
+    Result := GetTrainedModelProc(AProfile);
+  end;
 end;
 
 function TTrainingClass.BuildImagesFolder(): string;
@@ -194,13 +227,7 @@ end;
 
 function TTrainingClass.Recognize(const AProfile: string;
   const AImage: TStream): TJSONValue;
-const
-  PROC = 'ThumbsUpDownTrainedModelProc.exe';
-  DEBUG_FLAG = 'DEBUG';
 begin
-  if not TFile.Exists(PROC) then
-    raise Exception.Create('Trained model application not found.');
-
   var LImagePath := TPath.GetTempFileName();
   var LStream := TFileStream.Create(LImagePath, fmCreate or fmOpenWrite);
   try
@@ -210,36 +237,27 @@ begin
     LStream.Free();
   end;
 
-  var LCmd := PROC
-    + ' -mCHILD_PROC';
-//    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
+  //We keep the trained model up and send requests as needed.
+  //Note: starting up this process may take to much time. We can keep it alive, though.
+  var LProc := GetTrainedModelProc(AProfile);
+  var LWriter: TWriter;
+  var LReader: TReader;
+  var LProb: extended;
 
-  var LProc := TExecCmdWin.Create(LCmd, [TRedirect.stdout, TRedirect.stdin]);
-  try
-    var LWriter: TWriter;
-    var LReader: TReader;
-    var LProb: extended;
-    LProc.Redirect(LReader, LWriter);
-    try
-      LWriter('RUN');
-      var LStdOut := LReader();
-      if (LStdOut = 'WAITING') then begin
-        LWriter(LImagePath);
-        LStdOut := LReader();
-        if (LStdOut.StartsWith('ERROR')) then begin
-          Exit(TJSONNumber.Create(-1));
-        end else if TryStrToFloat(LStdOut, LProb) then begin
-          LWriter('EXIT');
-          Exit(TJSONNumber.Create(LProb));
-        end;
-      end;
-    finally
-      LProc.Kill();
-    end;
-  finally
-    LProc.Free();
-  end;
-  Result := TJSONNumber.Create(-1);
+  LProc.Redirect(LReader, LWriter);
+  LWriter('RUN');
+  var LStdOut := LReader();
+  if (LStdOut = 'WAITING') then begin
+    LWriter(LImagePath);
+    LStdOut := LReader();
+    if (LStdOut.StartsWith('ERROR')) then begin
+      Result := TJSONNumber.Create(-1);
+    end else if TryStrToFloat(LStdOut, LProb) then begin
+      Result := TJSONNumber.Create(LProb);
+    end else
+      Result := TJSONNumber.Create(-1);
+  end else
+    Result := TJSONNumber.Create(-1);
 end;
 
 end.

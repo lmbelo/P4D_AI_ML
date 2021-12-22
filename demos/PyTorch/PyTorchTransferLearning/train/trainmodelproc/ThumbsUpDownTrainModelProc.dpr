@@ -6,11 +6,9 @@ program ThumbsUpDownTrainModelProc;
 
 uses
   System.SysUtils,
-  {$IFDEF MSWINDOWS}
   Windows,
-  {$ENDIF}
-  TrainModel in '..\TrainModel.pas',
-  CompModule in '..\CompModule.pas', PythonEngine {PyComps: TDataModule};
+  CompModule in 'CompModule.pas' {PyComps: TDataModule},
+  TrainModel in 'TrainModel.pas', PythonEngine;
 
 const
   cGENERIC_ERROR_EXIT_CODE = $000A;
@@ -37,7 +35,6 @@ begin
           Writeln('Reading images from: ' + dataset_path);
           Writeln('Writing model to: ' + trained_model_path);
 
-          {$IFDEF MSWINDOWS}
           //If you want to attach this process to a debuger
           if ParamCount = 4 then begin
             Writeln('Hanging on debugger...');
@@ -52,9 +49,7 @@ begin
             else
               Writeln('Debugger not attached');
           end;
-          {$ENDIF}
 
-          { TODO : Handle errors returning an error code. }
           LTrainModel.Train(dataset_path, trained_model_path);
         end;
       finally
@@ -63,7 +58,6 @@ begin
     finally
       FreeAndNil(PyComps);
     end;
-    ReadLn;
   except
     on E: EPythonError do begin
       Writeln(E.ClassName, ': ', E.Message);

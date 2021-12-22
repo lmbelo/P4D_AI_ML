@@ -9,9 +9,6 @@
         <Projects Include="server\ThumbsUpDownServer.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="train\trainmodelgui\ThumbsUpDownTrainModel.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="train\trainmodelproc\ThumbsUpDownTrainModelProc.dproj">
             <Dependencies/>
         </Projects>
@@ -44,15 +41,6 @@
     <Target Name="ThumbsUpDownServer:Make">
         <MSBuild Projects="server\ThumbsUpDownServer.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ThumbsUpDownTrainModel">
-        <MSBuild Projects="train\trainmodelgui\ThumbsUpDownTrainModel.dproj"/>
-    </Target>
-    <Target Name="ThumbsUpDownTrainModel:Clean">
-        <MSBuild Projects="train\trainmodelgui\ThumbsUpDownTrainModel.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ThumbsUpDownTrainModel:Make">
-        <MSBuild Projects="train\trainmodelgui\ThumbsUpDownTrainModel.dproj" Targets="Make"/>
-    </Target>
     <Target Name="ThumbsUpDownTrainModelProc">
         <MSBuild Projects="train\trainmodelproc\ThumbsUpDownTrainModelProc.dproj"/>
     </Target>
@@ -72,13 +60,13 @@
         <MSBuild Projects="train\trainedmodelproc\ThumbsUpDownTrainedModelProc.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer;ThumbsUpDownTrainModel;ThumbsUpDownTrainModelProc;ThumbsUpDownTrainedModelProc"/>
+        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer;ThumbsUpDownTrainModelProc;ThumbsUpDownTrainedModelProc"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean;ThumbsUpDownTrainModel:Clean;ThumbsUpDownTrainModelProc:Clean;ThumbsUpDownTrainedModelProc:Clean"/>
+        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean;ThumbsUpDownTrainModelProc:Clean;ThumbsUpDownTrainedModelProc:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make;ThumbsUpDownTrainModel:Make;ThumbsUpDownTrainModelProc:Make;ThumbsUpDownTrainedModelProc:Make"/>
+        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make;ThumbsUpDownTrainModelProc:Make;ThumbsUpDownTrainedModelProc:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
