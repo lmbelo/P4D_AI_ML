@@ -15,6 +15,9 @@
         <Projects Include="train\trainmodelproc\ThumbsUpDownTrainModelProc.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="train\trainedmodelproc\ThumbsUpDownTrainedModelProc.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="ThumbsUpDownTrainModelProc:Make">
         <MSBuild Projects="train\trainmodelproc\ThumbsUpDownTrainModelProc.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ThumbsUpDownTrainedModelProc">
+        <MSBuild Projects="train\trainedmodelproc\ThumbsUpDownTrainedModelProc.dproj"/>
+    </Target>
+    <Target Name="ThumbsUpDownTrainedModelProc:Clean">
+        <MSBuild Projects="train\trainedmodelproc\ThumbsUpDownTrainedModelProc.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ThumbsUpDownTrainedModelProc:Make">
+        <MSBuild Projects="train\trainedmodelproc\ThumbsUpDownTrainedModelProc.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer;ThumbsUpDownTrainModel;ThumbsUpDownTrainModelProc"/>
+        <CallTarget Targets="ThumbsUpDownApp;ThumbsUpDownServer;ThumbsUpDownTrainModel;ThumbsUpDownTrainModelProc;ThumbsUpDownTrainedModelProc"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean;ThumbsUpDownTrainModel:Clean;ThumbsUpDownTrainModelProc:Clean"/>
+        <CallTarget Targets="ThumbsUpDownApp:Clean;ThumbsUpDownServer:Clean;ThumbsUpDownTrainModel:Clean;ThumbsUpDownTrainModelProc:Clean;ThumbsUpDownTrainedModelProc:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make;ThumbsUpDownTrainModel:Make;ThumbsUpDownTrainModelProc:Make"/>
+        <CallTarget Targets="ThumbsUpDownApp:Make;ThumbsUpDownServer:Make;ThumbsUpDownTrainModel:Make;ThumbsUpDownTrainModelProc:Make;ThumbsUpDownTrainedModelProc:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

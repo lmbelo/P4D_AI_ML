@@ -17,6 +17,8 @@ type
     FClearCommand: TDSRestCommand;
     FTrainModelCommand: TDSRestCommand;
     FTrainModelCommand_Cache: TDSRestCommand;
+    FRecognizeCommand: TDSRestCommand;
+    FRecognizeCommand_Cache: TDSRestCommand;
   public
     constructor Create(ARestConnection: TDSRestConnection); overload;
     constructor Create(ARestConnection: TDSRestConnection; AInstanceOwner: Boolean); overload;
@@ -26,6 +28,8 @@ type
     procedure Clear(AProfile: string; ATrainingClass: string);
     function TrainModel(AProfile: string; const ARequestFilter: string = ''): TJSONValue;
     function TrainModel_Cache(AProfile: string; const ARequestFilter: string = ''): IDSRestCachedJSONValue;
+    function Recognize(AProfile: string; AImage: TStream; const ARequestFilter: string = ''): TJSONValue;
+    function Recognize_Cache(AProfile: string; AImage: TStream; const ARequestFilter: string = ''): IDSRestCachedJSONValue;
   end;
 
 const
@@ -60,6 +64,20 @@ const
   TTrainingClass_TrainModel_Cache: array [0..1] of TDSRestParameterMetaData =
   (
     (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: ''; Direction: 4; DBXType: 26; TypeName: 'String')
+  );
+
+  TTrainingClass_Recognize: array [0..2] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: 'AImage'; Direction: 1; DBXType: 33; TypeName: 'TStream'),
+    (Name: ''; Direction: 4; DBXType: 37; TypeName: 'TJSONValue')
+  );
+
+  TTrainingClass_Recognize_Cache: array [0..2] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: 'AImage'; Direction: 1; DBXType: 33; TypeName: 'TStream'),
     (Name: ''; Direction: 4; DBXType: 26; TypeName: 'String')
   );
 
@@ -139,6 +157,36 @@ begin
   Result := TDSRestCachedJSONValue.Create(FTrainModelCommand_Cache.Parameters[1].Value.GetString);
 end;
 
+function TTrainingClassClient.Recognize(AProfile: string; AImage: TStream; const ARequestFilter: string): TJSONValue;
+begin
+  if FRecognizeCommand = nil then
+  begin
+    FRecognizeCommand := FConnection.CreateCommand;
+    FRecognizeCommand.RequestType := 'POST';
+    FRecognizeCommand.Text := 'TTrainingClass."Recognize"';
+    FRecognizeCommand.Prepare(TTrainingClass_Recognize);
+  end;
+  FRecognizeCommand.Parameters[0].Value.SetWideString(AProfile);
+  FRecognizeCommand.Parameters[1].Value.SetStream(AImage, FInstanceOwner);
+  FRecognizeCommand.Execute(ARequestFilter);
+  Result := TJSONValue(FRecognizeCommand.Parameters[2].Value.GetJSONValue(FInstanceOwner));
+end;
+
+function TTrainingClassClient.Recognize_Cache(AProfile: string; AImage: TStream; const ARequestFilter: string): IDSRestCachedJSONValue;
+begin
+  if FRecognizeCommand_Cache = nil then
+  begin
+    FRecognizeCommand_Cache := FConnection.CreateCommand;
+    FRecognizeCommand_Cache.RequestType := 'POST';
+    FRecognizeCommand_Cache.Text := 'TTrainingClass."Recognize"';
+    FRecognizeCommand_Cache.Prepare(TTrainingClass_Recognize_Cache);
+  end;
+  FRecognizeCommand_Cache.Parameters[0].Value.SetWideString(AProfile);
+  FRecognizeCommand_Cache.Parameters[1].Value.SetStream(AImage, FInstanceOwner);
+  FRecognizeCommand_Cache.ExecuteCache(ARequestFilter);
+  Result := TDSRestCachedJSONValue.Create(FRecognizeCommand_Cache.Parameters[2].Value.GetString);
+end;
+
 constructor TTrainingClassClient.Create(ARestConnection: TDSRestConnection);
 begin
   inherited Create(ARestConnection);
@@ -156,6 +204,8 @@ begin
   FClearCommand.DisposeOf;
   FTrainModelCommand.DisposeOf;
   FTrainModelCommand_Cache.DisposeOf;
+  FRecognizeCommand.DisposeOf;
+  FRecognizeCommand_Cache.DisposeOf;
   inherited;
 end;
 

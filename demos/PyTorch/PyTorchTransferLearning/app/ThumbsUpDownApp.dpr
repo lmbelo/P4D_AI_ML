@@ -20,7 +20,9 @@ uses
   Frame.TrainingClassSelection in 'view\frame\Frame.TrainingClassSelection.pas' {TrainingClassSelectionFrame: TFrame},
   Remote.ClientClasses in 'remote\Remote.ClientClasses.pas',
   Remote.ClientModule in 'remote\Remote.ClientModule.pas' {ClientModule: TDataModule},
-  Form.TrainModel in 'view\form\Form.TrainModel.pas' {TrainModelForm};
+  Form.TrainModel in 'view\form\Form.TrainModel.pas' {TrainModelForm},
+  Form.Classify in 'view\form\Form.Classify.pas' {ClassifyForm},
+  BitmapHelper in 'utils\BitmapHelper.pas';
 
 {$R *.res}
 

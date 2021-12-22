@@ -25,6 +25,7 @@ type
     procedure Clear(const AProfile, ATrainingClass: string);
 
     function TrainModel(const AProfile: string): TJSONValue;
+    function Recognize(const AProfile: string; const AImage: TStream): TJSONValue;
   end;
 
 implementation
@@ -109,12 +110,23 @@ const
   PROC = 'ThumbsUpDownTrainModelProc.exe';
   DEBUG_FLAG = 'd';
 begin
+  if not TFile.Exists(PROC) then
+    raise Exception.Create('Train model application not found.');
+
   var LChannel := AProfile + CHANNEL_SUFIX;
+  var LCallBackId := LChannel + '_' + TDSSessionManager.GetThreadSession().SessionName;
+
   //Only one training execution per profile session
-  if TDSSessionManager.GetThreadSession().HasData(LChannel) then
-    Exit(TJSONObject.Create(TJSONPair.Create(
+  if TDSSessionManager.GetThreadSession().HasData(LChannel) then begin
+    Result := TJSONObject.Create();
+    TJSONObject(Result).AddPair(TJSONPair.Create(
       'error',
-      'Another training set is already running on the current session.')));
+      'A training set is already running to the current session.'));
+    TJSONObject(Result).AddPair(TJSONPair.Create(
+      'callback_id',
+      LCallBackId));
+    Exit;
+  end;
 
   TDSSessionManager.GetThreadSession().PutData(LChannel, DateTimeToStr(Now));
 
@@ -127,8 +139,8 @@ begin
   var LCmd := PROC
     + ' ' + AProfile
     + ' ' + BuildProfileFolder(BuildImagesFolder(), AProfile)
-    + ' ' + LModel
-    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
+    + ' ' + LModel;
+//    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
 
   var LSessionPredicate: TPredicate<string> := function(Data: string): boolean begin
     Result := Assigned(TDSSessionManager.Instance.Session[Data])
@@ -140,13 +152,12 @@ begin
     TFile.Delete(LStdOutLogPath);
 
   var LSessionId := TDSSessionManager.GetThreadSession().SessionName;
-  var LCallbackId := LChannel + '_' + LSessionId;
   var LSessionActive := true;
   TThread.CreateAnonymousThread(procedure() begin
 
-    var LResultCode := ExecCmd(LCmd,
+    var LResultCode := TExecCmdWin.ExecCmd(LCmd,
       procedure(AText: string) begin
-        DSServer.BroadcastMessage(LChannel, LCallbackId,
+        DSServer.BroadcastMessage(LChannel, LCallBackId,
           TJSONObject.Create(TJSONPair.Create('pipe', AText)));
         TFile.AppendAllText(LStdOutLogPath, AText);
       end,
@@ -157,10 +168,10 @@ begin
       end);
 
     if (LResultCode = 0) and TFile.Exists(LModel) then begin
-      DSServer.BroadcastMessage(LChannel, LCallbackId,
+      DSServer.BroadcastMessage(LChannel, LCallBackId,
         TJSONObject.Create(TJSONPair.Create('done', true)));
     end else begin
-      DSServer.BroadcastMessage(LChannel, LCallbackId,
+      DSServer.BroadcastMessage(LChannel, LCallBackId,
         TJSONObject.Create(TJSONPair.Create('done', false)));
     end;
 
@@ -178,7 +189,57 @@ begin
       end;
     end);
 
-  Result := TJSONObject.Create(TJSONPair.Create('callback_id', LCallbackId));
+  Result := TJSONObject.Create(TJSONPair.Create('callback_id', LCallBackId));
+end;
+
+function TTrainingClass.Recognize(const AProfile: string;
+  const AImage: TStream): TJSONValue;
+const
+  PROC = 'ThumbsUpDownTrainedModelProc.exe';
+  DEBUG_FLAG = 'DEBUG';
+begin
+  if not TFile.Exists(PROC) then
+    raise Exception.Create('Trained model application not found.');
+
+  var LImagePath := TPath.GetTempFileName();
+  var LStream := TFileStream.Create(LImagePath, fmCreate or fmOpenWrite);
+  try
+    LStream.Seek(0, soFromEnd);
+    LStream.CopyFrom(AImage, AImage.Size)
+  finally
+    LStream.Free();
+  end;
+
+  var LCmd := PROC
+    + ' -mCHILD_PROC';
+//    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
+
+  var LProc := TExecCmdWin.Create(LCmd, [TRedirect.stdout, TRedirect.stdin]);
+  try
+    var LWriter: TWriter;
+    var LReader: TReader;
+    var LProb: extended;
+    LProc.Redirect(LReader, LWriter);
+    try
+      LWriter('RUN');
+      var LStdOut := LReader();
+      if (LStdOut = 'WAITING') then begin
+        LWriter(LImagePath);
+        LStdOut := LReader();
+        if (LStdOut.StartsWith('ERROR')) then begin
+          Exit(TJSONNumber.Create(-1));
+        end else if TryStrToFloat(LStdOut, LProb) then begin
+          LWriter('EXIT');
+          Exit(TJSONNumber.Create(LProb));
+        end;
+      end;
+    finally
+      LProc.Kill();
+    end;
+  finally
+    LProc.Free();
+  end;
+  Result := TJSONNumber.Create(-1);
 end;
 
 end.

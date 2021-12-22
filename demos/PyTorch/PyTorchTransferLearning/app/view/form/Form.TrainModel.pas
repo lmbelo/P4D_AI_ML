@@ -17,10 +17,11 @@ type
     StyleBook1: TStyleBook;
     procedure btnTrainClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FProfile: string;
-    FChannel: TDSRestClientChannel;
-    { Private declarations }
+    FCallback: TDSRestClientCallback;
+    function GetCallBackChannel(): TDSRestClientChannel;
   public
     constructor Create(AOwner: TComponent; const AProfile: string); reintroduce;
     property Profile: string read FProfile;
@@ -41,8 +42,15 @@ begin
   var LMsg: string;
   var LResult := ClientModule.TrainingClassClient.TrainModel(FProfile, LMsg);
   var LResultStr: string;
+
+  if LResult.TryGetValue<string>('error', LResultStr) then
+    ShowMessage(LResultStr);
+
   if LResult.TryGetValue<string>('callback_id', LResultStr) then begin
-    var LCallback := TDSRestClientCallback.Create(FChannel, LResultStr,
+    mmPipe.Lines.Text := 'Trying to connect to the pipe...';
+    mmPipe.Lines.Add('');
+
+    FCallback := TDSRestClientCallback.Create(GetCallBackChannel, LResultStr,
       function(AValue: TJSONValue; ADataType: string): boolean begin
         TThread.Synchronize(nil, procedure() begin
           var LValue: string;
@@ -55,36 +63,44 @@ begin
                 mmPipe.Lines.Add('Model successfully trained.')
               else
                 mmPipe.Lines.Add('Model not trained. Check the pipe lines for errors.');
-            end else if AValue.TryGetValue<string>('error', LValue) then
+            end else if AValue.TryGetValue<string>('error', LValue) then begin
               mmPipe.Lines.Add('Error: ' + LValue);
+            end;
             mmPipe.GoToTextEnd();
-          end;
+          end else
+            mmPipe.Lines.Add(AValue.ToString());;
         end);
         Result := true;
       end);
 
-    if FChannel.Connected then
-      FChannel.RegisterCallback(LCallback)
-    else
-      FChannel.Connect(LCallback);
-  end else if LResult.TryGetValue<string>('error', LResultStr) then begin
-    raise Exception.Create(LResultStr);
+     GetCallBackChannel.RegisterCallback(FCallback);
   end;
 end;
 
 constructor TTrainModelForm.Create(AOwner: TComponent; const AProfile: string);
-const
-  CHANNEL_SUFIX = '_TRAIN_MODEL_CALLBACK';
 begin
   inherited Create(AOwner);
   FProfile := AProfile;
   lbProfile.Text := 'Profile: ' + AProfile;
-  FChannel := TDSRestClientChannel.Create('', FProfile + CHANNEL_SUFIX, ClientModule.DSRestConnection1);
+end;
+
+procedure TTrainModelForm.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action := TCloseAction.caFree;
 end;
 
 procedure TTrainModelForm.FormDestroy(Sender: TObject);
 begin
-  FChannel.Free();
+  if Assigned(FCallback) then begin
+    GetCallBackChannel.UnregisterCallback(FCallback);
+  end;
+end;
+
+function TTrainModelForm.GetCallBackChannel: TDSRestClientChannel;
+const
+  TRAIN_MODEL_CHANNEL_SUFFIX = '_TRAIN_MODEL_CALLBACK';
+begin
+  Result := ClientModule.CallbackChannel[FProfile + TRAIN_MODEL_CHANNEL_SUFFIX];
 end;
 
 end.

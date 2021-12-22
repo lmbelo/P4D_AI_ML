@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   System.Permissions, System.Messaging, Form.DataCollection, Frame.Menu,
-  Frame.TrainingClassSelection, Form.TrainModel;
+  Frame.TrainingClassSelection, Form.TrainModel, Form.Classify;
 
 type
   TMainForm = class(TForm)
@@ -20,6 +20,7 @@ type
     procedure frmMenubtnTrainModelClick(Sender: TObject);
     procedure FormSaveState(Sender: TObject);
     procedure frmMenubtnContinueClick(Sender: TObject);
+    procedure frmMenubtnLiveRecognitionClick(Sender: TObject);
   private
     procedure ApplicationEventChangedHandler(const Sender: TObject; const AMessage: TMessage);
     procedure ActivateCameraPermissionRequestResult(Sender: TObject; const APermissions: TClassicStringDynArray; const AGrantResults: TClassicPermissionStatusDynArray);
@@ -164,6 +165,12 @@ begin
   if frmMenu.ceProfile.Items.Text.Trim().IsEmpty() then
     raise Exception.Create('Select or create a profile.');
   frmMenu.loActions.Visible := true;
+end;
+
+procedure TMainForm.frmMenubtnLiveRecognitionClick(Sender: TObject);
+begin
+  var LForm := TClassifyForm.Create(Self);
+  LForm.Show();
 end;
 
 procedure TMainForm.frmMenubtnQuitClick(Sender: TObject);

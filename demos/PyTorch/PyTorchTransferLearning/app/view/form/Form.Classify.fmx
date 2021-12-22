@@ -1,80 +1,214 @@
-object MainForm: TMainForm
+object ClassifyForm: TClassifyForm
   Left = 0
   Top = 0
-  ClientHeight = 588
-  ClientWidth = 309
+  Caption = 'Form2'
+  ClientHeight = 606
+  ClientWidth = 308
   StyleBook = StyleBook1
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
-  OnSaveState = FormSaveState
   DesignerMasterStyle = 3
-  inline frmMenu: TMenuFrame
+  object recBackground: TRectangle
     Align = Client
-    Size.Width = 309.000000000000000000
-    Size.Height = 588.000000000000000000
+    Fill.Color = claBlack
+    Size.Width = 308.000000000000000000
+    Size.Height = 606.000000000000000000
     Size.PlatformDefault = False
-    inherited loContainer: TLayout
-      Size.Width = 309.000000000000000000
-      Size.Height = 588.000000000000000000
-      inherited loCollapse: TLayout
-        Size.Width = 289.000000000000000000
-        inherited loProfile: TLayout
-          Size.Width = 289.000000000000000000
-          Size.Height = 190.000000000000000000
-          inherited ceProfile: TComboEdit
-            Items.Strings = (
-              'Default')
-            Size.Width = 249.000000000000000000
-            Size.Height = 32.000000000000000000
+    object imgCamera: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Client
+      Size.Width = 308.000000000000000000
+      Size.Height = 606.000000000000000000
+      Size.PlatformDefault = False
+      WrapMode = Stretch
+      object Layout2: TLayout
+        Align = Left
+        Size.Width = 65.000000000000000000
+        Size.Height = 534.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object Layout3: TLayout
+          Align = Center
+          Size.Width = 50.000000000000000000
+          Size.Height = 263.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object tbThumbs: TTrackBar
+            Align = Client
+            CanParentFocus = True
+            Orientation = Vertical
+            Size.Width = 32.000000000000000000
+            Size.Height = 163.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            Value = 50.000000000000000000
           end
-          inherited lbProfile: TLabel
-            Size.Width = 249.000000000000000000
+          object Image1: TImage
+            MultiResBitmap.Height = 32
+            MultiResBitmap.Width = 32
+            MultiResBitmap.LoadSize = 2
+            MultiResBitmap = <
+              item
+                Width = 32
+                Height = 32
+                PNG = {
+                  89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                  F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                  01FE494441545847ED963D2F44411486F76EE2A3D10A894A45142A091A2541A1
+                  40884A230AFE8086A8B4A2C10F40508852E2A31136118584568584422548D8F5
+                  9CF1BA2C6BF75EB153882739FB9E39E7CE9C33337B97C49F219D4E776632993A
+                  0DFD42F16EEC11BBA2895A85FDF0569CC20EFC15A58A0FC5BAB007D576303E56
+                  BAB850A803BB57DD1062CB7A241249692C28D2856C0441506E63EAEE9B8A9434
+                  12B11BB09D23EB142FB331C5A7901DF3C5A1F4F7C971EC338A6FD9007DC05C63
+                  BF0E0BB7E72A8E06C46F2D801EB887631048F3C2C20DC8D1873B9F4E269393CA
+                  D5133F537C1B7FC1FCEFE0994B9E49614F0A158622B3B643037F5A6107E361A5
+                  22C39C1456A1255C57ABAFA9C2684A080BCD2B150BE64DD87C77058C57913EF3
+                  0BC1D1655D1B0BB511AAD4300A56CB6AAE708D83B91A589386906FA1488DF99F
+                  1B880B6BBD9DE21A4BF53BCF1AB084E1029F209C371F072D63B893F8D12FE14F
+                  E1BA9AE55A2317A65E1B8071A9B1691FDE1A60F7D548AFF9ECFE94FBDF33DFE7
+                  098C52B454FE2CBEFB3E7969801D5BE111F9B7C892F986AF0606D87195F9E822
+                  EFFF9D4B80AF2B18B30F1A79C6B2FE5614BD01BE7CADECBA49C30D767F2EDFE1
+                  E3043EBE7A73D290D83FC5F0259F0FE6F630B7043D61F78D0A67630D604585AB
+                  1852B92C225D01F3EDFFFE5DEC46A1C830E71A9BE014C257EF9F7FDE49245E00
+                  ADEF6625F0A1CADD0000000049454E44AE426082}
+                FileName = 
+                  'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                  'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_up.png'
+              end>
+            Align = Top
+            WrapMode = Center
           end
-          inherited btnContinue: TSpeedButton
-            Position.Y = 122.000000000000000000
-            Size.Width = 249.000000000000000000
-            Size.Height = 48.000000000000000000
-            OnClick = frmMenubtnContinueClick
+          object Image2: TImage
+            MultiResBitmap.Height = 32
+            MultiResBitmap.Width = 32
+            MultiResBitmap.LoadSize = 2
+            MultiResBitmap = <
+              item
+                Width = 32
+                Height = 32
+                PNG = {
+                  89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                  F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                  0219494441545847E596BF8B134114C77757B031A082460FE4C43A9D81A06021
+                  D8A733575B046C0EC1464919F11F5041ED04C12262672396D78423DDF90314EC
+                  44B9D3C2463060D6CF77F6EDEAB271D903678EC30F4CDE77DECCCB7B3B33FB23
+                  FAEF89F5B3582CCEC7717CCA799690A6E90FCC94D661DE31E76CCE0E6D83B89F
+                  5977092498D07C32A31DB6742512B3BEE952C04DD325DC163038C15C968681D9
+                  02C6AFB384E7AC5B19AF83D87BC4B6B15FB1ABB4EF36F41B15407398AB04EEDA
+                  F13A385F630B4DD143731784D882FBE49E9BBE8676AB9EE3BD8024493E619E49
+                  B3FC1D0AB8289D13EA10DE312BD6CD3A8214C02A4CB9F24DEBF6390B674C075B
+                  0171573F6CC301CC556911AC0012EB4EFA6CDD21AB704822640173DA43D34731
+                  6BD221B7403C302B2EE82768015C79BE05D22DD94A01EC5305DCF963FA9FB3EC
+                  5D500B95979E64C4EA257336EB35C2E521EE11B7E795FC7BE0CF974D0526F718
+                  3F6DDD23E86FA6157B9BFEC8BABB6140DC53D3F5906444110EB41E2AC5BB9D7E
+                  3F1B6906F33FD26E587833886B11F42AFB8B7211E81399D7F91FBB001FF0E76D
+                  DA96E512FACAD1FDACB10F7260DFBBC9BEF85B11F89EA88315C76D7A2376F51C
+                  E0D46E632E91EB75E689BAB4971CA677EA6075A87BD25EA180935CE91B5DB540
+                  7F31297DCBA6F9855CA52272F0BDB029FE219F8A789BA52E98D9701848582A02
+                  3DB6A17090744545D09E53C341738785E4FAF6DF9BE4FB9828FA0535CC2B1DD6
+                  3316CF0000000049454E44AE426082}
+                FileName = 
+                  'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                  'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_down.png'
+              end>
+            Align = Bottom
+            Position.Y = 213.000000000000000000
+            WrapMode = Center
           end
         end
-        inherited loActions: TLayout
-          Size.Width = 289.000000000000000000
-          Size.Height = 377.000000000000000000
-          inherited btnCollectData: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnCollectDataClick
-          end
-          inherited btnLiveRecognition: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnLiveRecognitionClick
-          end
-          inherited btnQuit: TButton
-            Position.Y = 297.000000000000000000
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnQuitClick
-          end
-          inherited btnTrainModel: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnTrainModelClick
-          end
+      end
+      object Layout1: TLayout
+        Align = Bottom
+        Position.Y = 534.000000000000000000
+        Size.Width = 308.000000000000000000
+        Size.Height = 72.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Switch1: TSwitch
+          Align = Center
+          IsChecked = False
+          Size.Width = 44.000000000000000000
+          Size.Height = 26.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'switchstyle'
+          TabOrder = 0
+        end
+      end
+      object SpeedButton1: TSpeedButton
+        Anchors = [akRight, akBottom]
+        Position.X = 216.000000000000000000
+        Position.Y = 473.000000000000000000
+        Size.Width = 65.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        OnClick = SpeedButton1Click
+        object Image3: TImage
+          MultiResBitmap.Height = 32
+          MultiResBitmap.Width = 32
+          MultiResBitmap = <
+            item
+              Width = 32
+              Height = 32
+              PNG = {
+                89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                01A4494441545847ED96BB4AC44014869368A1A05BAF828FA1EB030842C442C1
+                C64645D04A1B0BB5F1D2A9A562A116760A5BD8EB1328EEBE8C16DE13BF999CC0
+                0EBB995512B2E2E6839F33F373E664323B598E53D0F5B812356118F6A16D8615
+                D4A34DC77943FB9EE73D46533B41104C11D650BCFE03DDB9AE7B8C82C84A80C5
+                476CA0150792D21672ABD112136AAF4A8A81710224DDB3CB0AF9E7C4BAF218AB
+                13B8E1049ED5BC1DE49791CFFA5E994F329E255E53635E272541520D29E6C44A
+                0D2FB52935AB621978123B86B10176A92E8C8AEFDAC886B8A68E56382E1F9D92
+                3C20566AA8378C2ED0A85805D9C0919650BF4CF38507EFA22FF48A96C4CE071E
+                3884022EAA86E11321FEDBFD3559FC0F8412F383B7DE41EA2778E1ED17C5CE17
+                1E3E883A7309FF2F1CE9343A53C72B566AA835822ED1B858C990F4209FD68C58
+                A9A1D686D4BC12CBC0F80C691CF4F71C371319A16B25D5FC73FDC0A7C409B4A2
+                C4D12DA0924EF801AC2993BF1CAFC71A135FD7B6C2C243125B91BA2905B59926
+                9ADA72C21651DDD8C6B67C8F86B2164DEDF0123E611D35B6E5B7DC8113646FCB
+                0BBA10C7F906BEDB6EE6D9322E040000000049454E44AE426082}
+              FileName = 
+                'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                'emos\PyTorch\PyTorchTransferLearning\app\images\recognize.png'
+            end>
+          Align = Client
+          HitTest = False
+          Size.Width = 65.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          WrapMode = Center
         end
       end
     end
   end
-  inline frmClassSelection: TTrainingClassSelectionFrame
-    Align = Client
-    Size.Width = 322.000000000000000000
-    Size.Height = 513.000000000000000000
-    Size.PlatformDefault = False
-    Visible = False
-    inherited loBox: TLayout
-      inherited recContent: TRectangle
-        inherited btnSelect: TSpeedButton
-          OnClick = frmClassSelectionbtnSelectClick
-        end
-      end
+  object ccCameraComp: TCameraComponent
+    Kind = BackCamera
+    OnSampleBufferReady = ccCameraCompSampleBufferReady
+    Left = 104
+    Top = 29
+  end
+  object BindingsList1: TBindingsList
+    Methods = <>
+    OutputConverters = <>
+    Left = 36
+    Top = 29
+    object LinkControlToPropertyActive: TLinkControlToProperty
+      Category = 'Quick Bindings'
+      Control = Switch1
+      Track = True
+      Component = ccCameraComp
+      ComponentProperty = 'Active'
+    end
+    object LinkControlToPropertyEnabled: TLinkControlToProperty
+      Category = 'Quick Bindings'
+      Control = Switch1
+      Track = True
+      Component = tbThumbs
+      ComponentProperty = 'Enabled'
+      InitializeControlValue = False
     end
   end
   object StyleBook1: TStyleBook
@@ -37764,7 +37898,7 @@ object MainForm: TMainForm
           426F74746F6D05000000000000A0BA094000000A54696E742E5368696E650E00
           000000}
       end>
-    Left = 144
-    Top = 448
+    Left = 176
+    Top = 28
   end
 end

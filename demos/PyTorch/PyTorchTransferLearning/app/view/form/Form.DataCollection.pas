@@ -42,7 +42,7 @@ var
 implementation
 
 uses
-  System.IOUtils, FMX.DialogService, FMX.Surfaces, FMX.Consts, Remote.ClientModule;
+  System.IOUtils, FMX.DialogService, FMX.Consts, Remote.ClientModule, BitmapHelper;
 
 {$R *.fmx}
 
@@ -68,14 +68,7 @@ end;
 procedure TDataCollectionForm.ConvertBmpToJpg(const AImg: TBitmap;
   const AStream: TStream);
 begin
-  var LSurface := TBitmapSurface.Create();
-  try
-    LSurface.Assign(AImg);
-    if not TBitmapCodecManager.SaveToStream(AStream, LSurface, '.jpg') then
-      raise EBitmapSavingFailed.Create(SBitmapSavingFailed);
-  finally
-    LSurface.Free();
-  end;
+  AImg.ToJpg(AStream);
 end;
 
 procedure TDataCollectionForm.DoUpdateCounter;

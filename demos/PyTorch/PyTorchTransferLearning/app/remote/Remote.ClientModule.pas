@@ -3,7 +3,8 @@ unit Remote.ClientModule;
 interface
 
 uses
-  System.SysUtils, System.Classes, Remote.ClientClasses, Datasnap.DSClientRest;
+  System.SysUtils, System.Classes, Remote.ClientClasses, Datasnap.DSClientRest,
+  System.Generics.Collections;
 
 type
   TClientModule = class(TDataModule)
@@ -11,13 +12,16 @@ type
   private
     FInstanceOwner: Boolean;
     FTrainingClassClient: TTrainingClassClient;
+    FCallbacks: TObjectDictionary<string, TDSRestClientChannel>;
     function GetTrainingClassClient: TTrainingClassClient;
+    function GetCallbackChannel(const AChannel: string): TDSRestClientChannel;
     { Private declarations }
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property InstanceOwner: Boolean read FInstanceOwner write FInstanceOwner;
     property TrainingClassClient: TTrainingClassClient read GetTrainingClassClient write FTrainingClassClient;
+    property CallbackChannel[const AChannel: string]: TDSRestClientChannel read GetCallbackChannel;
 end;
 
 var
@@ -33,12 +37,22 @@ constructor TClientModule.Create(AOwner: TComponent);
 begin
   inherited;
   FInstanceOwner := False;
+  FCallbacks := TObjectDictionary<string, TDSRestClientChannel>.Create([doOwnsValues]);
 end;
 
 destructor TClientModule.Destroy;
 begin
+  FCallbacks.Free();
   FTrainingClassClient.Free;
   inherited;
+end;
+
+function TClientModule.GetCallbackChannel(
+  const AChannel: string): TDSRestClientChannel;
+begin
+  if not FCallbacks.ContainsKey(AChannel) then
+    FCallbacks.Add(AChannel, TDSRestClientChannel.Create('', AChannel, DSRestConnection1));
+  Result := FCallbacks.Items[AChannel];
 end;
 
 function TClientModule.GetTrainingClassClient: TTrainingClassClient;

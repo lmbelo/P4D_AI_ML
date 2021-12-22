@@ -9,6 +9,7 @@ object TrainModelForm: TTrainModelForm
   FormFactor.Height = 480
   FormFactor.Orientations = [Landscape]
   FormFactor.Devices = [Desktop]
+  OnClose = FormClose
   OnDestroy = FormDestroy
   DesignerMasterStyle = 3
   object ToolBar1: TToolBar
