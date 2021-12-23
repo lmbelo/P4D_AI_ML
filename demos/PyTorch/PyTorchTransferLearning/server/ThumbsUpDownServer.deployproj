@@ -144,15 +144,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer.app\Contents\Resources\StartUp\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="js\serverfunctioninvoker.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctioninvoker.js</RemoteName>
@@ -480,15 +471,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="js\connection.js" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer\js\</RemoteDir>
             <RemoteName>connection.js</RemoteName>
@@ -770,15 +752,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="js\json2.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer\js\</RemoteDir>
             <RemoteName>json2.js</RemoteName>
@@ -1024,15 +997,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="js\connection.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer\js\</RemoteDir>
             <RemoteName>connection.js</RemoteName>
@@ -1260,15 +1224,6 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
         <DeployFile Include="..\bin\ThumbsUpDownTrainedModelProc.exe" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer\</RemoteDir>
             <RemoteName>ThumbsUpDownTrainedModelProc.exe</RemoteName>
@@ -1288,16 +1243,6 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include="..\bin\ThumbsUpDownServer.exe" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
-            <RemoteName>ThumbsUpDownServer.exe</RemoteName>
-            <DeployClass>ProjectOutput</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-            <Required>True</Required>
-        </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownServer.exe" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer\</RemoteDir>
             <RemoteName>ThumbsUpDownServer.exe</RemoteName>
             <DeployClass>ProjectOutput</DeployClass>
@@ -1508,15 +1453,6 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>ThumbsUpDownServer.app\Contents\Resources\StartUp\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer.app\Contents\Resources\StartUp\</RemoteDir>
             <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
             <DeployClass>File</DeployClass>
@@ -1961,7 +1897,7 @@
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='iOSDevice64'">
-        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
@@ -1979,7 +1915,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
@@ -2160,15 +2096,6 @@
             <Overwrite>True</Overwrite>
         </DeployFile>
         <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>ThumbsUpDownServer.app\</RemoteDir>
-            <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
-            <DeployClass>File</DeployClass>
-            <Operation>0</Operation>
-            <LocalCommand/>
-            <RemoteCommand/>
-            <Overwrite>True</Overwrite>
-        </DeployFile>
-        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer.app\</RemoteDir>
             <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
             <DeployClass>File</DeployClass>

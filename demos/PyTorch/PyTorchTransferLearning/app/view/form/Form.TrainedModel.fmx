@@ -1,198 +1,17 @@
-object ClassifyForm: TClassifyForm
+object TrainedModelForm: TTrainedModelForm
   Left = 0
   Top = 0
   Caption = 'Form2'
-  ClientHeight = 606
-  ClientWidth = 308
+  ClientHeight = 670
+  ClientWidth = 364
   StyleBook = StyleBook1
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   OnCreate = FormCreate
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   DesignerMasterStyle = 3
-  object recBackground: TRectangle
-    Align = Client
-    Fill.Color = claBlack
-    Size.Width = 308.000000000000000000
-    Size.Height = 606.000000000000000000
-    Size.PlatformDefault = False
-    object imgCamera: TImage
-      MultiResBitmap = <
-        item
-        end>
-      Align = Client
-      Size.Width = 308.000000000000000000
-      Size.Height = 606.000000000000000000
-      Size.PlatformDefault = False
-      WrapMode = Stretch
-      object Layout2: TLayout
-        Align = Left
-        Size.Width = 65.000000000000000000
-        Size.Height = 534.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 0
-        object Layout3: TLayout
-          Align = Center
-          Size.Width = 50.000000000000000000
-          Size.Height = 263.000000000000000000
-          Size.PlatformDefault = False
-          TabOrder = 1
-          object tbThumbs: TTrackBar
-            Align = Client
-            CanParentFocus = True
-            Orientation = Vertical
-            Size.Width = 32.000000000000000000
-            Size.Height = 163.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 1
-            Value = 50.000000000000000000
-          end
-          object Image1: TImage
-            MultiResBitmap.Height = 32
-            MultiResBitmap.Width = 32
-            MultiResBitmap.LoadSize = 2
-            MultiResBitmap = <
-              item
-                Width = 32
-                Height = 32
-                PNG = {
-                  89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
-                  F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  0224494441545847ED95BF6B535114C7F392D8BAB81605A74E15072741BB382A
-                  AD83435B142717715070CEA264EA1ABAA87F800D4D077114FA631034503A1474
-                  756A051D32951A9297F8F9DE9CBE92674CDEA3797728FDC0E39C7BCEBDF77CCF
-                  BD792FB93343A7D399EB76BB3336F40BC5EFB75AAD26CF4F444C5BD80FC7C529
-                  EC08C3B06AA9ECA1F83CC5FF586D47BBDDDEB574B650FC1EC58FAC6E0427B06A
-                  53B223DE395D7F36B74BEEA54D4B44DE6C62D4395DAE178BC5498DA9F93A0882
-                  4D97ECF1D5ECF81970ECCB8A23E893063A15E6386163878DEF0E2A8E0D883714
-                  E02ABEB8C92908CC0E85E2D7E9728763BF68E372A1507865FE35AEE0BBF91BF9
-                  7CFEADFCFF81CE03E6D779DA161A0DC52BEA50E0972DECA0E8134B258693AAB3
-                  EE926DE154ADF552A3B12511087A63A95420A0A4F5EE0A18AF6116E58F82A3EB
-                  BB3636BA4368CA8649502DADAB728D8F0609A8998DE0C86E73FF57E5C705A445
-                  DD9B5B63AB25E7498012C20562101E9A4F836D23DC49A4FE109D068EFD96B9F2
-                  F765BD0AA0EB17E6EA2A3FCA7A1340C7577816E4F3E67C43C0B67C6F02E8FE19
-                  3FE409F97CAC2A0870BF272F02283E41F74FE5F3463530EFE50B5F021ED2FD65
-                  F9D8779CC0A14B80170174FF5C96EE43C4F4FD57642E80E2B37CF16ECAA7F30F
-                  3C3F5CC2C85C40ECD55B313722F5A718FEC90F83B50F587B81576F0F7BC3C2FD
-                  48004FA670158FAD5C1F89AE802E9A6CB085FD6DA1C4B0E617F54B1C7FF4EA9D
-                  73CE09B9DC5F6E0A93452C2DAD7A0000000049454E44AE426082}
-                FileName = 
-                  'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
-                  'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_up.png'
-              end>
-            Align = Top
-            WrapMode = Center
-          end
-          object Image2: TImage
-            MultiResBitmap.Height = 32
-            MultiResBitmap.Width = 32
-            MultiResBitmap.LoadSize = 2
-            MultiResBitmap = <
-              item
-                Width = 32
-                Height = 32
-                PNG = {
-                  89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
-                  F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                  0234494441545847E596BB4B1C511487F7858D82117C0542426A3B0551B0B017
-                  ECD43A45C026046C2256C1E03FA082DA0982C58A9D8DB5CD22DB295A087662C0
-                  A4B011741FE377CE9C191D761D56F05E113FB87BCE7DCDF9DD73EF9DD9CCBB27
-                  2B3FF57A7D349BCD7ED296260441708B29510618D7AD8DAD734539605E2DAC36
-                  8100458A4BCA944E0B972067D635436479DEFC04BA05A82B62A6C48769B331B5
-                  5A6D2E9FCF8F58B5A13F8D6AB5BA5A28147AB1FFB19FD98A1BEB7A4004489E04
-                  6B4A40736A7F1A885FB4A90159F86ECD31CEB78015AFB1FA3BF111F0131D9AF5
-                  08E70272B9DC2565577CB6710001E3DA617839846461D95CD9CE1FE62A5E0490
-                  811267E1507CB66192F2553BC0D73514112B62B90979B230AB8DE04D00DB50E4
-                  30FE155F6E03A55D7C9F02EE58FD86F8D82ECC8CF8DE0418EB66E5308E89F52A
-                  802CE816089C890EB55A7B04CA1AA0397A4DBF38CDBE05A9B08AC49B8CB9F291
-                  190C6B2DA17138849BBC98BE45FF07E6786EF4B16980D33BCCC1F962D50F8CBD
-                  365FDEF54BA473C1AACF619AE7EC989F0E0217742F0031254CFC6DA76F32EC69
-                  8D4AA572C19C5F36BD3598D741E0E3F01149113CAC2F6C0D02B2B1A5135C4020
-                  F9A61F592C41FEE5C87DCEB0AA7369C09EE960573C2582956F4B05010CA9F7D8
-                  70379888783B4044FC0E5DFDD3316143DD419C7E567B1286D495FF3357CEC11F
-                  1BE616622544442060DF86B8877822E2340C1D53B66E3F103021820C2C5A973F
-                  38781F4504C1F7D0D066CD7E91DBF16AC1DF3099CC3DAE7B56D71ED64FB80000
-                  000049454E44AE426082}
-                FileName = 
-                  'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
-                  'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_down.png'
-              end>
-            Align = Bottom
-            Position.Y = 213.000000000000000000
-            WrapMode = Center
-          end
-        end
-      end
-      object Layout1: TLayout
-        Align = Bottom
-        Position.Y = 534.000000000000000000
-        Size.Width = 308.000000000000000000
-        Size.Height = 72.000000000000000000
-        Size.PlatformDefault = False
-        TabOrder = 1
-        object Switch1: TSwitch
-          Align = Center
-          IsChecked = False
-          Size.Width = 44.000000000000000000
-          Size.Height = 26.000000000000000000
-          Size.PlatformDefault = False
-          StyleLookup = 'switchstyle'
-          TabOrder = 0
-        end
-      end
-      object SpeedButton1: TSpeedButton
-        Anchors = [akRight, akBottom]
-        Position.X = 216.000000000000000000
-        Position.Y = 473.000000000000000000
-        Size.Width = 65.000000000000000000
-        Size.Height = 48.000000000000000000
-        Size.PlatformDefault = False
-        OnClick = SpeedButton1Click
-        object Image3: TImage
-          MultiResBitmap.Height = 32
-          MultiResBitmap.Width = 32
-          MultiResBitmap = <
-            item
-              Width = 32
-              Height = 32
-              PNG = {
-                89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
-                F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
-                01BB494441545847ED963F2F045110C0F78F8284AB8FC4C7E07C0089E44441A2
-                D1209253D128D0F8D3A1240A143A922BF47C02822F43C1D97F7EEF994DEEC5DE
-                1ED9CD9EB8FB2593796F32336F7676DF66AC1E5D8F2D5A1345517F1886DB2C2B
-                88AB8D96D5B06D7BDF719C47D9A742FC3479D658C6F11EF177C831128A2D9920
-                088E084EE2405CDA826FFD2BC484C256C5C5C0E880EFFBF7AEEB56703EE7899F
-                958DD806EA86FDABDAB703FF3252E569FBD49E5C53C4CEA1AFC9BDA09D5A41E0
-                13A29817536638785372D6C564E088EE1846017C039ED254FBA10DF9A073D209
-                AD53C1A94A11A7143028A6CC9073849C17E83131F5C8075A5A4206645B2C1CBC
-                EB795E80BCB35E16733170E0300787FA6603EB1754FCDBFD3579FC0722D1C541
-                1776E415BCF1F44B622E168A18423AF311FE5F68E90CBFCD33D55E3165865CA3
-                E4BC444F88A935CC030FEA6AE13C2BA6CC906B43E5A4882B311918D7908141DF
-                E77898C8099D8BA12431E79F9B077CA569DB245DAB2961BD8894B4C30F20A68C
-                FF4A1C8F8C2B3B369D3B150A38242089CC4329D4C4C5E0DB588EDAA25AF5C536
-                8FE57BBCC327D9A7426C953CEB2C9BC7F25BE404491FCB7B742196F509267677
-                86F7C391C30000000049454E44AE426082}
-              FileName = 
-                'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
-                'emos\PyTorch\PyTorchTransferLearning\app\images\recognize.png'
-            end>
-          Align = Client
-          HitTest = False
-          Size.Width = 65.000000000000000000
-          Size.Height = 48.000000000000000000
-          Size.PlatformDefault = False
-          WrapMode = Center
-        end
-      end
-    end
-  end
-  object ccCameraComp: TCameraComponent
-    Kind = BackCamera
-    OnSampleBufferReady = ccCameraCompSampleBufferReady
-    Left = 104
-    Top = 29
-  end
   object StyleBook1: TStyleBook
     Styles = <
       item
@@ -37883,25 +37702,208 @@ object ClassifyForm: TClassifyForm
     Left = 176
     Top = 28
   end
-  object BindingsList1: TBindingsList
+  inline cclFrame: TCustomCameraLayoutFrame
+    Align = Client
+    Size.Width = 364.000000000000000000
+    Size.Height = 670.000000000000000000
+    Size.PlatformDefault = False
+    inherited ccCameraComp: TCameraComponent
+      OnSampleBufferReady = CustomCameraLayoutFrame1ccCameraCompSampleBufferReady
+      Left = 176
+      Top = 72
+    end
+    inherited recBackgroud: TRectangle
+      Size.Width = 364.000000000000000000
+      inherited imgCamera: TImage
+        Size.Width = 364.000000000000000000
+        object loBottom: TLayout
+          Align = Bottom
+          Position.Y = 598.000000000000000000
+          Size.Width = 364.000000000000000000
+          Size.Height = 72.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object swCamera: TSwitch
+            Align = Center
+            IsChecked = False
+            Size.Width = 44.000000000000000000
+            Size.Height = 26.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = 'switchstyle'
+            TabOrder = 0
+          end
+          object btnRecognize: TSpeedButton
+            Align = Right
+            Margins.Right = 10.000000000000000000
+            Position.X = 304.000000000000000000
+            Position.Y = 12.000000000000000000
+            Size.Width = 50.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            OnClick = btnRecognizeClick
+            object imgRecognize: TImage
+              MultiResBitmap.Height = 32
+              MultiResBitmap.Width = 32
+              MultiResBitmap = <
+                item
+                  Width = 32
+                  Height = 32
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                    F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    01BD494441545847ED96CD2E04411080E7C781843D2F89C7603D8044B2E240E2
+                    E28248D6898B032E7E6E3812071CDC48F6E0CE1310BC0CC9B2767E7CDD6A92ED
+                    989D25339915BB5F52A9EE4A55754DCDF4A4AC1E5D8F2D5A1386617F1004DB2C
+                    4B88AB8D9655B76D7BDF719C47D92742FC3479D65846F10DE2EF906324105B3C
+                    BEEF1F111CC781B8B405DFEA57880985AD8A8B81D101CFF3EE5DD72DE17CCE13
+                    3F2B1BB175D40DFB57B56F07FE45A4CCD3F6A93DB9A6889D435F937B413BB582
+                    C02744312FA6D470F0A6E4AC8AC9C011DD318C02F8061A4A53ED87366483CE49
+                    27B44E04A732459C52C0A0985243CE11725EA0C7C4D4231B68690119906DBE70
+                    F06EAD56F39177D6CB62CE070E1CE6E040DF6C60FD828A7EBBBF268BFF40283A
+                    3FE8C28EBC82379E7E49CCF942114348673EC2FF0B2D9DE1B779A6DA2BA6D490
+                    6B949C97E80931B58679E0415D2D9C67C5941A726DA89C1471252603E31A3230
+                    E8FB1C0D1319A1733194C4E6FC73F380A7346D9BA46B1525AC17918276F801C4
+                    14F15F89E2917165C7A6732742018704C4917A28858AB8187C1BCB515B54ABBE
+                    D8E6B17C8F77F824FB44882D93679D65F3587E8B9C20C963798F2EC4B23E0147
+                    85772C36F137F10000000049454E44AE426082}
+                  FileName = 
+                    'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                    'emos\PyTorch\PyTorchTransferLearning\app\images\recognize.png'
+                end>
+              Align = Client
+              HitTest = False
+              Size.Width = 50.000000000000000000
+              Size.Height = 48.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Center
+            end
+          end
+          object btnLive: TButton
+            StaysPressed = True
+            Align = Left
+            Margins.Left = 10.000000000000000000
+            Position.X = 10.000000000000000000
+            Position.Y = 12.000000000000000000
+            Size.Width = 48.000000000000000000
+            Size.Height = 48.000000000000000000
+            Size.PlatformDefault = False
+            StyleLookup = 'cameratoolbutton'
+            TabOrder = 2
+            OnClick = btnLiveClick
+          end
+        end
+        object loLeftSide: TLayout
+          Align = Left
+          Size.Width = 65.000000000000000000
+          Size.Height = 598.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object loRecComps: TLayout
+            Align = Center
+            Size.Width = 50.000000000000000000
+            Size.Height = 263.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            object tbThumbs: TTrackBar
+              Align = Client
+              CanParentFocus = True
+              Orientation = Vertical
+              Size.Width = 32.000000000000000000
+              Size.Height = 163.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              Value = 50.000000000000000000
+            end
+            object imgThumbsUp: TImage
+              MultiResBitmap.Height = 32
+              MultiResBitmap.Width = 32
+              MultiResBitmap.LoadSize = 2
+              MultiResBitmap = <
+                item
+                  Width = 32
+                  Height = 32
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                    F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    021A494441545847ED96BF2F444110C7EFDD8F47A31512958A285412344A8242
+                    811095461424EA6B242AED45833F00A111A5442824221185845685844225F7FB
+                    CE67D67872CFB9BB97785B884F72D9D9997D3BDF99BDB777913F43A9541A2D97
+                    CB5D3AB50BC9C7D3E974169E10D1A96E3B7C2627B1A1582CEE69287C483E46F2
+                    8CE636140A856B0D870BC947489ED6BC1E746057978487BF72AA3E57B34C6C45
+                    978583BF72E6AB54BDA65399F7EBD2DFC79F1CD6C58F806399485758D36416FF
+                    366C3C5C2D39A383FB551C1CC585591C0047C79A90BC8777FCAA1974BE168BC5
+                    56D5EE761CE74EED936834BA25F64FA0F391F5977C0AEAAA0F2D4E4985829CB7
+                    BA0D249DD750C3D0A94B9E6BD12D8CAAFD8F507DF4110F046D6A28100848CAF3
+                    E60898EF334C895D0F5A57716C6C3484AB55A78D20B9E4B93D8E71B69A80031D
+                    3DF2F9FC402291E810DB2F202852BD9A076C356D2C112001C1387CE0AE190F82
+                    6E23984E448DD712B4DDBBA4B01F64B42A80AA97D594A33C92D19A002A6ECFE5
+                    729362F3E6DC22E04C6C6B02A87E917BCC159BCB2A8500F37DB22280E42E97CF
+                    82D8994CE69561476CC1968019D775DBC4A60BDB74E0CD04C08A00CE7F4946AA
+                    2F22A6E2B7227401241FE4C6EB139B2E1C52FDBD0928A10BF0BD7A1B6A7A04BE
+                    8AE15BBC16B47D82734FF0EADDC4E3F15E75572202F8840A4731A7E92A68E808
+                    A822CB06A7FC29795157C370F93C933F49FBBD57EF9F7FBE8844DE01995CA7EA
+                    DAFC0EEC0000000049454E44AE426082}
+                  FileName = 
+                    'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                    'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_up.png'
+                end>
+              Align = Top
+              WrapMode = Center
+            end
+            object imgThumbsDown: TImage
+              MultiResBitmap.Height = 32
+              MultiResBitmap.Width = 32
+              MultiResBitmap.LoadSize = 2
+              MultiResBitmap = <
+                item
+                  Width = 32
+                  Height = 32
+                  PNG = {
+                    89504E470D0A1A0A0000000D4948445200000020000000200806000000737A7A
+                    F4000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+                    0247494441545847E596BB4B1C511487F7C13E20420C24462118526FA7200652
+                    A417EC626A8B051B096CA358850DFE032AA85D4048B1215D9AD4368BD819B408
+                    A41305B548E3EECE3EC6EFDC393371D875D840EE95900F66CEB9AF39BF39E7CE
+                    23F5DF939653AFD77B994EA79F999E01F8BEDFC2D4394ACC7B6C3A87E782639F
+                    75DDA0390002D4386C72C8F150C3C5C8A8B5CD34595E553F862901EA6A9837E2
+                    C382DA886EB75BC966B3B3DAEC1B4FC2F3BCAD7C3E3FD66AB5AE0A85C224A5B8
+                    D6A1DF8800C993A05D31E84E1C4F02F1555DEA9385B27647582F0177BCDD6C36
+                    3DF111F00E1D26EB21D605643299334AF0457CCA5842C06B33A038D984646143
+                    5D29E7B2BA062702C8429DBD70203E9B729E52BC3003E0EA3114119B628BC562
+                    962C2C994E70268032D4B8FB73F1B165B2F0407C97023C36E3AEF864E111E6AD
+                    F8CE04283B6A6533BE12EB540059302510D81323C69AD62D50D607DDE16BFAAF
+                    33E85B900877117B93B1563E3253416B284C1C36E1475E4C8BE1FF4085EB861F
+                    9B3EDAEDF64C2E977BAECD51E6FE525FDEF5EBA4734D9B7FC202D7F9AC7E3208
+                    5C33B5804EA753C744DF76C6E68391E1E0113C65CD8A2E1F0ED68D10F87B7089
+                    B8082EF634E8F57DB2B16716D8804063043ED25882FCE5C8F32C25FA291DD81F
+                    66B22DEE12C19D7F9246A3D1604AEF894EB7838A88CA0122E27DE09A9F8E399D
+                    6A0FE28C93EEE320A4EFF3C371A9AEEC830F3ACD2EC48A890841C0379D621FE2
+                    8988932074C4A10EBB8180311164A0AA43EE60E34D8808827F45435EBBDD224F
+                    C7BD05FF8749A56E002C1656BF593068040000000049454E44AE426082}
+                  FileName = 
+                    'C:\Users\lucas\Documents\Embarcadero\Studio\Projects\P4D_AI_ML\d' +
+                    'emos\PyTorch\PyTorchTransferLearning\app\images\thumbs_down.png'
+                end>
+              Align = Bottom
+              Position.Y = 213.000000000000000000
+              WrapMode = Center
+            end
+          end
+        end
+      end
+    end
+  end
+  object blLinks: TBindingsList
     Methods = <>
     OutputConverters = <>
-    Left = 36
-    Top = 29
+    Left = 180
+    Top = 117
     object LinkControlToPropertyActive: TLinkControlToProperty
       Category = 'Quick Bindings'
-      Control = Switch1
+      Control = swCamera
       Track = True
-      Component = ccCameraComp
+      Component = cclFrame.ccCameraComp
       ComponentProperty = 'Active'
-    end
-    object LinkControlToPropertyEnabled: TLinkControlToProperty
-      Category = 'Quick Bindings'
-      Control = Switch1
-      Track = True
-      Component = tbThumbs
-      ComponentProperty = 'Enabled'
-      InitializeControlValue = False
     end
   end
 end

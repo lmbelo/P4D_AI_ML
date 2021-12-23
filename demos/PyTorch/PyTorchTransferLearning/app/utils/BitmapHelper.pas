@@ -9,6 +9,7 @@ type
   TBitmapHelper = class helper for TBitmap
   public
     procedure ToJpg(const AStream: TStream);
+    function Clone(): TBitmap;
   end;
 
 implementation
@@ -17,6 +18,12 @@ uses
   FMX.Surfaces, FMX.Types, FMX.Consts;
 
 { TBitmapHelper }
+
+function TBitmapHelper.Clone: TBitmap;
+begin
+ Result := TBitmap.Create(Self.Width, Self.Height);
+ Result.CopyFromBitmap(Self);
+end;
 
 procedure TBitmapHelper.ToJpg(const AStream: TStream);
 begin

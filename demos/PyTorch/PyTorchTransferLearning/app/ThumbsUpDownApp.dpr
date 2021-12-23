@@ -21,8 +21,9 @@ uses
   Remote.ClientClasses in 'remote\Remote.ClientClasses.pas',
   Remote.ClientModule in 'remote\Remote.ClientModule.pas' {ClientModule: TDataModule},
   Form.TrainModel in 'view\form\Form.TrainModel.pas' {TrainModelForm},
-  Form.Classify in 'view\form\Form.Classify.pas' {ClassifyForm},
-  BitmapHelper in 'utils\BitmapHelper.pas';
+  Form.TrainedModel in 'view\form\Form.TrainedModel.pas' {TrainedModelForm},
+  BitmapHelper in 'utils\BitmapHelper.pas',
+  Frame.CustomCameraLayout in 'view\frame\Frame.CustomCameraLayout.pas' {CustomCameraLayoutFrame: TFrame};
 
 {$R *.res}
 

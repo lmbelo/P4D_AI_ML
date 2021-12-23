@@ -291,7 +291,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="js\serverfunctionexecutor.js" Configuration="Release" Class="ProjectFile">
+                <DeployFile LocalName="js\serverfunctionexecutor.js" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="iOSDevice64">
                         <RemoteDir>.\js\</RemoteDir>
                         <RemoteName>serverfunctionexecutor.js</RemoteName>
@@ -305,7 +305,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="js\serverfunctionexecutor.js" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="js\serverfunctionexecutor.js" Configuration="Release" Class="ProjectFile">
                     <Platform Name="iOSDevice64">
                         <RemoteDir>.\js\</RemoteDir>
                         <RemoteName>serverfunctionexecutor.js</RemoteName>
@@ -1215,30 +1215,37 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 </DeployFile>
                 <DeployFile LocalName="..\bin\ThumbsUpDownTrainModelProc.exe" Configuration="Release" Class="File">
                     <Platform Name="Android">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Android64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="iOSDevice64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSX64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Win32">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                     <Platform Name="Win64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -1643,6 +1650,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 </DeployFile>
                 <DeployFile LocalName="..\bin\ThumbsUpDownServer.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
+                        <Enabled>false</Enabled>
                         <RemoteName>ThumbsUpDownServer.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -2799,9 +2807,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>

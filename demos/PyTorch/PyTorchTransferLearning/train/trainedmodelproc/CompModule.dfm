@@ -42,7 +42,7 @@ object PyComps: TPyComps
     Managers.Pip.InstallOptions.FindLinks = 'https://download.pytorch.org/whl/torch_stable.html'
     Managers.Pip.UninstallOptions.AskForConfirmation = False
     AutoInstall = False
-    Left = 171
+    Left = 138
     Top = 184
   end
   object PyTorch: TPyTorch
@@ -70,7 +70,7 @@ object PyComps: TPyComps
     Managers.Pip.InstallOptions.FindLinks = 'https://download.pytorch.org/whl/torch_stable.html'
     Managers.Pip.UninstallOptions.AskForConfirmation = False
     AutoInstall = False
-    Left = 235
+    Left = 202
     Top = 184
   end
   object PyNumPy: TNumPy
@@ -97,7 +97,34 @@ object PyComps: TPyComps
     Managers.Pip.InstallOptions.NoIndex = False
     Managers.Pip.UninstallOptions.AskForConfirmation = False
     AutoInstall = False
-    Left = 96
+    Left = 63
+    Top = 184
+  end
+  object PyOpenCV: TOpenCV
+    PythonEngine = PyEngine
+    ManagerKind = pip
+    Managers.Pip.InstallOptions.NoDeps = False
+    Managers.Pip.InstallOptions.Pre = False
+    Managers.Pip.InstallOptions.Upgrade = False
+    Managers.Pip.InstallOptions.ForceReinstall = False
+    Managers.Pip.InstallOptions.IgnoreInstalled = False
+    Managers.Pip.InstallOptions.IgnoreRequiresPython = False
+    Managers.Pip.InstallOptions.NoBuildIsolation = False
+    Managers.Pip.InstallOptions.UsePep517 = False
+    Managers.Pip.InstallOptions.Compile = False
+    Managers.Pip.InstallOptions.NoCompile = False
+    Managers.Pip.InstallOptions.NoWarnScriptLocation = False
+    Managers.Pip.InstallOptions.NoWarnConflicts = False
+    Managers.Pip.InstallOptions.NoBinary = False
+    Managers.Pip.InstallOptions.OnlyBinary = False
+    Managers.Pip.InstallOptions.PreferBinary = False
+    Managers.Pip.InstallOptions.RequireHashes = False
+    Managers.Pip.InstallOptions.ProgressBar = False
+    Managers.Pip.InstallOptions.NoClean = False
+    Managers.Pip.InstallOptions.NoIndex = False
+    Managers.Pip.UninstallOptions.AskForConfirmation = False
+    AutoInstall = False
+    Left = 263
     Top = 184
   end
 end

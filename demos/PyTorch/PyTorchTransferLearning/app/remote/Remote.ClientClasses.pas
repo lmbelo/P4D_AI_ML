@@ -12,6 +12,8 @@ uses System.JSON, Datasnap.DSProxyRest, Datasnap.DSClientRest, Data.DBXCommon, D
 type
   TTrainingClassClient = class(TDSAdminRestClient)
   private
+    FLoadProfileCommand: TDSRestCommand;
+    FLoadProfileCommand_Cache: TDSRestCommand;
     FCountClassCommand: TDSRestCommand;
     FSendImageCommand: TDSRestCommand;
     FClearCommand: TDSRestCommand;
@@ -23,6 +25,8 @@ type
     constructor Create(ARestConnection: TDSRestConnection); overload;
     constructor Create(ARestConnection: TDSRestConnection; AInstanceOwner: Boolean); overload;
     destructor Destroy; override;
+    function LoadProfile(AProfile: string; const ARequestFilter: string = ''): TJSONValue;
+    function LoadProfile_Cache(AProfile: string; const ARequestFilter: string = ''): IDSRestCachedJSONValue;
     function CountClass(AProfile: string; ATrainingClass: string; const ARequestFilter: string = ''): Integer;
     function SendImage(AProfile: string; ATrainingClass: string; AImageName: string; AImage: TStream; const ARequestFilter: string = ''): Integer;
     procedure Clear(AProfile: string; ATrainingClass: string);
@@ -33,6 +37,18 @@ type
   end;
 
 const
+  TTrainingClass_LoadProfile: array [0..1] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: ''; Direction: 4; DBXType: 37; TypeName: 'TJSONValue')
+  );
+
+  TTrainingClass_LoadProfile_Cache: array [0..1] of TDSRestParameterMetaData =
+  (
+    (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
+    (Name: ''; Direction: 4; DBXType: 26; TypeName: 'String')
+  );
+
   TTrainingClass_CountClass: array [0..2] of TDSRestParameterMetaData =
   (
     (Name: 'AProfile'; Direction: 1; DBXType: 26; TypeName: 'string'),
@@ -82,6 +98,34 @@ const
   );
 
 implementation
+
+function TTrainingClassClient.LoadProfile(AProfile: string; const ARequestFilter: string): TJSONValue;
+begin
+  if FLoadProfileCommand = nil then
+  begin
+    FLoadProfileCommand := FConnection.CreateCommand;
+    FLoadProfileCommand.RequestType := 'GET';
+    FLoadProfileCommand.Text := 'TTrainingClass.LoadProfile';
+    FLoadProfileCommand.Prepare(TTrainingClass_LoadProfile);
+  end;
+  FLoadProfileCommand.Parameters[0].Value.SetWideString(AProfile);
+  FLoadProfileCommand.Execute(ARequestFilter);
+  Result := TJSONValue(FLoadProfileCommand.Parameters[1].Value.GetJSONValue(FInstanceOwner));
+end;
+
+function TTrainingClassClient.LoadProfile_Cache(AProfile: string; const ARequestFilter: string): IDSRestCachedJSONValue;
+begin
+  if FLoadProfileCommand_Cache = nil then
+  begin
+    FLoadProfileCommand_Cache := FConnection.CreateCommand;
+    FLoadProfileCommand_Cache.RequestType := 'GET';
+    FLoadProfileCommand_Cache.Text := 'TTrainingClass.LoadProfile';
+    FLoadProfileCommand_Cache.Prepare(TTrainingClass_LoadProfile_Cache);
+  end;
+  FLoadProfileCommand_Cache.Parameters[0].Value.SetWideString(AProfile);
+  FLoadProfileCommand_Cache.ExecuteCache(ARequestFilter);
+  Result := TDSRestCachedJSONValue.Create(FLoadProfileCommand_Cache.Parameters[1].Value.GetString);
+end;
 
 function TTrainingClassClient.CountClass(AProfile: string; ATrainingClass: string; const ARequestFilter: string): Integer;
 begin
@@ -199,6 +243,8 @@ end;
 
 destructor TTrainingClassClient.Destroy;
 begin
+  FLoadProfileCommand.DisposeOf;
+  FLoadProfileCommand_Cache.DisposeOf;
   FCountClassCommand.DisposeOf;
   FSendImageCommand.DisposeOf;
   FClearCommand.DisposeOf;

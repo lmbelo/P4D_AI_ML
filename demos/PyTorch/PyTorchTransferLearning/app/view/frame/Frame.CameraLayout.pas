@@ -7,19 +7,17 @@ uses
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Objects, FMX.Controls.Presentation, FMX.Layouts, FMX.Media,
   System.Actions, FMX.ActnList, System.Generics.Collections, FMX.ListBox,
-  FMX.Effects;
+  FMX.Effects, Frame.CustomCameraLayout;
 
 type
   TOnSaveAsync = procedure(Sender: TObject; AImageName: string; AImage: TBitmap) of object;
   TBitmapQueue = TObjectQueue<TBitmap>;
-  TCameraLayoutFrame = class(TFrame)
+  TCameraLayoutFrame = class(TCustomCameraLayoutFrame)
     actList: TActionList;
     actSwitch: TAction;
     actTakePhoto: TAction;
     actAccept: TAction;
     actDecline: TAction;
-    ccCameraComp: TCameraComponent;
-    imgCamera: TImage;
     loTakePhotoActions: TLayout;
     loTakePhotoActionsCenter: TLayout;
     btnAccept: TSpeedButton;
@@ -35,7 +33,6 @@ type
     loTop: TLayout;
     imgStopwatch: TImage;
     imgMenu: TImage;
-    recBackgroud: TRectangle;
     imgThumbs: TImage;
     loThumbs: TLayout;
     lbCounter: TLabel;
@@ -72,9 +69,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
-    function IsStreaming(): boolean;
-    procedure StartStreaming;
-    procedure StopStreaming;
     function IsSaving(): boolean;
     procedure UpdateCounter(const ACounter: integer);
   public
@@ -84,14 +78,9 @@ type
 implementation
 
 uses
-  System.Messaging, FMX.Platform;
+  System.Messaging, FMX.Platform, BitmapHelper;
 
 type
-  TBitmapHelper = class helper for TBitmap
-  public
-    function Clone(): TBitmap;
-  end;
-
   TSafeBitmapQueueHelper = class helper for TBitmapQueue
   public
     procedure Enqueue(const ABitmap: TBitmap);
@@ -117,11 +106,6 @@ end;
 function TCameraLayoutFrame.IsSaving: boolean;
 begin
   Result := FSaving;
-end;
-
-function TCameraLayoutFrame.IsStreaming: boolean;
-begin
-  Result := ccCameraComp.Active;
 end;
 
 procedure TCameraLayoutFrame.lbiClearClick(Sender: TObject);
@@ -176,16 +160,6 @@ begin
       end;
     end).Start();
   end;
-end;
-
-procedure TCameraLayoutFrame.StartStreaming;
-begin
-  ccCameraComp.Active := true;
-end;
-
-procedure TCameraLayoutFrame.StopStreaming;
-begin
-  ccCameraComp.Active := false;
 end;
 
 procedure TCameraLayoutFrame.UpdateCounter(const ACounter: integer);
@@ -345,14 +319,6 @@ begin
   finally
     TMonitor.Exit(Self);
   end;
-end;
-
-{ TBitmapHelper }
-
-function TBitmapHelper.Clone: TBitmap;
-begin
- Result := TBitmap.Create(Self.Width, Self.Height);
- Result.CopyFromBitmap(Self);
 end;
 
 end.

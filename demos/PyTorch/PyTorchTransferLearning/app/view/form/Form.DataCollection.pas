@@ -8,7 +8,7 @@ uses
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.Objects, FMX.Media, FMX.Layouts,
   System.Messaging, System.Permissions, System.Actions, FMX.ActnList,
   FMX.StdActns, FMX.MediaLibrary.Actions, System.ImageList, FMX.ImgList,
-  Frame.CameraLayout, FMX.ListBox;
+  Frame.CameraLayout, FMX.ListBox, Frame.CustomCameraLayout;
 
 type
   TTrainingClass = (ThumbsUp, ThumbsDown);

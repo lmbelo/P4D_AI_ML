@@ -10,6 +10,7 @@ type
   private
     FModel: variant;
     FDevice: variant;
+    FNormalize: variant;
     function PreProcess(const AImagePath: string): variant;
   public
     constructor Create(const AModelPath: string);
@@ -34,21 +35,22 @@ begin
     var device_string := IfThen(torch.cuda.is_available(), 'cuda', 'cpu');
     FDevice := torch.device(device_string);
     FModel := FModel.to(Fdevice);
+
+    var mean := 255.0 * np.array(TPyEx.List([0.485, 0.456, 0.406]));
+    var stdev := 255.0 * np.array(TPyEx.List([0.229, 0.224, 0.225]));
+    FNormalize := torchvision.transforms.Normalize(mean, stdev);
   end;  
 end;
 
 function TLoadModel.PreProcess(const AImagePath: string): variant;
 begin            
-  with PyComps.PyTorch, PyComps.PyTorchVision, PyComps.PyNumPy do begin    
-    var cv2 := VarPyth.Import('cv2');
-    var mean := 255.0 * np.array(TPyEx.List([0.485, 0.456, 0.406]));
-    var stdev := 255.0 * np.array(TPyEx.List([0.229, 0.224, 0.225]));
-    var normalize := torchvision.transforms.Normalize(mean, stdev);
+  with PyComps.PyTorch, PyComps.PyTorchVision, PyComps.PyNumPy, PyComps.PyOpenCV do begin
     var x := cv2.imread(AImagePath, 0);
+    x := cv2.resize(x, TPyEx.Tuple([224, 224]));
     x := cv2.cvtColor(x, cv2.COLOR_BGR2RGB);
     x := x.transpose(TPyEx.Tuple([2, 0, 1]));
     x := torch.from_numpy(x).float();
-    x := normalize.__call__(x);
+    x := FNormalize.__call__(x);
     x := x.to(FDevice);
     x := x.GetItem(TPyEx.List([None, Ellipsis]));
     Result := x;

@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Classes, PythonEngine, PyTorch, PyCommon, PyModule,
-  PyPackage, TorchVision, NumPy;
+  PyPackage, TorchVision, NumPy, OpenCV;
 
 type
   TPyComps = class(TDataModule)
@@ -13,6 +13,7 @@ type
     PyTorchVision: TTorchVision;
     PyTorch: TPyTorch;
     PyNumPy: TNumPy;
+    PyOpenCV: TOpenCV;
   private
     { Private declarations }
   public

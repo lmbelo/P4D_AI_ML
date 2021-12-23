@@ -86,14 +86,14 @@ begin
       ATrainDataSet,
       batch_size := 16,
       shuffle := true,
-      num_workers := 2
+      num_workers := 4
     );
 
     ATestLoader := torch.utils.data.DataLoader(
       ATestDataSet,
       batch_size := 16,
       shuffle := true,
-      num_workers := 2
+      num_workers := 4
     );
   end;
 end;
@@ -169,7 +169,7 @@ begin
         labels := labels.to(ADevice);
 
         var outputs := AModel.__call__(images);
-        test_error_count := 1.0 - bm.float((torch.sum(torch.abs(labels - outputs.argmax(1)))));
+        test_error_count := test_error_count - bm.float((torch.sum(torch.abs(labels - outputs.argmax(1)))));
         Inc(LBatchNum);
       end;
 

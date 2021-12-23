@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   System.Permissions, System.Messaging, Form.DataCollection, Frame.Menu,
-  Frame.TrainingClassSelection, Form.TrainModel, Form.Classify;
+  Frame.TrainingClassSelection, Form.TrainModel, Form.TrainedModel;
 
 type
   TMainForm = class(TForm)
@@ -42,7 +42,7 @@ uses
   Androidapi.JNI.JavaTypes,
   Androidapi.JNI.Os,
 {$ENDIF}
-  FMX.Platform, FMX.DialogService;
+  FMX.Platform, FMX.DialogService, Remote.ClientModule;
 
 {$R *.fmx}
 
@@ -165,11 +165,12 @@ begin
   if frmMenu.ceProfile.Items.Text.Trim().IsEmpty() then
     raise Exception.Create('Select or create a profile.');
   frmMenu.loActions.Visible := true;
+  ClientModule.TrainingClassClient.LoadProfile(frmMenu.ceProfile.Text);
 end;
 
 procedure TMainForm.frmMenubtnLiveRecognitionClick(Sender: TObject);
 begin
-  var LForm := TClassifyForm.Create(Self);
+  var LForm := TTrainedModelForm.Create(Self);
   LForm.Profile := frmMenu.ceProfile.Text;
   LForm.Show();
 end;
