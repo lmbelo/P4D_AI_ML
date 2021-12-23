@@ -150,7 +150,7 @@ end;
 
 procedure TMainForm.frmClassSelectionbtnSelectClick(Sender: TObject);
 begin
-  var LForm := frmClassSelection.CreateDataCollectionForm(Self);
+  var LForm := frmClassSelection.CreateDataCollectionForm(Self, frmMenu.ceProfile.Text);
   LForm.Show();
   frmClassSelection.Visible := false;
 end;

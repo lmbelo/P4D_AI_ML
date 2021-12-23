@@ -44,22 +44,28 @@ begin
   if (LStdOut <> INVALID_HANDLE_VALUE) and (LStdIn <> INVALID_HANDLE_VALUE) then begin
     var LCmd := Read();
     while (LCmd = 'RUN') do begin
-      Write('WAITING');
-      var LImagePath := Read();
-      if not TFile.Exists(LImagePath) then begin
-        Write('ERROR: File not found.');
-      end else begin
-        Write(ALoadModel.ProbabilisticClassification(LImagePath).ToString());
+      try
+        Write('WAITING');
+        var LImagePath := Read();
+        if not TFile.Exists(LImagePath) then begin
+          Write('ERROR: File not found.');
+        end else begin
+          Write(ALoadModel.ProbabilisticClassification(LImagePath).ToString());
+        end;
+        LCmd := Read();
+      except
+        on E: Exception do begin
+          Write('ERROR: ' + E.Message);
+        end;
       end;
-      LCmd := Read();
     end;
   end;
 end;
 
 begin
-  while True do begin
-    Sleep(100);
-  end;
+//  while True do begin
+//    Sleep(100);
+//  end;
 
   try
     var LMode := 0; //interactive mode

@@ -26,9 +26,11 @@ type
     procedure DoUpdateCounter();
     procedure ConvertBmpToJpg(const AImg: TBitmap; const AStream: TStream);
   public
+    constructor Create(AOwner: TComponent; const AProfile: string); reintroduce;
+
     function GetTrainingClass(): TTrainingClass; virtual; abstract;
   public
-    property Profile: string read FProfile write FProfile;
+    property Profile: string read FProfile;
   end;
 
   TTrainingClassHelper = record helper for TTrainingClass
@@ -45,6 +47,13 @@ uses
   System.IOUtils, FMX.DialogService, FMX.Consts, Remote.ClientModule, BitmapHelper;
 
 {$R *.fmx}
+
+constructor TDataCollectionForm.Create(AOwner: TComponent;
+  const AProfile: string);
+begin
+  FProfile := AProfile;
+  inherited Create(AOwner);
+end;
 
 procedure TDataCollectionForm.camLayoutlbiClearClick(Sender: TObject);
 begin

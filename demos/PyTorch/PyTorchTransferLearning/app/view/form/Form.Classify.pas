@@ -71,10 +71,15 @@ begin
     try
       imgCamera.Bitmap.ToJpg(LStream);
       var LResult := ClientModule.TrainingClassClient.Recognize(Profile, LStream);
-      if LResult is TJSONNumber then begin
-        var LValue: Extended;
-        if LResult.TryGetValue<Extended>(LValue) then begin
-          tbThumbs.Value := 1 - Trunc((LValue / 1 * 100) * 100 / 100);
+      if LResult is TJSONObject then begin
+        var LError: string;
+        if LResult.TryGetValue<string>('error', LError) then
+          ShowMessage(LError)
+        else begin
+          var LValue: Extended;
+          if LResult.TryGetValue<Extended>('value', LValue) then begin
+            tbThumbs.Value := Trunc(((1 - LValue) / 1 * 100) * 100 / 100);
+          end;
         end;
       end;
     finally

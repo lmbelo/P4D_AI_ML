@@ -24,7 +24,8 @@ type
   private
     { Private declarations }
   public
-    function CreateDataCollectionForm(AOwner: TComponent): TDataCollectionForm;
+    function CreateDataCollectionForm(AOwner: TComponent;
+      const AProfile: string): TDataCollectionForm;
   end;
 
 implementation
@@ -37,12 +38,12 @@ uses
 { TTrainingClassSelectionFrame }
 
 function TTrainingClassSelectionFrame.CreateDataCollectionForm(
-  AOwner: TComponent): TDataCollectionForm;
+  AOwner: TComponent; const AProfile: string): TDataCollectionForm;
 begin
   if rbThumbsUp.IsChecked then
-    Result := TThumbsUpForm.Create(AOwner)
+    Result := TThumbsUpForm.Create(AOwner, AProfile)
   else if rbThumbsDown.IsChecked then
-    Result := TThumbsDownForm.Create(AOwner)
+    Result := TThumbsDownForm.Create(AOwner, AProfile)
   else
     Result := nil;
 end;
