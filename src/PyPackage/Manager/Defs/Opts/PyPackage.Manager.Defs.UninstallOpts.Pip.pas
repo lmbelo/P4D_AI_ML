@@ -12,7 +12,7 @@ type
     FAskForConfirmation: boolean;
   published
     property Requirement: string read FRequirement write FRequirement;
-    property AskForConfirmation: boolean read FAskForConfirmation write FAskForConfirmation;
+    property AskForConfirmation: boolean read FAskForConfirmation write FAskForConfirmation default false;
   end;
 
 implementation
