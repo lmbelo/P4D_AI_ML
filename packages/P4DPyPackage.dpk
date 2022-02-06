@@ -40,7 +40,7 @@ contains
   PyExceptions in '..\src\PyPackage\PyExceptions.pas',
   PyCore in '..\src\PyPackage\PyCore.pas',
   PyUtils in '..\src\PyPackage\PyUtils.pas',
-  PyPackage.Manager.Pip in '..\src\PyPackage\Manager\PyPackage.Manager.Pip.pas',
+  PyPackage.Manager.pip in '..\src\PyPackage\Manager\PyPackage.Manager.pip.pas',
   PyPackage.Manager.Conda in '..\src\PyPackage\Manager\PyPackage.Manager.Conda.pas',
   PyPackage.Manager.Defs.Conda in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Conda.pas',
   PyPackage.Manager.Defs.Pip in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Pip.pas',
@@ -54,8 +54,6 @@ contains
   PyPackage.Manager.Defs.UninstallOpts.Pip in '..\src\PyPackage\Manager\Defs\Opts\PyPackage.Manager.Defs.UninstallOpts.Pip.pas',
   PyPackage.Manager.Managers in '..\src\PyPackage\Manager\PyPackage.Manager.Managers.pas',
   PyPackage.Manager in '..\src\PyPackage\Manager\PyPackage.Manager.pas',
-  PyPackage.Model in '..\src\PyPackage\PyPackage.Model.pas',
-  PyPackage.Manager.Exec.Intf in '..\src\PyPackage\Manager\Exec\PyPackage.Manager.Exec.Intf.pas',
-  PyPackage.Manager.Exec.SubProcess.Pip in '..\src\PyPackage\Manager\Exec\PyPackage.Manager.Exec.SubProcess.Pip.pas';
+  PyPackage.Model in '..\src\PyPackage\PyPackage.Model.pas';
 
 end.

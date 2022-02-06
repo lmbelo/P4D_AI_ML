@@ -27,6 +27,7 @@ implementation
 
 constructor TPyPackageManagerDefs.Create(const APackageName: TPyPackageName);
 begin
+  inherited Create();
   FPackageName := APackageName;
 end;
 

@@ -15,53 +15,51 @@ type
     FDefs: TPyPackageManagerDefsPip;
   private
     //Defs cmds
-    function MakePackageCmd: string; inline;
-    function MakePackageVersionCmd: string; inline;
+    function MakePackageCmd: TArray<string>; inline;
     //Install opts cmds
-    function MakeInstallRequirementCmd: string; inline;
-    function MakeInstallConstraintCmd: string; inline;
-    function MakeInstallNoDepsCmd: string; inline;
-    function MakeInstallPreCmd: string; inline;
-    function MakeInstallEditableCmd: string; inline;
-    function MakeInstallTargetCmd: string; inline;
-    function MakeInstallPlatformCmd: string; inline;
-    function MakeInstallPythonVersionCmd: string; inline;
-    function MakeIntallPythonImplementationCmd: string; inline;
-    function MakeInstallAbiCmd: string; inline;
-    function MakeInstallUserCmd: string; inline;
-    function MakeInstallRootCmd: string; inline;
-    function MakeInstallPrefixCmd: string; inline;
-    function MakeInstallSrcCmd: string; inline;
-    function MakeInstallUpgradeCmd: string; inline;
-    function MakeInstallUpgradeStrategyCmd: string; inline;
-    function MakeInstallForceReinstallCmd: string; inline;
-    function MakeInstallIgnoreInstalledCmd: string; inline;
-    function MakeInstallIgnoreRequiresPythonCmd: string; inline;
-    function MakeInstallNoBuildIsolationCmd: string; inline;
-    function MakeInstallUsePe517Cmd: string; inline;
-    function MakeInstallOptionCmd: string; inline;
-    function MakeInstallGlobalOptionCmd: string; inline;
-    function MakeInstallCompileCmd: string; inline;
-    function MakeInstallNoCompileCmd: string; inline;
-    function MakeInstallNoWarnScriptLocationCmd: string; inline;
-    function MakeInstallNoWarnConflictsCmd: string; inline;
-    function MakeInstallNoBinaryCmd: string; inline;
-    function MakeInstallOnlyBinaryCmd: string; inline;
-    function MakeInstallPreferBinaryCmd: string; inline;
-    function MakeInstallRequireHashesCmd: string; inline;
-    function MakeInstallProgressBarCmd: string; inline;
-    function MakeInstallNoCleanCmd: string; inline;
-    function MakeInstallIndexUrlCmd: string; inline;
-    function MakeInstallExtraIndexUrlCmd: string; inline;
-    function MakeInstallNoIndexCmd: string; inline;
-    function MakeInstallFindLinksCmd: string; inline;
+    function MakeInstallRequirementCmd: TArray<string>; inline;
+    function MakeInstallConstraintCmd: TArray<string>; inline;
+    function MakeInstallNoDepsCmd: TArray<string>; inline;
+    function MakeInstallPreCmd: TArray<string>; inline;
+    function MakeInstallEditableCmd: TArray<string>; inline;
+    function MakeInstallTargetCmd: TArray<string>; inline;
+    function MakeInstallPlatformCmd: TArray<string>; inline;
+    function MakeInstallPythonVersionCmd: TArray<string>; inline;
+    function MakeIntallPythonImplementationCmd: TArray<string>; inline;
+    function MakeInstallAbiCmd: TArray<string>; inline;
+    function MakeInstallUserCmd: TArray<string>; inline;
+    function MakeInstallRootCmd: TArray<string>; inline;
+    function MakeInstallPrefixCmd: TArray<string>; inline;
+    function MakeInstallSrcCmd: TArray<string>; inline;
+    function MakeInstallUpgradeCmd: TArray<string>; inline;
+    function MakeInstallUpgradeStrategyCmd: TArray<string>; inline;
+    function MakeInstallForceReinstallCmd: TArray<string>; inline;
+    function MakeInstallIgnoreInstalledCmd: TArray<string>; inline;
+    function MakeInstallIgnoreRequiresPythonCmd: TArray<string>; inline;
+    function MakeInstallNoBuildIsolationCmd: TArray<string>; inline;
+    function MakeInstallUsePe517Cmd: TArray<string>; inline;
+    function MakeInstallOptionCmd: TArray<string>; inline;
+    function MakeInstallGlobalOptionCmd: TArray<string>; inline;
+    function MakeInstallCompileCmd: TArray<string>; inline;
+    function MakeInstallNoCompileCmd: TArray<string>; inline;
+    function MakeInstallNoWarnScriptLocationCmd: TArray<string>; inline;
+    function MakeInstallNoWarnConflictsCmd: TArray<string>; inline;
+    function MakeInstallNoBinaryCmd: TArray<string>; inline;
+    function MakeInstallOnlyBinaryCmd: TArray<string>; inline;
+    function MakeInstallPreferBinaryCmd: TArray<string>; inline;
+    function MakeInstallRequireHashesCmd: TArray<string>; inline;
+    function MakeInstallProgressBarCmd: TArray<string>; inline;
+    function MakeInstallNoCleanCmd: TArray<string>; inline;
+    function MakeInstallIndexUrlCmd: TArray<string>; inline;
+    function MakeInstallExtraIndexUrlCmd: TArray<string>; inline;
+    function MakeInstallNoIndexCmd: TArray<string>; inline;
+    function MakeInstallFindLinksCmd: TArray<string>; inline;
     //Uninstall cmds
-    function MakeUninstallRequirementCmd: string; inline;
-    function MakeUninstallConfirmationFlagCmd: string; inline;
+    function MakeUninstallRequirementCmd: TArray<string>; inline;
+    function MakeUninstallConfirmationFlagCmd: TArray<string>; inline;
   public
-    function BuildInstallCmd(const ADefs: TPyPackageManagerDefs): string;
-    function BuildUninstallCmd(const ADefs: TPyPackageManagerDefs): string;
-    function BuildIsInstalledCmd(const ADefs: TPyPackageManagerDefs): string;
+    function BuildInstallCmd(const ADefs: TPyPackageManagerDefs): TArray<string>;
+    function BuildUninstallCmd(const ADefs: TPyPackageManagerDefs): TArray<string>;
   end;
 
 implementation
@@ -69,13 +67,12 @@ implementation
 { TPyPackageManagerCmdPip }
 
 function TPyPackageManagerCmdPip.BuildInstallCmd(
-  const ADefs: TPyPackageManagerDefs): string;
+  const ADefs: TPyPackageManagerDefs): TArray<string>;
 begin
   FDefs := ADefs as TPyPackageManagerDefsPip;
   try
-    Result := ' pip install'
+    Result := TArray<string>.Create('install')
       + MakePackageCmd()
-      + MakePackageVersionCmd()
       + MakeInstallRequirementCmd()
       + MakeInstallConstraintCmd()
       + MakeInstallNoDepsCmd()
@@ -118,24 +115,12 @@ begin
   end;
 end;
 
-function TPyPackageManagerCmdPip.BuildIsInstalledCmd(
-  const ADefs: TPyPackageManagerDefs): string;
-begin
-  FDefs := ADefs as TPyPackageManagerDefsPip;
-  try
-    Result := ' pip show'
-      + MakePackageCmd();
-  finally
-    FDefs := nil;
-  end;
-end;
-
 function TPyPackageManagerCmdPip.BuildUninstallCmd(
-  const ADefs: TPyPackageManagerDefs): string;
+  const ADefs: TPyPackageManagerDefs): TArray<string>;
 begin
   FDefs := ADefs as TPyPackageManagerDefsPip;
   try
-    Result := ' pip uninstall'
+    Result := TArray<string>.Create('uninstall')
       + MakePackageCmd()
       + MakeUninstallRequirementCmd()
       + MakeUninstallConfirmationFlagCmd();
@@ -144,249 +129,251 @@ begin
   end;
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallAbiCmd: string;
+function TPyPackageManagerCmdPip.MakePackageCmd: TArray<string>;
+begin
+  var LVersion: string;
+  if not FDefs.PackageVersion.IsEmpty() then
+    LVersion := FDefs.PackageVersion
+  else
+    LVersion := String.Empty;
+
+  Result := TArray<string>.Create(FDefs.PackageName + LVersion);
+end;
+
+//Install
+function TPyPackageManagerCmdPip.MakeInstallAbiCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Abi.IsEmpty() then
-    Result := ' --abi ' + FDefs.InstallOptions.Abi;
+    Result := TArray<string>.Create('--abi', FDefs.InstallOptions.Abi);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallCompileCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallCompileCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.Compile then
-    Result := ' --compile';
+    Result := TArray<string>.Create('--compile');
 end;
 
-function TPyPackageManagerCmdPip.MakeUninstallConfirmationFlagCmd: string;
-begin
-  if not FDefs.UninstallOptions.AskForConfirmation then
-    Result := ' -y';
-end;
-
-function TPyPackageManagerCmdPip.MakeUninstallRequirementCmd: string;
-begin
-  if not FDefs.UninstallOptions.Requirement.IsEmpty() then
-    Result := ' -r ' + FDefs.UninstallOptions.Requirement;
-end;
-
-function TPyPackageManagerCmdPip.MakeInstallConstraintCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallConstraintCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Constraint.IsEmpty() then
-    Result := ' -c ' + FDefs.InstallOptions.Constraint;
+    Result := TArray<string>.Create('-c', FDefs.InstallOptions.Constraint);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallEditableCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallEditableCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Editable.IsEmpty() then
-    Result := ' -e ' + FDefs.InstallOptions.Editable;
+    Result := TArray<string>.Create('-e', FDefs.InstallOptions.Editable);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallExtraIndexUrlCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallExtraIndexUrlCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.ExtraIndexUrl.IsEmpty() then
-    Result := ' --extra-index-url ' + FDefs.InstallOptions.ExtraIndexUrl;
+    Result := TArray<string>.Create('--extra-index-url', FDefs.InstallOptions.ExtraIndexUrl);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallFindLinksCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallFindLinksCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.FindLinks.IsEmpty() then
-    Result := ' -f ' + FDefs.InstallOptions.FindLinks;
+    Result := TArray<string>.Create('-f', FDefs.InstallOptions.FindLinks);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallForceReinstallCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallForceReinstallCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.ForceReinstall then
-    Result := ' --force-reinstall';
+    Result := TArray<string>.Create('--force-reinstall');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallGlobalOptionCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallGlobalOptionCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.GlobalOption.IsEmpty() then
-    Result := ' --global-option ' + FDefs.InstallOptions.GlobalOption;
+    Result := TArray<string>.Create('--global-option', FDefs.InstallOptions.GlobalOption);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallIgnoreInstalledCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallIgnoreInstalledCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.IgnoreInstalled then
-    Result := ' -I';
+    Result := TArray<string>.Create('-I');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallIgnoreRequiresPythonCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallIgnoreRequiresPythonCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.IgnoreRequiresPython then
-    Result := ' --ignore-requires-python';
+    Result := TArray<string>.Create('--ignore-requires-python');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallIndexUrlCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallIndexUrlCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.IndexUrl.IsEmpty() then
-    Result := ' -i ' + FDefs.InstallOptions.IndexUrl;
+    Result := TArray<string>.Create('-i', FDefs.InstallOptions.IndexUrl);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallOptionCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallOptionCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.InstallOption.IsEmpty() then
-    Result := ' --install-option ' + FDefs.InstallOptions.InstallOption;
+    Result := TArray<string>.Create('--install-option', FDefs.InstallOptions.InstallOption);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoBinaryCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoBinaryCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoBinary then
-    Result := ' --no-binary';
+    Result := TArray<string>.Create('--no-binary');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoBuildIsolationCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoBuildIsolationCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoBuildIsolation then
-    Result := ' --no-build-isolation';
+    Result := TArray<string>.Create('--no-build-isolation');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoCleanCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoCleanCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoClean then
-    Result := ' --no-clean';
+    Result := TArray<string>.Create('--no-clean');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoCompileCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoCompileCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoCompile then
-    Result := ' --no-compile';
+    Result := TArray<string>.Create('--no-compile');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoDepsCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoDepsCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoDeps then
-    Result := ' --no-deps';
+    Result := TArray<string>.Create('--no-deps');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoIndexCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoIndexCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoIndex then
-    Result := ' --no-index';
+    Result := TArray<string>.Create('--no-index');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoWarnConflictsCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoWarnConflictsCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoWarnConflicts then
-    Result := ' --no-warn-conflicts';
+    Result := TArray<string>.Create('--no-warn-conflicts');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallNoWarnScriptLocationCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallNoWarnScriptLocationCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.NoWarnScriptLocation then
-    Result := ' --no-warn-script-location';
+    Result := TArray<string>.Create('--no-warn-script-location');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallOnlyBinaryCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallOnlyBinaryCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.OnlyBinary then
-    Result := ' --only-binary';
+    Result := TArray<string>.Create('--only-binary');
 end;
 
-function TPyPackageManagerCmdPip.MakePackageCmd: string;
-begin
-  Result := ' ' + FDefs.PackageName;
-end;
-
-function TPyPackageManagerCmdPip.MakePackageVersionCmd: string;
-begin
-  if not FDefs.PackageVersion.IsEmpty() then
-    Result := ' ' + FDefs.PackageVersion;
-end;
-
-function TPyPackageManagerCmdPip.MakeInstallPlatformCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallPlatformCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Platform.IsEmpty() then
-    Result := ' --platform ' + FDefs.InstallOptions.Platform;
+    Result := TArray<string>.Create('--platform ', FDefs.InstallOptions.Platform);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallPreCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallPreCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.Pre then
-    Result := ' --pre';
+    Result := TArray<string>.Create('--pre');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallPreferBinaryCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallPreferBinaryCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.PreferBinary then
-    Result := ' --prefer-binary';
+    Result := TArray<string>.Create('--prefer-binary');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallPrefixCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallPrefixCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Prefix.IsEmpty() then
-    Result := ' --prefix ' + FDefs.InstallOptions.Prefix;
+    Result := TArray<string>.Create('--prefix', FDefs.InstallOptions.Prefix);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallProgressBarCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallProgressBarCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.ProgressBar then
-    Result := ' --progress-bar';
+    Result := TArray<string>.Create('--progress-bar');
 end;
 
-function TPyPackageManagerCmdPip.MakeIntallPythonImplementationCmd: string;
+function TPyPackageManagerCmdPip.MakeIntallPythonImplementationCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.PythonImplementation.IsEmpty() then
-    Result := ' --implementation ' + FDefs.InstallOptions.PythonImplementation;
+    Result := TArray<string>.Create('--implementation', FDefs.InstallOptions.PythonImplementation);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallPythonVersionCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallPythonVersionCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.PythonVersion.IsEmpty() then
-    Result := ' --python-version ' + FDefs.InstallOptions.PythonVersion;
+    Result := TArray<string>.Create('--python-version', FDefs.InstallOptions.PythonVersion);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallRequireHashesCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallRequireHashesCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.RequireHashes then
-    Result := ' --require-hashes';
+    Result := TArray<string>.Create('--require-hashes');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallRequirementCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallRequirementCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Requirement.IsEmpty() then
-    Result := ' -r ' + FDefs.InstallOptions.Requirement;
+    Result := TArray<string>.Create('-r', FDefs.InstallOptions.Requirement);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallRootCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallRootCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Root.IsEmpty() then
-    Result := ' --root ' + FDefs.InstallOptions.Root;
+    Result := TArray<string>.Create('--root', FDefs.InstallOptions.Root);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallSrcCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallSrcCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Source.IsEmpty() then
-    Result := ' --src ' + FDefs.InstallOptions.Source;
+    Result := TArray<string>.Create('--src', FDefs.InstallOptions.Source);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallTargetCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallTargetCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.Target.IsEmpty() then
-    Result := ' -t ' + FDefs.InstallOptions.Target;
+    Result := TArray<string>.Create('-t ', FDefs.InstallOptions.Target);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallUpgradeCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallUpgradeCmd: TArray<string>;
 begin
   if FDefs.InstallOptions.Upgrade then
-    Result := ' -U';
+    Result := TArray<string>.Create('-U');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallUpgradeStrategyCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallUpgradeStrategyCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.UpgradeStrategy.IsEmpty() then
-    Result := ' --upgrade-strategy ' + FDefs.InstallOptions.UpgradeStrategy;
+    Result := TArray<string>.Create('--upgrade-strategy', FDefs.InstallOptions.UpgradeStrategy);
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallUsePe517Cmd: string;
+function TPyPackageManagerCmdPip.MakeInstallUsePe517Cmd: TArray<string>;
 begin
   if FDefs.InstallOptions.UsePep517 then
-    Result := ' --use-pep517';
+    Result := TArray<string>.Create('--use-pep517');
 end;
 
-function TPyPackageManagerCmdPip.MakeInstallUserCmd: string;
+function TPyPackageManagerCmdPip.MakeInstallUserCmd: TArray<string>;
 begin
   if not FDefs.InstallOptions.User.IsEmpty() then
-    Result := ' --user ' + FDefs.InstallOptions.User;
+    Result := TArray<string>.Create('--user', FDefs.InstallOptions.User);
+end;
+
+//Uninstall
+function TPyPackageManagerCmdPip.MakeUninstallRequirementCmd: TArray<string>;
+begin
+  if not FDefs.UninstallOptions.Requirement.IsEmpty() then
+    Result := TArray<string>.Create('-r', FDefs.UninstallOptions.Requirement);
+end;
+
+function TPyPackageManagerCmdPip.MakeUninstallConfirmationFlagCmd: TArray<string>;
+begin
+  if not FDefs.UninstallOptions.AskForConfirmation then
+    Result := TArray<string>.Create('-y');
 end;
 
 end.

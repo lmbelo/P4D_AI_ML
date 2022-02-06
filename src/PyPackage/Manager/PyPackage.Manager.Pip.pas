@@ -7,23 +7,20 @@ uses
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
-  PyPackage.Manager.Cmd.Intf,
-  PyPackage.Manager.Exec.Intf;
+  PyPackage.Manager.Cmd.Intf;
 
 type
   TPyPackageManagerPip = class(TPyPackageManager, IPyPackageManager)
   private
     FDefs: TPyPackageManagerDefs;
     FCmd: IPyPackageManagerCmdIntf;
-    FExec: IPyPackageManagerCmdExec;
 
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
-    function GetExec(): IPyPackageManagerCmdExec;
+    function IsInstalled(): boolean; reintroduce;
     procedure Install();
     procedure Uninstall();
-    function IsInstalled(): boolean;
   public
     constructor Create(const APackageName: TPyPackageName); override;
     destructor Destroy; override;
@@ -33,9 +30,9 @@ implementation
 
 uses
   System.Variants, System.SysUtils,
+  VarPyth, PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
-  PyPackage.Manager.Cmd.Pip,
-  PyPackage.Manager.Exec.SubProcess.Pip;
+  PyPackage.Manager.Cmd.Pip, PythonEngine;
 
 { TPyPackageManagerPip }
 
@@ -44,12 +41,10 @@ begin
   inherited;
   FDefs := TPyPackageManagerDefsPip.Create(APackageName);
   FCmd := TPyPackageManagerCmdPip.Create();
-  FExec := TPyPackageManagerCmdExecSubProcessPip.Create();
 end;
 
 destructor TPyPackageManagerPip.Destroy;
 begin
-  FExec := nil;
   FCmd := nil;
   FDefs.Free();
   inherited;
@@ -65,33 +60,39 @@ begin
   Result := FDefs;
 end;
 
-function TPyPackageManagerPip.GetExec: IPyPackageManagerCmdExec;
+function TPyPackageManagerPip.IsInstalled: boolean;
 begin
-  Result := FExec;
+  //Reloading the module garantees we're considering the latest installed packages
+  var LPkgRes := Reload(Import('pkg_resources'));
+  for var LPkg in VarPyIterate(LPkgRes.working_set) do begin
+    if (LPkg.key = FDefs.PackageName) then
+      Exit(true);
+  end;
+  Result := false;
 end;
 
 procedure TPyPackageManagerPip.Install;
 begin
+  //Using pip programmatically guarantees we're using the same Python interpreter
+  //loaded by the application
   var LIn := FCmd.BuildInstallCmd(FDefs);
-  FExec.Exec(LIn, procedure(AOut: string) begin
-  end);
+  var LPip := Import('pip');
+  var LResult := LPip.main(TPyEx.List<String>(LIn));
+  if LResult <> 0 then
+    raise EPyModuleInstallError.CreateFmt(
+      'An error occurred while installing the package %s.', [FDefs.PackageName]);
 end;
 
 procedure TPyPackageManagerPip.Uninstall;
 begin
+  //Using pip programmatically guarantees we're using the same Python interpreter
+  //loaded by the application
   var LIn := FCmd.BuildUninstallCmd(FDefs);
-  FExec.Exec(LIn, procedure(AOut: string) begin
-  end);
-end;
-
-function TPyPackageManagerPip.IsInstalled: boolean;
-begin
-  var LIn := FCmd.BuildIsInstalledCmd(FDefs);
-  var LOut: string;
-  FExec.Exec(LIn, procedure(AOut: string) begin
-    LOut := LOut + AOut;
-  end);
-  Result := LOut.Contains(FDefs.PackageName);
+  var LPip := Import('pip');
+  var LResult := LPip.main(TPyEx.List<String>(LIn));
+  if LResult <> 0 then
+    raise EPyModuleInstallError.CreateFmt(
+      'An error occurred while uninstalling the package %s.', [FDefs.PackageName]);
 end;
 
 end.

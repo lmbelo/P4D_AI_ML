@@ -48,7 +48,7 @@ type
     function GetValues(const AIndex: variant): variant;
     procedure SetValues(const AIndex, AValue: variant);
   public       
-    function AsList(): variant; //Created by a VarArrayOf 
+    function AsList(): variant; //Created by a VarArrayOf
     function AsTuple(): variant; //Created by a VarArrayOf 
     function GetEnumerator(): TVarPyEnumerateHelper;
 
@@ -76,8 +76,12 @@ type
     destructor Destroy(); override;
     //Collection helpers
     class function Collection(const AArgs: array of const): TVarRecArray; static;
-    class function Tuple(const AArgs: array of const): variant; static;
-    class function List(const AArgs: array of const): variant; static;
+    //Tuple
+    class function Tuple(const AArgs: array of const): variant; overload; static;
+    class function Tuple<T>(const AArgs: TArray<T>): variant; overload; static;
+    //List
+    class function List(const AArgs: array of const): variant; overload; static;
+    class function List<T>(const AArgs: TArray<T>): variant; overload; static;
     //Dictionary helper
     class function Dictionary(const AArgs: array of TPair<variant, variant>): variant; static;
     //Closure helper
@@ -150,24 +154,19 @@ begin
 end;
 
 function TVariantHelper.AsList: variant;
-var
-  LArr: TVarRecArray;
 begin
   CheckVarIsArray();
   var LElem: PVariant := VarArrayLock(Self);
   try
     var LLen := VarArrayHighBound(Self, 1) - VarArrayLowBound(Self, 1) + 1;
-    if LLen = 0 then
-      Exit(LArr.AsList());
-    SetLength(LArr, LLen);
+    Result := NewPythonList(LLen);
     for var I := 0 to LLen - 1 do begin
-      LArr[I] := TValue.FromVariant(LElem^).AsVarRec;
+      Result.SetItem(I, LElem^);
       Inc(LElem);
     end;
   finally
     VarArrayUnlock(Self);
   end;
-  Result := LArr.AsList();
 end;
 
 function TVariantHelper.AsTuple: variant;
@@ -178,11 +177,9 @@ begin
   var LElem: PVariant := VarArrayLock(Self);
   try
     var LLen := VarArrayHighBound(Self, 1) - VarArrayLowBound(Self, 1) + 1;
-    if LLen = 0 then
-      Exit(LArr.AsTuple());
-    SetLength(LArr, LLen);
+    Result := NewPythonTuple(LLen);
     for var I := 0 to LLen - 1 do begin
-      LArr[I] := TValue.FromVariant(LElem^).AsVarRec;
+      Result.SetItem(I, LElem^);
       Inc(LElem);
     end;
   finally
@@ -258,9 +255,27 @@ begin
   Result := VarPythonCreate(AArgs, stTuple);
 end;
 
+class function TPyEx.Tuple<T>(const AArgs: TArray<T>): variant;
+begin
+  var LValues := VarArrayCreate([0, Length(AArgs) - 1], varVariant);
+  for var I := Low(AArgs) to High(AArgs) do begin
+    LValues[I] := TValue.From<T>(AArgs[I]).AsVariant();
+  end;
+  Result := LValues.AsTuple();
+end;
+
 class function TPyEx.List(const AArgs: array of const): variant;
 begin
   Result := VarPythonCreate(AArgs, stList);
+end;
+
+class function TPyEx.List<T>(const AArgs: TArray<T>): variant;
+begin
+  var LValues := VarArrayCreate([0, Length(AArgs) - 1], varVariant);
+  for var I := Low(AArgs) to High(AArgs) do begin
+    LValues[I] := TValue.From<T>(AArgs[I]).AsVariant();
+  end;
+  Result := LValues.AsList();
 end;
 
 class function TPyEx.Dictionary(const AArgs: array of TPair<variant, variant>): variant;

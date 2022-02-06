@@ -9,31 +9,27 @@ uses
 type
   TPyPackageManagerCmdConda = class(TInterfacedObject, IPyPackageManagerCmdIntf)
   public
-    function BuildInstallCmd(const ADefs: TPyPackageManagerDefs): string;
-    function BuildUninstallCmd(const ADefs: TPyPackageManagerDefs): string;
-    function BuildIsInstalledCmd(const ADefs: TPyPackageManagerDefs): string;
+    function BuildInstallCmd(const ADefs: TPyPackageManagerDefs): TArray<string>;
+    function BuildUninstallCmd(const ADefs: TPyPackageManagerDefs): TArray<string>;
   end;
 
 implementation
 
+uses
+  System.SysUtils;
+
 { TPyPackageManagerCmdConda }
 
 function TPyPackageManagerCmdConda.BuildInstallCmd(
-  const ADefs: TPyPackageManagerDefs): string;
+  const ADefs: TPyPackageManagerDefs): TArray<string>;
 begin
-
-end;
-
-function TPyPackageManagerCmdConda.BuildIsInstalledCmd(
-  const ADefs: TPyPackageManagerDefs): string;
-begin
-
+  raise ENotImplemented.Create('Not Implemented.');
 end;
 
 function TPyPackageManagerCmdConda.BuildUninstallCmd(
-  const ADefs: TPyPackageManagerDefs): string;
+  const ADefs: TPyPackageManagerDefs): TArray<string>;
 begin
-
+  raise ENotImplemented.Create('Not Implemented.');
 end;
 
 end.

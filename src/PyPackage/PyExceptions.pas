@@ -15,6 +15,12 @@ type
   EPyPackageNotInstalled = class(EPyCommonException)
   end;
 
+  EPyModuleInstallError = class(EPyCommonException)
+  end;
+
+  EPyModuleUnInstallError = class(EPyCommonException)
+  end;
+
   EPyParentModuleCircularReference = class(EPyCommonException)
   end;
 
