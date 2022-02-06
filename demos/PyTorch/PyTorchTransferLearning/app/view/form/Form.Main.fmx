@@ -1,8 +1,8 @@
 object MainForm: TMainForm
   Left = 0
   Top = 0
-  ClientHeight = 588
-  ClientWidth = 309
+  ClientHeight = 609
+  ClientWidth = 308
   StyleBook = StyleBook1
   FormFactor.Width = 320
   FormFactor.Height = 480
@@ -12,52 +12,74 @@ object MainForm: TMainForm
   DesignerMasterStyle = 3
   inline frmMenu: TMenuFrame
     Align = Client
-    Size.Width = 309.000000000000000000
-    Size.Height = 588.000000000000000000
+    Size.Width = 308.000000000000000000
+    Size.Height = 609.000000000000000000
     Size.PlatformDefault = False
-    inherited loContainer: TLayout
-      Size.Width = 309.000000000000000000
-      Size.Height = 588.000000000000000000
+    inherited ToolBar1: TToolBar [0]
+      Size.Width = 308.000000000000000000
+      Size.Height = 48.000000000000000000
+      inherited btnMenu: TSpeedButton
+        Position.X = 260.000000000000000000
+        Size.Width = 48.000000000000000000
+        Size.Height = 48.000000000000000000
+        OnClick = frmMenubtnMenuClick
+      end
+    end
+    inherited lbMenu: TListBox [1]
+      Position.X = 143.000000000000000000
+      Viewport.Width = 153.000000000000000000
+      Viewport.Height = 52.000000000000000000
+      inherited lblHost: TListBoxItem
+        Size.Width = 153.000000000000000000
+        OnClick = frmMenulblHostClick
+      end
+    end
+    inherited loContainer: TLayout [2]
+      Size.Width = 308.000000000000000000
+      Size.Height = 561.000000000000000000
       inherited loCollapse: TLayout
-        Size.Width = 289.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 541.000000000000000000
         inherited loProfile: TLayout
-          Size.Width = 289.000000000000000000
-          Size.Height = 190.000000000000000000
+          Size.Width = 288.000000000000000000
           inherited ceProfile: TComboEdit
-            Items.Strings = (
-              'Default')
-            Size.Width = 249.000000000000000000
+            Size.Width = 248.000000000000000000
             Size.Height = 32.000000000000000000
           end
           inherited lbProfile: TLabel
-            Size.Width = 249.000000000000000000
+            Size.Width = 248.000000000000000000
           end
           inherited btnContinue: TSpeedButton
-            Position.Y = 122.000000000000000000
-            Size.Width = 249.000000000000000000
+            Position.Y = 127.000000000000000000
+            Size.Width = 248.000000000000000000
             Size.Height = 48.000000000000000000
             OnClick = frmMenubtnContinueClick
           end
         end
         inherited loActions: TLayout
-          Size.Width = 289.000000000000000000
-          Size.Height = 377.000000000000000000
-          inherited btnCollectData: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnCollectDataClick
-          end
-          inherited btnLiveRecognition: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnLiveRecognitionClick
-          end
-          inherited btnQuit: TButton
-            Position.Y = 297.000000000000000000
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnQuitClick
-          end
-          inherited btnTrainModel: TButton
-            Size.Width = 249.000000000000000000
-            OnClick = frmMenubtnTrainModelClick
+          Size.Width = 288.000000000000000000
+          Size.Height = 356.000000000000000000
+          inherited sbActions: TScrollBox
+            Size.Width = 288.000000000000000000
+            Size.Height = 356.000000000000000000
+            Viewport.Width = 288.000000000000000000
+            Viewport.Height = 356.000000000000000000
+            inherited btnCollectData: TButton
+              Size.Width = 248.000000000000000000
+              OnClick = frmMenubtnCollectDataClick
+            end
+            inherited btnLiveRecognition: TButton
+              Size.Width = 248.000000000000000000
+              OnClick = frmMenubtnLiveRecognitionClick
+            end
+            inherited btnQuit: TButton
+              Size.Width = 248.000000000000000000
+              OnClick = frmMenubtnQuitClick
+            end
+            inherited btnTrainModel: TButton
+              Size.Width = 248.000000000000000000
+              OnClick = frmMenubtnTrainModelClick
+            end
           end
         end
       end

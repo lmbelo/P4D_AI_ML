@@ -8,11 +8,9 @@ uses
   System.SysUtils,
   Windows,
   CompModule in 'CompModule.pas' {PyComps: TDataModule},
-  TrainModel in 'TrainModel.pas', PythonEngine;
-
-const
-  cGENERIC_ERROR_EXIT_CODE = $000A;
-  cPYTHON_ERROR_EXIT_CODE  = $000B;
+  TrainModel in 'TrainModel.pas',
+  PythonEngine,
+  ProcErrorCode in '..\..\server\ProcErrorCode.pas';
 
 begin
   try
@@ -24,6 +22,8 @@ begin
         WriteLn(AText);
       end);
     try
+      PyComps.CheckEngine();
+
       var LTrainModel := TTrainModel.Create();
       try
         if ParamCount >= 3 then begin
@@ -62,6 +62,14 @@ begin
     on E: EPythonError do begin
       Writeln(E.ClassName, ': ', E.Message);
       ExitCode := cPYTHON_ERROR_EXIT_CODE;
+    end;
+    on E: EDLLLoadError do begin
+      Writeln(E.ClassName, ': ', E.Message);
+      ExitCode := cPYTHON_DLL_ERROR_EXIT_CODE;
+    end;
+    on E: EDLLImportError do begin
+      Writeln(E.ClassName, ': ', E.Message);
+      ExitCode := cPYTHON_DLL_MAP_ERROR_EXIT_CODE;
     end;
     on E: Exception do begin
       Writeln(E.ClassName, ': ', E.Message);

@@ -40,7 +40,7 @@ type
 implementation
 
 uses
-  System.IOUtils, ServerContainerUnit1, DSSession;
+  System.IOUtils, ServerContainerUnit1, DSSession, ProcErrorCode;
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
@@ -71,17 +71,6 @@ function TTrainingClass.BuildProfileFolder(const ABaseDir,
 begin
   Result := TPath.Combine(ABaseDir, AProfile);
   BuildDir(Result);
-end;
-
-procedure TTrainingClass.Clear(const AProfile, ATrainingClass: string);
-begin
-  TDirectory.Delete(BuildClassFolder(BuildProfileFolder(BuildImagesFolder(), AProfile), ATrainingClass), true);
-end;
-
-function TTrainingClass.CountClass(const AProfile,
-  ATrainingClass: string): integer;
-begin
-  Result := GetCount(BuildClassFolder(BuildProfileFolder(BuildImagesFolder(), AProfile), ATrainingClass));
 end;
 
 function TTrainingClass.GetCount(const ABaseDir: string): integer;
@@ -155,6 +144,60 @@ begin
   end;
 end;
 
+procedure TTrainingClass.ProcessTrainModelResult(const AProfile, ASessionId, AChannel,
+  ACallbackId: string; const AResultCode: integer);
+begin
+  var LModel := GetModelPath(AProfile);
+  if (AResultCode = 0) and TFile.Exists(LModel) then begin
+    DSServer.BroadcastMessage(AChannel, ACallbackId,
+      TJSONObject.Create(TJSONPair.Create('done', true)));
+
+    //Starts up the trained module proc to reduce delay time on first recognition call
+    LoadTrainedModelProc(AProfile);
+  end else begin
+    //Has created the model file, but process has finished unsuccessfully,
+    //so we delete it to avoid using a broken model
+    if TFile.Exists(LModel) then
+      TFile.Delete(LModel);
+
+    var LMsg: string;
+    case AResultCode of
+      cGENERIC_ERROR_EXIT_CODE:
+        LMsg := mGENERIC_ERROR_EXIT_MSG;
+      cPYTHON_ERROR_EXIT_CODE:
+        LMsg := mPYTHON_ERROR_EXIT_MSG;
+      cPYTHON_DLL_ERROR_EXIT_CODE:
+        LMsg := mPYTHON_DLL_ERROR_EXIT_MSG;
+      cPYTHON_DLL_MAP_ERROR_EXIT_CODE:
+        LMsg := mPYTHON_DLL_MAP_ERROR_EXIT_MSG;
+    end;
+
+    if not LMsg.IsEmpty() then
+      DSServer.BroadcastMessage(AChannel, ACallbackId,
+        TJSONObject.Create(
+          TJSONPair.Create(
+            'pipe',
+            LMsg + ' Error code: ' + AResultCode.ToString())));
+
+    DSServer.BroadcastMessage(AChannel, ACallbackId,
+      TJSONObject.Create(TJSONPair.Create('done', false)));
+  end;
+
+  if IsSessionValid(ASessionId) then
+    TDSSessionManager.Instance.Session[ASessionId].RemoveData(AChannel);
+end;
+
+procedure TTrainingClass.Clear(const AProfile, ATrainingClass: string);
+begin
+  TDirectory.Delete(BuildClassFolder(BuildProfileFolder(BuildImagesFolder(), AProfile), ATrainingClass), true);
+end;
+
+function TTrainingClass.CountClass(const AProfile,
+  ATrainingClass: string): integer;
+begin
+  Result := GetCount(BuildClassFolder(BuildProfileFolder(BuildImagesFolder(), AProfile), ATrainingClass));
+end;
+
 function TTrainingClass.LoadProfile(const AProfile: string): TJSONValue;
 begin
   var LModel := GetModelPath(AProfile);
@@ -183,30 +226,6 @@ begin
   end;
 
   Result := GetCount(LDir);
-end;
-
-procedure TTrainingClass.ProcessTrainModelResult(const AProfile, ASessionId, AChannel,
-  ACallbackId: string; const AResultCode: integer);
-begin
-  var LModel := GetModelPath(AProfile);
-  if (AResultCode = 0) and TFile.Exists(LModel) then begin
-    DSServer.BroadcastMessage(AChannel, ACallbackId,
-      TJSONObject.Create(TJSONPair.Create('done', true)));
-
-    //Starts up the trained module proc to reduce delay time on first recognition call
-    LoadTrainedModelProc(AProfile);
-  end else begin
-    //Has created the model file, but process has finished unsuccessfully,
-    //so we delete it to avoid using a broken model
-    if TFile.Exists(LModel) then
-      TFile.Delete(LModel);
-
-    DSServer.BroadcastMessage(AChannel, ACallbackId,
-      TJSONObject.Create(TJSONPair.Create('done', false)));
-  end;
-
-  if IsSessionValid(ASessionId) then
-    TDSSessionManager.Instance.Session[ASessionId].RemoveData(AChannel);
 end;
 
 function TTrainingClass.TrainModel(const AProfile: string): TJSONValue;
@@ -243,8 +262,8 @@ begin
   var LCmd := PROC
     + ' ' + AProfile
     + ' ' + BuildProfileFolder(BuildImagesFolder(), AProfile)
-    + ' ' + LModel;
-//    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
+    + ' ' + LModel
+    + ' ' + DEBUG_FLAG; //The debug flag to hang on the proc. until you attach the debugger...
 
   var LStdOutLogPath := TPath.Combine(BuildProfileFolder(BuildImagesFolder(), AProfile), 'stdout.log');
   if TFile.Exists(LStdOutLogPath) then

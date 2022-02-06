@@ -21,6 +21,7 @@ type
   public
     constructor Create(AOwner: TComponent; const AIn, AOut: TProc<string>); reintroduce; overload;
 
+    procedure CheckEngine();
     procedure Monitor(const AIn, AOut: TProc<string>);
   end;
 
@@ -32,6 +33,12 @@ implementation
 {%CLASSGROUP 'System.Classes.TPersistent'}
 
 {$R *.dfm}
+
+procedure TPyComps.CheckEngine;
+begin
+  if not PyEngine.Initialized and not PyEngine.IsHandleValid() then
+    raise EDLLLoadError.Create('The Python interpreter could not be loaded.');
+end;
 
 constructor TPyComps.Create(AOwner: TComponent; const AIn, AOut: TProc<string>);
 begin

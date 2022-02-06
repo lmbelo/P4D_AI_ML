@@ -13,6 +13,7 @@ uses
 
 const
   BUFFSIZE = 4096;
+
 type
   TBuffArr = array[0..BUFFSIZE - 1] of AnsiChar;
 

@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Edit, FMX.ComboEdit, FMX.Layouts;
+  FMX.Controls.Presentation, FMX.Edit, FMX.ComboEdit, FMX.Layouts, FMX.ListBox;
 
 type
   TMenuFrame = class(TFrame)
@@ -20,9 +20,18 @@ type
     btnQuit: TButton;
     btnTrainModel: TButton;
     btnContinue: TSpeedButton;
+    sbActions: TScrollBox;
+    ToolBar1: TToolBar;
+    btnMenu: TSpeedButton;
+    lbMenu: TListBox;
+    lblHost: TListBoxItem;
+    procedure btnMenuClick(Sender: TObject);
+    procedure lblHostClick(Sender: TObject);
   private
     { Private declarations }
   public
+    constructor Create(AOwner: TComponent); override;
+
     procedure EnableActions();
     procedure DisableActions();
   end;
@@ -30,6 +39,17 @@ type
 implementation
 
 {$R *.fmx}
+
+procedure TMenuFrame.btnMenuClick(Sender: TObject);
+begin
+  lbMenu.Visible := not lbMenu.Visible;
+end;
+
+constructor TMenuFrame.Create(AOwner: TComponent);
+begin
+  inherited;
+  lbMenu.Visible := false;
+end;
 
 procedure TMenuFrame.DisableActions;
 begin
@@ -41,6 +61,11 @@ procedure TMenuFrame.EnableActions;
 begin
   btnCollectData.Enabled := true;
   btnLiveRecognition.Enabled := true;
+end;
+
+procedure TMenuFrame.lblHostClick(Sender: TObject);
+begin
+  lbMenu.Visible := false;
 end;
 
 end.

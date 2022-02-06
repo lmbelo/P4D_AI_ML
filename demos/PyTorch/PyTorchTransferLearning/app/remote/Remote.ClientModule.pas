@@ -19,6 +19,11 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
+    function HasValidHost(): boolean;
+    procedure SetHost(const AHost: string);
+    function GetHost(): string;
+
     property InstanceOwner: Boolean read FInstanceOwner write FInstanceOwner;
     property TrainingClassClient: TTrainingClassClient read GetTrainingClassClient write FTrainingClassClient;
     property CallbackChannel[const AChannel: string]: TDSRestClientChannel read GetCallbackChannel;
@@ -60,6 +65,21 @@ begin
   if FTrainingClassClient = nil then
     FTrainingClassClient:= TTrainingClassClient.Create(DSRestConnection1, FInstanceOwner);
   Result := FTrainingClassClient;
+end;
+
+function TClientModule.HasValidHost: boolean;
+begin
+  Result := not DSRestConnection1.Host.IsEmpty();
+end;
+
+function TClientModule.GetHost: string;
+begin
+  Result := DSRestConnection1.Host;
+end;
+
+procedure TClientModule.SetHost(const AHost: string);
+begin
+  DSRestConnection1.Host := AHost;
 end;
 
 end.

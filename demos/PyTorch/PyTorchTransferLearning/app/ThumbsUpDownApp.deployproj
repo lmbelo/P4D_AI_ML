@@ -148,7 +148,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownApp\res\drawable-large\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage640</DeployClass>
@@ -157,7 +157,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownApp\res\drawable-large\</RemoteDir>
             <RemoteName>splash_image.png</RemoteName>
             <DeployClass>Android_SplashImage640</DeployClass>

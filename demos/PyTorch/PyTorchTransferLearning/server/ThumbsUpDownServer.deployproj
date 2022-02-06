@@ -1215,6 +1215,15 @@
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='Win64'">
+        <DeployFile Include="..\bin\ThumbsUpDownServer.rsm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
+            <RemoteName>ThumbsUpDownServer.rsm</RemoteName>
+            <DeployClass>DebugSymbols</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
+        </DeployFile>
         <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.exe" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer\</RemoteDir>
             <RemoteName>ThumbsUpDownTrainModelProc.exe</RemoteName>
@@ -1251,6 +1260,15 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
             <Required>True</Required>
+        </DeployFile>
+        <DeployFile Include="..\bin\ThumbsUpDownTrainModelProc.rsm" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>ThumbsUpDownServer\</RemoteDir>
+            <RemoteName>ThumbsUpDownTrainModelProc.rsm</RemoteName>
+            <DeployClass>File</DeployClass>
+            <Operation>0</Operation>
+            <LocalCommand/>
+            <RemoteCommand/>
+            <Overwrite>True</Overwrite>
         </DeployFile>
     </ItemGroup>
     <ItemGroup Condition="'$(Platform)'=='OSXARM64'">
@@ -1906,18 +1924,18 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="css\main.css" Condition="'$(Config)'=='Debug'">
-            <RemoteDir>ThumbsUpDownServer.app\css\</RemoteDir>
-            <RemoteName>main.css</RemoteName>
+        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Release'">
+            <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
+            <RemoteName>serverfunctionexecutor.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor.js" Condition="'$(Config)'=='Release'">
-            <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
-            <RemoteName>serverfunctionexecutor.js</RemoteName>
+        <DeployFile Include="css\main.css" Condition="'$(Config)'=='Debug'">
+            <RemoteDir>ThumbsUpDownServer.app\css\</RemoteDir>
+            <RemoteName>main.css</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
             <Operation>0</Operation>
             <LocalCommand/>
@@ -1951,7 +1969,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Debug'">
+        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Release'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor-min.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
@@ -1960,7 +1978,7 @@
             <RemoteCommand/>
             <Overwrite>True</Overwrite>
         </DeployFile>
-        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Release'">
+        <DeployFile Include="js\serverfunctionexecutor-min.js" Condition="'$(Config)'=='Debug'">
             <RemoteDir>ThumbsUpDownServer.app\js\</RemoteDir>
             <RemoteName>serverfunctionexecutor-min.js</RemoteName>
             <DeployClass>ProjectFile</DeployClass>
