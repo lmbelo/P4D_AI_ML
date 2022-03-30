@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'MainForm'    Copyright (c) 2021                         *)
+(* Module:  Unit 'PyModule'    Copyright (c) 2021                         *)
 (*                                                                        *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
