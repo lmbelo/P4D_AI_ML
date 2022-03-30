@@ -29,8 +29,8 @@ type
     FIgnoreRequiresPython: boolean;
     FNoBuildIsolation: boolean;
     FUsePep517: boolean;
-    FInstallOption: string;
-    FGlobalOption: string;
+    FInstallOption: TStrings;
+    FGlobalOption: TStrings;
     FCompile: boolean;
     FNoWarnScriptLocation: boolean;
     FNoWarnConflicts: boolean;
@@ -45,6 +45,11 @@ type
     FExtraIndexUrl: string;
     FNoIndex: boolean;
     FFindLinks: string;
+    procedure SetGlobalOption(const Value: TStrings);
+    procedure SetInstallOption(const Value: TStrings);
+  public
+    constructor Create();
+    destructor Destroy(); override;
   published
     property Requirement: string read FRequirement write FRequirement;
     property Constraint: string read FConstraint write FConstraint;
@@ -67,8 +72,8 @@ type
     property IgnoreRequiresPython: boolean read FIgnoreRequiresPython write FIgnoreRequiresPython default false;
     property NoBuildIsolation: boolean read FNoBuildIsolation write FNoBuildIsolation default false;
     property UsePep517: boolean read FUsePep517 write FUsePep517 default false;
-    property InstallOption: string read FInstallOption write FInstallOption;
-    property GlobalOption: string read FGlobalOption write FGlobalOption;
+    property InstallOption: TStrings read FInstallOption write SetInstallOption;
+    property GlobalOption: TStrings read FGlobalOption write SetGlobalOption;
     property Compile: boolean read FCompile write FCompile default false;
     property NoCompile: boolean read FNoCompile write FNoCompile default false;
     property NoWarnScriptLocation: boolean read FNoWarnScriptLocation write FNoWarnScriptLocation default false;
@@ -86,5 +91,32 @@ type
   end;
 
 implementation
+
+{ TPyPackageManagerDefsInstallOptsPip }
+
+constructor TPyPackageManagerDefsInstallOptsPip.Create;
+begin
+  FInstallOption := TStringList.Create();
+  FGlobalOption := TStringList.Create();
+end;
+
+destructor TPyPackageManagerDefsInstallOptsPip.Destroy;
+begin
+  FGlobalOption.Free();
+  FInstallOption.Free();
+  inherited;
+end;
+
+procedure TPyPackageManagerDefsInstallOptsPip.SetGlobalOption(
+  const Value: TStrings);
+begin
+  FGlobalOption.Assign(Value);
+end;
+
+procedure TPyPackageManagerDefsInstallOptsPip.SetInstallOption(
+  const Value: TStrings);
+begin
+  FInstallOption.Assign(Value);
+end;
 
 end.

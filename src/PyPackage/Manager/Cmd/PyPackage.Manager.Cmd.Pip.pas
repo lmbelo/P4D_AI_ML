@@ -3,7 +3,7 @@ unit PyPackage.Manager.Cmd.Pip;
 interface
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes, System.Generics.Collections,
   PyPackage.Manager.Cmd.Intf,
   PyPackage.Manager.Defs,
   PyPackage.Manager.Defs.Pip,
@@ -184,9 +184,21 @@ begin
 end;
 
 function TPyPackageManagerCmdPip.MakeInstallGlobalOptionCmd: TArray<string>;
+var
+  LList: TList<string>;
+  LStr: string;
 begin
-  if not FDefs.InstallOptions.GlobalOption.IsEmpty() then
-    Result := TArray<string>.Create('--global-option', FDefs.InstallOptions.GlobalOption);
+  LList := TList<string>.Create();
+  try
+    if FDefs.InstallOptions.GlobalOption.Count > 0 then
+      for LStr in FDefs.InstallOptions.GlobalOption do begin
+        LList.Add('--global-option');
+        LList.Add(LStr);
+      end;
+      Result := LList.ToArray();
+  finally
+    LList.Free();
+  end;
 end;
 
 function TPyPackageManagerCmdPip.MakeInstallIgnoreInstalledCmd: TArray<string>;
@@ -208,9 +220,21 @@ begin
 end;
 
 function TPyPackageManagerCmdPip.MakeInstallOptionCmd: TArray<string>;
+var
+  LList: TList<string>;
+  LStr: string;
 begin
-  if not FDefs.InstallOptions.InstallOption.IsEmpty() then
-    Result := TArray<string>.Create('--install-option', FDefs.InstallOptions.InstallOption);
+  LList := TList<string>.Create();
+  try
+    if FDefs.InstallOptions.InstallOption.Count > 0 then
+      for LStr in FDefs.InstallOptions.InstallOption do begin
+        LList.Add('--install-option');
+        LList.Add(LStr);
+      end;
+      Result := LList.ToArray();
+  finally
+    LList.Free();
+  end;
 end;
 
 function TPyPackageManagerCmdPip.MakeInstallNoBinaryCmd: TArray<string>;
