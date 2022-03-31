@@ -1,4 +1,4 @@
-# NumPy Data Analysis
+# NumPy Reference Guide
 NumPy Reference Guide in the P4D style.
 
 Have a visit: https://numpy.org/doc/stable/reference/index.html
