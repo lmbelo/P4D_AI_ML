@@ -60,9 +60,10 @@ implementation
 
 uses
   System.Variants, System.SysUtils,
+  PythonEngine,
   VarPyth, PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
-  PyPackage.Manager.Cmd.Pip, PythonEngine;
+  PyPackage.Manager.Cmd.Pip;
 
 { TPyPackageManagerPip }
 

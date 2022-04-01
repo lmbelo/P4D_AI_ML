@@ -42,6 +42,9 @@ uses
 type
   TPyPackageManagerConda = class(TPyPackageManager, IPyPackageManager)
   private
+    FDefs: TPyPackageManagerDefs;
+    FCmd: IPyPackageManagerCmdIntf;
+
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
@@ -56,43 +59,71 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.Variants, System.SysUtils,
+  PythonEngine,
+  VarPyth, PyUtils, PyExceptions,
+  PyPackage.Manager.Defs.Conda,
+  PyPackage.Manager.Cmd.Conda;
 
 { TPyPackageManagerConda }
 
 constructor TPyPackageManagerConda.Create(const APackageName: TPyPackageName);
 begin
   inherited;
+  FDefs := TPyPackageManagerDefsConda.Create(APackageName);
+  FCmd := TPyPackageManagerCmdConda.Create();
 end;
 
 destructor TPyPackageManagerConda.Destroy;
 begin
   inherited;
+  FCmd := nil;
+  FDefs.Free();
 end;
 
 function TPyPackageManagerConda.GetCmd: IPyPackageManagerCmdIntf;
 begin
-  raise ENotImplemented.Create('Not implemented');
+  Result := FCmd;
 end;
 
 function TPyPackageManagerConda.GetDefs: TPyPackageManagerDefs;
 begin
-  raise ENotImplemented.Create('Not implemented');
-end;
-
-procedure TPyPackageManagerConda.Install;
-begin
-
+  Result := FDefs;
 end;
 
 function TPyPackageManagerConda.IsInstalled: boolean;
 begin
+  //Reloading the module garantees we're considering the latest installed packages
+  var LPkgRes := Reload(Import('pkg_resources'));
+  for var LPkg in VarPyIterate(LPkgRes.working_set) do begin
+    if (LPkg.key = FDefs.PackageName) then
+      Exit(true);
+  end;
   Result := false;
+end;
+
+procedure TPyPackageManagerConda.Install;
+begin
+  //Using pip programmatically guarantees we're using the same Python interpreter
+  //loaded by the application
+  var LIn := FCmd.BuildInstallCmd(FDefs);
+  var LConda := Import('conda.cli');
+  var LResult := LConda.main(TPyEx.List<String>(LIn));
+  if LResult <> 0 then
+    raise EPyModuleInstallError.CreateFmt(
+      'An error occurred while installing the package %s.', [FDefs.PackageName]);
 end;
 
 procedure TPyPackageManagerConda.Uninstall;
 begin
-
+  //Using pip programmatically guarantees we're using the same Python interpreter
+  //loaded by the application
+  var LIn := FCmd.BuildUninstallCmd(FDefs);
+  var LConda := Import('conda.cli');
+  var LResult := LConda.main(TPyEx.List<String>(LIn));
+  if LResult <> 0 then
+    raise EPyModuleInstallError.CreateFmt(
+      'An error occurred while uninstalling the package %s.', [FDefs.PackageName]);
 end;
 
 end.

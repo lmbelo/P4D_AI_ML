@@ -40,7 +40,7 @@ contains
   PyExceptions in '..\src\PyPackage\PyExceptions.pas',
   PyCore in '..\src\PyPackage\PyCore.pas',
   PyUtils in '..\src\PyPackage\PyUtils.pas',
-  PyPackage.Manager.pip in '..\src\PyPackage\Manager\PyPackage.Manager.pip.pas',
+  PyPackage.Manager.Pip in '..\src\PyPackage\Manager\PyPackage.Manager.Pip.pas',
   PyPackage.Manager.Conda in '..\src\PyPackage\Manager\PyPackage.Manager.Conda.pas',
   PyPackage.Manager.Defs.Conda in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Conda.pas',
   PyPackage.Manager.Defs.Pip in '..\src\PyPackage\Manager\Defs\PyPackage.Manager.Defs.Pip.pas',
