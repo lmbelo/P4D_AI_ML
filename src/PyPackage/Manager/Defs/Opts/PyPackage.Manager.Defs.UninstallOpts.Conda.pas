@@ -36,14 +36,14 @@ uses
   System.Classes;
 
 type
-  TPyPackageManagerDefsUninstallOptsPip = class(TPersistent)
+  TPyPackageManagerDefsUninstallOptsConda = class(TPersistent)
   private
     FName: string;
     FPrefix: string;
     FChannel: string;
     FUseLocal: boolean;
     FOverrideChannels: boolean;
-    FRepoData: string;
+    FRepoData: TStrings;
     FAll: boolean;
     FFeatures: boolean;
     FForce: boolean;
@@ -54,7 +54,7 @@ type
     FOffline: boolean;
     FDryRun: boolean;
     FJson: boolean;
-    FQuite: boolean;
+    FQuiet: boolean;
     FVerbose: TStrings;
     FDoNotAskForConfirmation: boolean;
     procedure SetVerbose(const Value: TStrings);
@@ -98,8 +98,8 @@ type
     ///   This is used to employ repodata that is reduced in time scope. You may pass this flag more than once. 
     ///   Leftmost entries are tried first, and the fallback to repodata.json is added for you automatically.
     /// </summary>
-    property RepoData: string read FRepoData write FRepoData;
-    
+    property RepoData: TStrings read FRepoData write FRepoData;
+
     {***** Solver Mode Modifiers *****}
     
     /// <summary>
@@ -151,7 +151,7 @@ type
     /// <summary>
     ///   Do not display progress bar.
     /// </summary>
-    property Quite: boolean read FQuite write FQuite default false;
+    property Quiet: boolean read FQuiet write FQuiet default false;
     /// <summary>
     ///   Can be used multiple times. Once for INFO, twice for DEBUG, three times for TRACE.
     /// </summary>
@@ -164,20 +164,22 @@ type
 
 implementation
 
-{ TPyPackageManagerDefsUninstallOptsPip }
+{ TPyPackageManagerDefsUninstallOptsConda }
 
-constructor TPyPackageManagerDefsUninstallOptsPip.Create;
+constructor TPyPackageManagerDefsUninstallOptsConda.Create;
 begin
+  FRepoData := TStringList.Create();
   FVerbose := TStringList.Create();
 end;
 
-destructor TPyPackageManagerDefsUninstallOptsPip.Destroy;
+destructor TPyPackageManagerDefsUninstallOptsConda.Destroy;
 begin
   FVerbose.Free();
+  FRepoData.Free();
   inherited;
 end;
 
-procedure TPyPackageManagerDefsUninstallOptsPip.SetVerbose(
+procedure TPyPackageManagerDefsUninstallOptsConda.SetVerbose(
   const Value: TStrings);
 begin
   FVerbose.Assign(Value);

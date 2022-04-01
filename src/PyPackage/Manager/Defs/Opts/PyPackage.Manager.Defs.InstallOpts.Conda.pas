@@ -39,7 +39,7 @@ type
   TPyPackageManagerDefsInstallOptsConda = class(TPersistent)
   private
     FRevision: string;
-    FFile: TStrings;
+    FFiles: TStrings;
     FName: string;
     FPrefix: string;
     FChannel: string;
@@ -88,7 +88,7 @@ type
     ///   Read package versions from the given file.
     ///   Repeated file specifications can be passed (e.g. --file=file1 --file=file2).
     /// </summary>
-    property Files: TStrings read FFile write SetFiles;
+    property Files: TStrings read FFiles write SetFiles;
 
     {***** Target Environment Specification *****}
 
@@ -257,7 +257,7 @@ implementation
 
 constructor TPyPackageManagerDefsInstallOptsConda.Create;
 begin
-  FFile := TStringList.Create();
+  FFiles := TStringList.Create();
   FRepoData := TStringList.Create();
   FVerbose := TStringList.Create();
 end;
@@ -266,13 +266,13 @@ destructor TPyPackageManagerDefsInstallOptsConda.Destroy;
 begin
   FVerbose.Free();
   FRepoData.Free();
-  FFile.Free();
+  FFiles.Free();
   inherited;
 end;
 
 procedure TPyPackageManagerDefsInstallOptsConda.SetFiles(const Value: TStrings);
 begin
-  FFile.Assign(Value);
+  FFiles.Assign(Value);
 end;
 
 procedure TPyPackageManagerDefsInstallOptsConda.SetRepoData(
