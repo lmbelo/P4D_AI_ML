@@ -34,8 +34,11 @@ interface
 uses
   System.SysUtils, System.Rtti, System.Classes, System.Generics.Collections,
   PyCore, PyCommon, PyModule,
-  PyPackage.Model, PyPackage.Manager.ManagerKind,
-  PyPackage.Manager.Intf, PyPackage.Manager.Defs;
+  PyPackage.Model,
+  PyPackage.Manager.ManagerKind,
+  PyPackage.Manager.Managers,
+  PyPackage.Manager.Intf,
+  PyPackage.Manager.Defs;
 
 type
   (*----------------------------------------------------------------------------*)
@@ -92,6 +95,9 @@ type
   end;
 
   //Managed package
+  TOnInstallPackageError = procedure(Sender: TObject; AErrorMessage: string) of object;
+  TOnUninstallpackageError = procedure(Sender: TObject; AErrorMessage: string) of object;
+
   TPyManagedPackage = class abstract(TPyPackageBase)
   private type
     TPyManagers = class(TPersistent)
@@ -112,7 +118,21 @@ type
     FManagerKind: TPyPackageManagerKind;
     FManagers: TPyManagers;
     FAutoInstall: boolean;
+    //Events
+    FBeforeInstall: TNotifyEvent;
+    FOnInstallError: TOnInstallPackageError;
+    FAfterInstall: TNotifyEvent;
+    FBeforeUninstall: TNotifyEvent;
+    FOnUninstallError: TOnUninstallpackageError;
+    FAfterUninstall: TNotifyEvent;
+    //Getters and Setters
     procedure SetManagers(const Value: TPyManagers);
+    //Throw errors
+    procedure RaiseInstallationError(LOutput: string);
+    procedure RaiseUninstallationError(LOutput: string);
+    procedure RaiseNotInstalled;
+    //Utils
+    function GetPackageManager(const AManagerKind: TPyPackageManagerKind): IPyPackageManager;
   protected
     function GetPyModuleName(): string; override;
     procedure ImportModule(); override;
@@ -121,11 +141,11 @@ type
   protected
     procedure CheckInstalled();
     procedure InstallPackage(); virtual;
-    procedure UnInstallPackage(); virtual;
+    procedure UninstallPackage(); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
-
+    //Setup routines
     procedure Install();
     procedure Uninstall();
     function IsInstalled(): boolean;
@@ -134,6 +154,14 @@ type
     property ManagerKind: TPyPackageManagerKind read FManagerKind write FManagerKind;
     property Managers: TPyManagers read FManagers write SetManagers;
     property AutoInstall: boolean read FAutoInstall write FAutoInstall default true;
+    //Installation events
+    property BeforeInstall: TNotifyEvent read FBeforeInstall write FBeforeInstall;
+    property OnInstallError: TOnInstallPackageError read FOnInstallError write FOnInstallError;
+    property AfterInstall: TNotifyEvent read FAfterInstall write FAfterInstall;
+    //Uninstallation events
+    property BeforeUninstall: TNotifyEvent read FBeforeUninstall write FBeforeUninstall;
+    property OnUninstallError: TOnUninstallpackageError read FOnUninstallError write FOnUninstallError;
+    property AfterUninstall: TNotifyEvent read FAfterUninstall write FAfterUninstall;
   end;
 
 implementation
@@ -280,6 +308,12 @@ begin
   FManagers.Assign(Value);
 end;
 
+function TPyManagedPackage.GetPackageManager(
+  const AManagerKind: TPyPackageManagerKind): IPyPackageManager;
+begin
+  Result := FModel.PackageManagers.Items[AManagerKind];
+end;
+
 function TPyManagedPackage.GetPyModuleName: string;
 begin
   Result := FModel.PackageName;
@@ -305,33 +339,70 @@ end;
 
 function TPyManagedPackage.IsInstalled: boolean;
 begin
-  Result := FModel.PackageManagers.Items[ManagerKind].IsInstalled();
+  Result := GetPackageManager(ManagerKind).IsInstalled();
+end;
+
+procedure TPyManagedPackage.RaiseNotInstalled;
+begin
+  raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [GetPyModuleName]);
+end;
+
+procedure TPyManagedPackage.RaiseUninstallationError(LOutput: string);
+begin
+  raise EPyModuleUnInstallError.CreateFmt('An error occurred while uninstalling the package %s.' + ''#13''#10'' + '%s', [PyModuleName, LOutput]);
+end;
+
+procedure TPyManagedPackage.RaiseInstallationError(LOutput: string);
+begin
+  raise EPyModuleInstallError.CreateFmt('An error occurred while uninstalling the package %s.' + ''#13''#10'' + '%s', [PyModuleName, LOutput]);
 end;
 
 procedure TPyManagedPackage.CheckInstalled;
 begin
   if IsReady() then
     if not IsInstalled() then
-      raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
-        GetPyModuleName()]);
+      RaiseNotInstalled();
 end;
 
 procedure TPyManagedPackage.InstallPackage;
+var
+  LOutput: string;
 begin
   if IsReady() then
     if not IsInstalled() then begin
-      FModel.PackageManagers.Items[ManagerKind].Install();
+      if Assigned(FBeforeInstall) then
+        FBeforeInstall(Self);
+
+      if GetPackageManager(ManagerKind).Install(LOutput) then begin
+        if Assigned(FAfterInstall) then
+          FAfterInstall(Self);
+      end else
+      if Assigned(FOnInstallError) then
+        FOnInstallError(Self, LOutput)
+      else
+        RaiseInstallationError(LOutput);
     end;
 end;
 
-procedure TPyManagedPackage.UnInstallPackage;
+procedure TPyManagedPackage.UninstallPackage;
+var
+  LOutput: string;
 begin
   if IsReady() then
     if IsInstalled() then begin
-      FModel.PackageManagers.Items[ManagerKind].Uninstall();
+      if Assigned(FBeforeUninstall) then
+        FBeforeUninstall(Self);
+
+      if not GetPackageManager(ManagerKind).UnInstall(LOutput) then
+        if Assigned(FOnUninstallError) then
+          FOnUninstallError(Self, LOutput)
+        else
+          RaiseUninstallationError(LOutput);
+
+      if Assigned(FAfterUninstall) then
+        FAfterUninstall(Self);
     end else
-      raise EPyPackageNotInstalled.CreateFmt(ErrPackageNotInstalled, [
-        GetPyModuleName()]);
+      RaiseNotInstalled();
 end;
 
 { TPyManagedPackage.TPyManagers }

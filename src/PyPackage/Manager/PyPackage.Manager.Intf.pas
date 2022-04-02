@@ -45,8 +45,8 @@ type
     property Defs: TPyPackageManagerDefs read GetDefs;
     property Cmd: IPyPackageManagerCmdIntf read GetCmd;
 
-    procedure Install();
-    procedure Uninstall();
+    function Install(out AOutput: string): boolean;
+    function Uninstall(out AOutput: string): boolean;
     function IsInstalled(): boolean;
   end;
 

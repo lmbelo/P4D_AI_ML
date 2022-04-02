@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, ScikitLearn;
+  Classes, PyCore, ScikitLearn;
 
 procedure Register();
 begin
-  RegisterComponents('Scikitlearn', [TScikitLearn]);
+  RegisterComponents(COMP_PALETTE_NAME, [TScikitLearn]);
 end;
 
 end.

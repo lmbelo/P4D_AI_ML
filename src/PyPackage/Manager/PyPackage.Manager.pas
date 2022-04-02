@@ -39,6 +39,8 @@ type
   TPyPackageManager = class abstract(TInterfacedObject)
   private
     FPackageName: TPyPackageName;
+  protected
+    function GetPythonExe(): string; virtual;
   public
     constructor Create(const APackageName: TPyPackageName); virtual;
 
@@ -47,11 +49,19 @@ type
 
 implementation
 
+uses
+  VarPyth;
+
 { TPyPackageManager }
 
 constructor TPyPackageManager.Create(const APackageName: TPyPackageName);
 begin
   FPackageName := APackageName;
+end;
+
+function TPyPackageManager.GetPythonExe: string;
+begin
+  Result := Import('sys').executable;
 end;
 
 end.

@@ -165,7 +165,7 @@ end;
 function TPyPackageManagerCmdPipInstall.MakeInstallIndexUrlCmd: TArray<string>;
 begin
   if not FOpts.IndexUrl.IsEmpty() then
-    Result := TArray<string>.Create('-i', FOpts.IndexUrl);
+    Result := TArray<string>.Create('--index-url', FOpts.IndexUrl);
 end;
 
 function TPyPackageManagerCmdPipInstall.MakeInstallOptionCmd: TArray<string>;

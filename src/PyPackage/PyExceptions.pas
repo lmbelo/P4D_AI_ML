@@ -47,7 +47,7 @@ type
   EPyModuleInstallError = class(EPyCommonException)
   end;
 
-  EPyModuleUnInstallError = class(EPyCommonException)
+  EPyModuleUninstallError = class(EPyCommonException)
   end;
 
   EPyParentModuleCircularReference = class(EPyCommonException)

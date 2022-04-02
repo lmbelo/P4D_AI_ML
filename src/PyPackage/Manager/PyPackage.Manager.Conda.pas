@@ -51,8 +51,8 @@ type
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
     function IsInstalled(): boolean; reintroduce;
-    procedure Install();
-    procedure Uninstall();
+    function Install(out AOutput: string): boolean;
+    function Uninstall(out AOutput: string): boolean;
   public
     constructor Create(const APackageName: TPyPackageName); override;
     destructor Destroy; override;
@@ -120,28 +120,26 @@ begin
   Result := false;
 end;
 
-procedure TPyPackageManagerConda.Install;
+function TPyPackageManagerConda.Install(out AOutput: string): boolean;
 begin
   //Using conda programmatically guarantees we're using the same Python interpreter
   //loaded by the application
   var LIn := FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsConda).InstallOptions);
   var LConda := Import('conda.cli');
   var LResult := LConda.main('conda', TPyEx.List<String>(LIn), , FDefs.PackageName);
-  if LResult <> 0 then
-    raise EPyModuleInstallError.CreateFmt(
-      'An error occurred while installing the package %s.', [FDefs.PackageName]);
+  Result := LResult = 0;
+  AOutput := String.Empty;
 end;
 
-procedure TPyPackageManagerConda.Uninstall;
+function TPyPackageManagerConda.Uninstall(out AOutput: string): boolean;
 begin
   //Using conda programmatically guarantees we're using the same Python interpreter
   //loaded by the application
   var LIn := FCmd.BuildUninstallCmd((FDefs as TPyPackageManagerDefsConda).UninstallOptions);
   var LConda := Import('conda.cli');
   var LResult := LConda.main('conda', TPyEx.List<String>(LIn), FDefs.PackageName);
-  if LResult <> 0 then
-    raise EPyModuleInstallError.CreateFmt(
-      'An error occurred while uninstalling the package %s.', [FDefs.PackageName]);
+  Result := LResult = 0;
+  AOutput := String.Empty;
 end;
 
 end.

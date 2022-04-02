@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, NumPy;
+  Classes, PyCore, NumPy;
 
 procedure Register();
 begin
-  RegisterComponents('NumPy', [TNumPy]);
+  RegisterComponents(COMP_PALETTE_NAME, [TNumPy]);
 end;
 
 end.

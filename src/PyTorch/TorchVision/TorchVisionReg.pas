@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, TorchVision, PyTorchReg;
+  Classes, PyCore, TorchVision;
 
 procedure Register();
 begin
-  RegisterComponents(PYTORCH_PAGE, [TTorchVision]);
+  RegisterComponents(COMP_PALETTE_NAME, [TTorchVision]);
 end;
 
 end.
