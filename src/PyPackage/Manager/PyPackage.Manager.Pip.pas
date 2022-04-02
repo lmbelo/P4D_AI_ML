@@ -37,14 +37,16 @@ uses
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
-  PyPackage.Manager.Cmd.Intf;
+  PyPackage.Manager.Cmd.Intf,
+  PyPackage.Manager.Defs.Opts.Pip.List;
 
 type
   TPyPackageManagerPip = class(TPyPackageManager, IPyPackageManager)
   private
     FDefs: TPyPackageManagerDefs;
     FCmd: IPyPackageManagerCmdIntf;
-
+    //Builders
+    function BuildOptsList(): TPyPackageManagerDefsOptsPipList;
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
@@ -67,11 +69,24 @@ uses
 
 { TPyPackageManagerPip }
 
+function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
+begin
+  Result := TPyPackageManagerDefsOptsPipList.Create();
+  try
+    Result.User := (FDefs as TPyPackageManagerDefsPip).InstallOptions.User;
+  except
+    on E: Exception do begin
+      Result.Free();
+      raise;
+    end;
+  end;
+end;
+
 constructor TPyPackageManagerPip.Create(const APackageName: TPyPackageName);
 begin
   inherited;
   FDefs := TPyPackageManagerDefsPip.Create(APackageName);
-  FCmd := TPyPackageManagerCmdPip.Create();
+  FCmd := TPyPackageManagerCmdPip.Create(FDefs);
 end;
 
 destructor TPyPackageManagerPip.Destroy;
@@ -106,7 +121,7 @@ procedure TPyPackageManagerPip.Install;
 begin
   //Using pip programmatically guarantees we're using the same Python interpreter
   //loaded by the application
-  var LIn := FCmd.BuildInstallCmd(FDefs);
+  var LIn := FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
   var LPip := Import('pip');
   var LResult := LPip.main(TPyEx.List<String>(LIn));
   if LResult <> 0 then
@@ -118,7 +133,7 @@ procedure TPyPackageManagerPip.Uninstall;
 begin
   //Using pip programmatically guarantees we're using the same Python interpreter
   //loaded by the application
-  var LIn := FCmd.BuildUninstallCmd(FDefs);
+  var LIn := FCmd.BuildUninstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
   var LPip := Import('pip');
   var LResult := LPip.main(TPyEx.List<String>(LIn));
   if LResult <> 0 then

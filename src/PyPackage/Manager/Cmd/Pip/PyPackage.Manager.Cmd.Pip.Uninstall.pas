@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyPackage.Manager.Defs.UninstallOpts.Pip'               *)
+(* Module:  Unit 'PyPackage.Manager.Cmd.Pip.Uninstall'                    *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (*  Project page:                   https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyPackage Defs.Opts layer                             *)
+(*  Functionality:  PyPackage Cmd layer                                   *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -28,23 +28,43 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyPackage.Manager.Defs.UninstallOpts.Pip;
+unit PyPackage.Manager.Cmd.Pip.Uninstall;
 
 interface
 
 uses
-  System.Classes;
+  System.SysUtils,
+  PyPackage.Manager.Defs.Opts.Pip.Uninstall;
 
 type
-  TPyPackageManagerDefsUninstallOptsPip = class(TPersistent)
+  TPyPackageManagerCmdPipUninstall = class
   private
-    FRequirement: string;
-    FAskForConfirmation: boolean;
-  published
-    property Requirement: string read FRequirement write FRequirement;
-    property AskForConfirmation: boolean read FAskForConfirmation write FAskForConfirmation default false;
+    FOpts: TPyPackageManagerDefsOptsPipUninstall;
+  public
+    constructor Create(const ADefs: TPyPackageManagerDefsOptsPipUninstall);
+
+    function MakeUninstallRequirementCmd: TArray<string>; inline;
+    function MakeUninstallConfirmationFlagCmd: TArray<string>; inline;
   end;
 
 implementation
+
+constructor TPyPackageManagerCmdPipUninstall.Create(
+  const ADefs: TPyPackageManagerDefsOptsPipUninstall);
+begin
+  FOpts := ADefs;
+end;
+
+function TPyPackageManagerCmdPipUninstall.MakeUninstallRequirementCmd: TArray<string>;
+begin
+  if not FOpts.Requirement.IsEmpty() then
+    Result := TArray<string>.Create('-r', FOpts.Requirement);
+end;
+
+function TPyPackageManagerCmdPipUninstall.MakeUninstallConfirmationFlagCmd: TArray<string>;
+begin
+  if not FOpts.AskForConfirmation then
+    Result := TArray<string>.Create('-y');
+end;
 
 end.

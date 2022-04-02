@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyPackage.Manager.Defs.InstallOpts.Pip'                 *)
+(* Module:  Unit 'PyPackage.Manager.Defs.Opts.Pip.Install'                *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -28,15 +28,16 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyPackage.Manager.Defs.InstallOpts.Pip;
+unit PyPackage.Manager.Defs.Opts.Pip.Install;
 
 interface
 
 uses
-  System.Classes;
+  System.Classes,
+  PyPackage.Manager.Defs.Opts;
 
 type
-  TPyPackageManagerDefsInstallOptsPip = class(TPersistent)
+  TPyPackageManagerDefsOptsPipInstall = class(TPyPackageManagerDefsOpts)
   private
     FRequirement: string;
     FConstraint: string;
@@ -48,7 +49,7 @@ type
     FPythonVersion: string;
     FPythonImplementation: string;
     FAbi: string;
-    FUser: string;
+    FUser: boolean;
     FRoot: string;
     FPrefix: string;
     FSource: string;
@@ -91,7 +92,7 @@ type
     property PythonVersion: string read FPythonVersion write FPythonVersion;
     property PythonImplementation: string read FPythonImplementation write FPythonImplementation;
     property Abi: string  read FAbi write FAbi;
-    property User: string read FUser write FUser;
+    property User: boolean read FUser write FUser;
     property Root: string read FRoot write FRoot;
     property Prefix: string read FPrefix write FPrefix;
     property Source: string read FSource write FSource;
@@ -124,26 +125,26 @@ implementation
 
 { TPyPackageManagerDefsInstallOptsPip }
 
-constructor TPyPackageManagerDefsInstallOptsPip.Create;
+constructor TPyPackageManagerDefsOptsPipInstall.Create;
 begin
   FInstallOption := TStringList.Create();
   FGlobalOption := TStringList.Create();
 end;
 
-destructor TPyPackageManagerDefsInstallOptsPip.Destroy;
+destructor TPyPackageManagerDefsOptsPipInstall.Destroy;
 begin
   FGlobalOption.Free();
   FInstallOption.Free();
   inherited;
 end;
 
-procedure TPyPackageManagerDefsInstallOptsPip.SetGlobalOption(
+procedure TPyPackageManagerDefsOptsPipInstall.SetGlobalOption(
   const Value: TStrings);
 begin
   FGlobalOption.Assign(Value);
 end;
 
-procedure TPyPackageManagerDefsInstallOptsPip.SetInstallOption(
+procedure TPyPackageManagerDefsOptsPipInstall.SetInstallOption(
   const Value: TStrings);
 begin
   FInstallOption.Assign(Value);

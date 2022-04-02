@@ -42,13 +42,7 @@ type
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
 
-    /// <summary>
-    ///   PIP package definitions
-    /// </summary>
     property Defs: TPyPackageManagerDefs read GetDefs;
-    /// <summary>
-    ///   PIP package cmd builder
-    /// </summary>
     property Cmd: IPyPackageManagerCmdIntf read GetCmd;
 
     procedure Install();
