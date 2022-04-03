@@ -349,12 +349,18 @@ end;
 
 procedure TPyManagedPackage.RaiseUninstallationError(LOutput: string);
 begin
-  raise EPyModuleUnInstallError.CreateFmt('An error occurred while uninstalling the package %s.' + ''#13''#10'' + '%s', [PyModuleName, LOutput]);
+  raise EPyModuleUnInstallError.CreateFmt(
+    'An error occurred while uninstalling the package %s.'
+  + ''#13''#10''
+  + '%s', [PyModuleName, LOutput]);
 end;
 
 procedure TPyManagedPackage.RaiseInstallationError(LOutput: string);
 begin
-  raise EPyModuleInstallError.CreateFmt('An error occurred while uninstalling the package %s.' + ''#13''#10'' + '%s', [PyModuleName, LOutput]);
+  raise EPyModuleInstallError.CreateFmt(
+    'An error occurred while uninstalling the package %s.'
+  + ''#13''#10''
+  + '%s', [PyModuleName, LOutput]);
 end;
 
 procedure TPyManagedPackage.CheckInstalled;
