@@ -84,6 +84,10 @@ type
     ///   Check if the current platform and architecture is compatible with the evnrionment definitions.
     /// </summary>
     function IsSupported(): boolean;
+    /// <summary>
+    ///   Check if a compatible environment exists.
+    /// </summary>
+    function Exists(): boolean; virtual;
   public
     //Platform and achitecture
 
@@ -144,6 +148,11 @@ begin
     end
   else
     Result := FPlatform;
+end;
+
+function TPyEnvironment.Exists: boolean;
+begin
+  Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
 function TPyEnvironment.GetArchitectureName: string;

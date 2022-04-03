@@ -3,7 +3,7 @@ unit PyEmbeddedEnv;
 interface
 
 uses
-  System.Classes, System.Zip,
+  System.Classes, System.SysUtils, System.Zip,
   PyEnvironment,
   PyEnvironment.Intf;
 
@@ -71,6 +71,8 @@ type
     procedure CreateEnvironment(); virtual;
   protected
     function GetEnvironmentPath(): string; override;
+  public
+    procedure Run();
   published
     property Architecture;
     property Platform;
@@ -93,10 +95,12 @@ type
     property AfterCreate: TNotifyEvent read FAfterCreate write FAfterCreate;
   end;
 
+  EEmbeddableNotAvailable = class(Exception);
+
 implementation
 
 uses
-  System.SysUtils, System.IOUtils;
+  System.IOUtils;
 
 { TPyEmbeddedEnv }
 
@@ -136,6 +140,18 @@ begin
     Result := FEnvironmentsPath
   else
     Result := ExtractFilePath(ParamStr(0));
+end;
+
+procedure TPyEmbeddedEnv.Run;
+var
+  LPackage: string;
+begin
+  LPackage := GetEmbeddablePackage();
+  if not Exists() then begin
+    if not TFile.Exists(LPackage) then
+      raise EEmbeddableNotAvailable.CreateFmt('Embeddable not available. %s', [LPackage]);
+    CreateEnvironment();
+  end;
 end;
 
 function TPyEmbeddedEnv.GetEnvironmentPath: string;
