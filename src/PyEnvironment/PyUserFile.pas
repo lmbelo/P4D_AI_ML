@@ -158,13 +158,25 @@ begin
 end;
 
 function TPyUserFile.GetSharedLibrary: string;
+var
+  LResult: string;
 begin
-  Result := inherited;
+  LoadInfo(procedure(AJSONObj: TJSONObject)
+    begin
+      AJSONObj.TryGetValue<string>('shared_library', LResult);
+    end);
+  Result := LResult;
 end;
 
 function TPyUserFile.GetExecutable: string;
+var
+  LResult: string;
 begin
-  Result := inherited;
+  LoadInfo(procedure(AJSONObj: TJSONObject)
+    begin
+      AJSONObj.TryGetValue<string>('executable', LResult);
+    end);
+  Result := LResult;
 end;
 
 end.
