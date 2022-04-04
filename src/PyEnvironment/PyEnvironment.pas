@@ -69,13 +69,19 @@ type
     /// </summary>
     function ResolvePlatform(): TPlatform;
     /// <summary>
-    ///   Return the architecure folder name.
-    /// </summary>
-    function GetArchitectureName(): string;
-    /// <summary>
     ///   Return the platform folder name.
     /// </summary>
-    function GetPlatformName(): string;
+    ///  /// <param name="AResolve">
+    ///   Resolves 'any' to the current platform.
+    /// </param>
+    function GetPlatformName(const AResolve: boolean = true): string;
+    /// <summary>
+    ///   Return the architecure folder name.
+    /// </summary>
+    /// <param name="AResolve">
+    ///   Resolves 'any' to the current architecture.
+    /// </param>
+    function GetArchitectureName(const AResolve: boolean = true): string;
     /// <summary>
     ///   Return the Python environment based on the current settings.
     /// </summary>
@@ -170,9 +176,17 @@ begin
   Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
-function TPyEnvironment.GetArchitectureName: string;
+function TPyEnvironment.GetArchitectureName(const AResolve: boolean): string;
+var
+  LArchitecture: TArchitecture;
 begin
-  case ResolveArchitecture() of
+  if AResolve then
+    LArchitecture := ResolveArchitecture()
+  else
+    LArchitecture := FArchitecture;
+
+  case LArchitecture of
+    arAny     : Result := 'any';
     arIntelX86: Result := 'intelx86';
     arIntelX64: Result := 'intelx64';
     arARM32   : Result := 'arm32';
@@ -181,9 +195,17 @@ begin
   end;
 end;
 
-function TPyEnvironment.GetPlatformName: string;
+function TPyEnvironment.GetPlatformName(const AResolve: boolean): string;
+var
+  LPlatform: TPlatform;
 begin
-  case ResolvePlatform() of
+  if AResolve then
+    LPlatform := ResolvePlatform()
+  else
+    LPlatform := FPlatform;
+
+  case LPlatform of
+    pfAny    : Result := 'any';
     pfWindows: Result := 'windows';
     pfMacOS  : Result := 'macos';
     pfLinux  : Result := 'linux';

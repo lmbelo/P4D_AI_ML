@@ -94,12 +94,12 @@ begin
     CheckIsArray(LPlatforms);
 
     for LPlatform in TJSONArray(LPlatforms) do begin
-      LArchitectures := LPlatform.FindValue(GetPlatformName());
+      LArchitectures := LPlatform.FindValue(GetPlatformName(false));
 
       CheckIsArray(LArchitectures);
 
       for LArchitecture in TJSONArray(LArchitectures) do begin
-        LPythonVersions := LArchitecture.FindValue(GetArchitectureName());
+        LPythonVersions := LArchitecture.FindValue(GetArchitectureName(false));
 
         CheckIsArray(LPythonVersions);
 
