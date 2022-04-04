@@ -30,7 +30,8 @@ package P4DEnvironment;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  Python;
 
 contains
   PyEnvironment in '..\src\PyEnvironment\PyEnvironment.pas',

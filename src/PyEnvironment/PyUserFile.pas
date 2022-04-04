@@ -3,7 +3,7 @@ unit PyUserFile;
 interface
 
 uses
-  System.SysUtils, System.JSON,
+  System.Classes, System.SysUtils, System.JSON,
   PyEnvironment,
   PyEnvironment.Intf;
 
@@ -23,6 +23,7 @@ type
   (*             "shared_library": "",                                     *)
   (*             "executable": ""}}]}]}]                                   *)
   (*-----------------------------------------------------------------------*)
+  [ComponentPlatforms(pidAllPlatforms)]
   /// <summary>
   ///   Provide access to the Python environment based on a JSON file.
   ///   Use "any" for global configuration.
@@ -62,7 +63,7 @@ const
 implementation
 
 uses
-  System.IOUtils, System.Classes;
+  System.IOUtils;
 
 { TPyUserFile }
 
@@ -94,12 +95,16 @@ begin
     CheckIsArray(LPlatforms);
 
     for LPlatform in TJSONArray(LPlatforms) do begin
-      LArchitectures := LPlatform.FindValue(GetPlatformName(false));
+      LArchitectures := LPlatform.FindValue(GetPlatformName(true));
+      if not Assigned(LArchitectures) then
+        LArchitectures := LPlatform.FindValue(GetPlatformName(false));
 
       CheckIsArray(LArchitectures);
 
       for LArchitecture in TJSONArray(LArchitectures) do begin
-        LPythonVersions := LArchitecture.FindValue(GetArchitectureName(false));
+        LPythonVersions := LArchitecture.FindValue(GetArchitectureName(true));
+        if not Assigned(LPythonVersions) then
+          LPythonVersions := LArchitecture.FindValue(GetArchitectureName(false));
 
         CheckIsArray(LPythonVersions);
 

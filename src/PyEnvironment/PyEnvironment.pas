@@ -33,6 +33,7 @@ interface
 
 uses
   System.Classes, System.SysUtils,
+  PythonEngine,
   PyEnvironment.Intf;
 
 type
@@ -86,6 +87,10 @@ type
     ///   Return the Python environment based on the current settings.
     /// </summary>
     function GetEnvironmentPath(): string; virtual; abstract;
+    /// <summary>
+    ///   Prepares the component.
+    /// </summary>
+    procedure Prepare(); virtual;
   public
     {***** IEnvironmentPaths implementation *****}
 
@@ -106,9 +111,13 @@ type
     /// </summary>
     function Exists(): boolean; virtual;
     /// <summary>
-    ///   Prepares the component.
+    ///   Setup the environment.
     /// </summary>
-    procedure Prepare(); virtual;
+    procedure Setup();
+    /// <summary>
+    ///   Apply the current settings in a PythonEngine instance.
+    /// </summary>
+    procedure Patch(const APythonEngine: TPythonEngine);
   public
     //Platform and achitecture
 
@@ -169,6 +178,11 @@ begin
     end
   else
     Result := FPlatform;
+end;
+
+procedure TPyEnvironment.Setup;
+begin
+  Prepare();
 end;
 
 function TPyEnvironment.Exists: boolean;
@@ -234,6 +248,20 @@ begin
     arARM64   : Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arARM64;
     else Result := false;
   end;
+end;
+
+procedure TPyEnvironment.Patch(const APythonEngine: TPythonEngine);
+var
+  LSharedLibrary: string;
+begin
+  APythonEngine.UseLastKnownVersion := false;
+  APythonEngine.PythonHome := GetHome();
+  APythonEngine.ProgramName := GetProgramName();
+  LSharedLibrary := GetSharedLibrary();
+  APythonEngine.DllPath := ExtractFilePath(LSharedLibrary);
+  APythonEngine.DllName := ExtractFileName(LSharedLibrary);
+  APythonEngine.InitScript.Add('import sys');
+  APythonEngine.InitScript.Add(Format('sys.executable = r"%s"', [GetExecutable()]));
 end;
 
 procedure TPyEnvironment.Prepare;
