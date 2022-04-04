@@ -37,20 +37,22 @@ uses
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
-  PyPackage.Manager.Cmd.Intf;
+  PyPackage.Manager.Cmd.Intf,
+  PyPackage.Manager.Defs.Opts.Pip.List;
 
 type
   TPyPackageManagerPip = class(TPyPackageManager, IPyPackageManager)
   private
     FDefs: TPyPackageManagerDefs;
     FCmd: IPyPackageManagerCmdIntf;
-
+    //Builders
+    function BuildOptsList(): TPyPackageManagerDefsOptsPipList;
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
     function IsInstalled(): boolean; reintroduce;
-    procedure Install();
-    procedure Uninstall();
+    function Install(out AOutput: string): boolean;
+    function Uninstall(out AOutput: string): boolean;
   public
     constructor Create(const APackageName: TPyPackageName); override;
     destructor Destroy; override;
@@ -60,18 +62,31 @@ implementation
 
 uses
   System.Variants, System.SysUtils,
-  PythonEngine,
-  VarPyth, PyUtils, PyExceptions,
+  PythonEngine, VarPyth,
+  PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
   PyPackage.Manager.Cmd.Pip;
 
 { TPyPackageManagerPip }
 
+function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
+begin
+  Result := TPyPackageManagerDefsOptsPipList.Create();
+  try
+    Result.User := (FDefs as TPyPackageManagerDefsPip).InstallOptions.User;
+  except
+    on E: Exception do begin
+      Result.Free();
+      raise;
+    end;
+  end;
+end;
+
 constructor TPyPackageManagerPip.Create(const APackageName: TPyPackageName);
 begin
   inherited;
   FDefs := TPyPackageManagerDefsPip.Create(APackageName);
-  FCmd := TPyPackageManagerCmdPip.Create();
+  FCmd := TPyPackageManagerCmdPip.Create(FDefs);
 end;
 
 destructor TPyPackageManagerPip.Destroy;
@@ -91,39 +106,59 @@ begin
   Result := FDefs;
 end;
 
-function TPyPackageManagerPip.IsInstalled: boolean;
+function TPyPackageManagerPip.IsInstalled(): boolean;
+var
+  LOpts: TPyPackageManagerDefsOptsPipList;
+  LSubproc: variant;
+  LIn: TArray<string>;
+  LOut: string;
 begin
-  //Reloading the module garantees we're considering the latest installed packages
-  var LPkgRes := Reload(Import('pkg_resources'));
-  for var LPkg in VarPyIterate(LPkgRes.working_set) do begin
-    if (LPkg.key = FDefs.PackageName) then
-      Exit(true);
+  LOpts := BuildOptsList();
+  try
+    LSubproc := Import('subprocess');
+    LIn := FCmd.BuildListCmd(LOpts);
+    LOut := LSubproc.check_output(TPyEx.List<String>(
+      [GetPythonExe(), '-m', 'pip'] + LIn), shell:=true);
+    Result := LOut.Contains(FDefs.PackageName);
+  finally
+    LOpts.Free();
   end;
-  Result := false;
 end;
 
-procedure TPyPackageManagerPip.Install;
+function TPyPackageManagerPip.Install(out AOutput: string): boolean;
+var
+  LSubproc: variant;
+  LIn: TArray<string>;
+  LOut: variant;
 begin
-  //Using pip programmatically guarantees we're using the same Python interpreter
-  //loaded by the application
-  var LIn := FCmd.BuildInstallCmd(FDefs);
-  var LPip := Import('pip');
-  var LResult := LPip.main(TPyEx.List<String>(LIn));
-  if LResult <> 0 then
-    raise EPyModuleInstallError.CreateFmt(
-      'An error occurred while installing the package %s.', [FDefs.PackageName]);
+  LSubproc := Import('subprocess');
+  LIn := FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
+  LOut := LSubproc.run(TPyEx.List<String>(
+    [GetPythonExe(), '-m', 'pip'] + LIn + [FDefs.PackageName]),
+    capture_output:=true, text:=true, shell:=true);
+  Result := LOut.returncode = 0;
+  if not Result then
+    AOutput := LOut.stderr
+  else
+    AOutput := LOut.stdout;
 end;
 
-procedure TPyPackageManagerPip.Uninstall;
+function TPyPackageManagerPip.Uninstall(out AOutput: string): boolean;
+var
+  LSubproc: variant;
+  LIn: TArray<string>;
+  LOut: variant;
 begin
-  //Using pip programmatically guarantees we're using the same Python interpreter
-  //loaded by the application
-  var LIn := FCmd.BuildUninstallCmd(FDefs);
-  var LPip := Import('pip');
-  var LResult := LPip.main(TPyEx.List<String>(LIn));
-  if LResult <> 0 then
-    raise EPyModuleInstallError.CreateFmt(
-      'An error occurred while uninstalling the package %s.', [FDefs.PackageName]);
+  LSubproc := Import('subprocess');
+  LIn := FCmd.BuildUninstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
+  LOut := LSubproc.run(TPyEx.List<String>(
+    [GetPythonExe(), '-m', 'pip'] + LIn + [FDefs.PackageName]),
+    capture_output:=true, text:=true, shell:=true);
+  Result := LOut.returncode = 0;
+  if not Result then
+    AOutput := LOut.stderr
+  else
+    AOutput := LOut.stdout;
 end;
 
 end.

@@ -37,6 +37,9 @@ type
   TPyPyPIPackageName = string;
   TPyExecCmdResultCode = integer;
 
+const
+  COMP_PALETTE_NAME = 'P4D - CV, AI, NN, ML, DL';
+
 implementation
 
 end.

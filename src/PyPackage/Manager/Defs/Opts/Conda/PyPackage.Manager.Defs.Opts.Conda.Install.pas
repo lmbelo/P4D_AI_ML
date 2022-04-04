@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyPackage.Manager.Defs.InstallOpts.Conda'               *)
+(* Module:  Unit 'PyPackage.Manager.Defs.Opts.Conda.Install'              *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -28,15 +28,16 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyPackage.Manager.Defs.InstallOpts.Conda;
+unit PyPackage.Manager.Defs.Opts.Conda.Install;
 
 interface
 
 uses
-  System.Classes;
+  System.Classes,
+  PyPackage.Manager.Defs.Opts;
 
 type
-  TPyPackageManagerDefsInstallOptsConda = class(TPersistent)
+  TPyPackageManagerDefsOptsCondaInstall = class(TPyPackageManagerDefsOpts)
   private
     FRevision: string;
     FFiles: TStrings;
@@ -255,14 +256,14 @@ implementation
 
 { TPyPackageManagerDefsInstallOptsConda }
 
-constructor TPyPackageManagerDefsInstallOptsConda.Create;
+constructor TPyPackageManagerDefsOptsCondaInstall.Create;
 begin
   FFiles := TStringList.Create();
   FRepoData := TStringList.Create();
   FVerbose := TStringList.Create();
 end;
 
-destructor TPyPackageManagerDefsInstallOptsConda.Destroy;
+destructor TPyPackageManagerDefsOptsCondaInstall.Destroy;
 begin
   FVerbose.Free();
   FRepoData.Free();
@@ -270,18 +271,18 @@ begin
   inherited;
 end;
 
-procedure TPyPackageManagerDefsInstallOptsConda.SetFiles(const Value: TStrings);
+procedure TPyPackageManagerDefsOptsCondaInstall.SetFiles(const Value: TStrings);
 begin
   FFiles.Assign(Value);
 end;
 
-procedure TPyPackageManagerDefsInstallOptsConda.SetRepoData(
+procedure TPyPackageManagerDefsOptsCondaInstall.SetRepoData(
   const Value: TStrings);
 begin
   FRepoData.Assign(Value);
 end;
 
-procedure TPyPackageManagerDefsInstallOptsConda.SetVerbose(
+procedure TPyPackageManagerDefsOptsCondaInstall.SetVerbose(
   const Value: TStrings);
 begin
   FVerbose.Assign(Value);

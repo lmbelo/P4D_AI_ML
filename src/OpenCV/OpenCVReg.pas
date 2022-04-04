@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, OpenCV;
+  Classes, PyCore, OpenCV;
 
 procedure Register();
 begin
-  RegisterComponents('OpenCV', [TOpenCV]);
+  RegisterComponents(COMP_PALETTE_NAME, [TOpenCV]);
 end;
 
 end.

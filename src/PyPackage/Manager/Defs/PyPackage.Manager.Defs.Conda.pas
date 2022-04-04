@@ -36,24 +36,24 @@ uses
   System.Classes,
   PyCore,
   PyPackage.Manager.Defs,
-  PyPackage.Manager.Defs.InstallOpts.Conda,
-  PyPackage.Manager.Defs.UninstallOpts.Conda;
+  PyPackage.Manager.Defs.Opts.Conda.Install,
+  PyPackage.Manager.Defs.Opts.Conda.Uninstall;
 
 type
   TPyPackageManagerDefsConda = class(TPyPackageManagerDefs)
   private
-    FInstallOptions: TPyPackageManagerDefsInstallOptsConda;
-    FUninstallOptions: TPyPackageManagerDefsUninstallOptsConda;
+    FInstallOptions: TPyPackageManagerDefsOptsCondaInstall;
+    FUninstallOptions: TPyPackageManagerDefsOptsCondaUninstall;
     procedure SetInstallOptions(
-      const AOpts: TPyPackageManagerDefsInstallOptsConda);
+      const AOpts: TPyPackageManagerDefsOptsCondaInstall);
     procedure SetUninstallOptions(
-      const AOpts: TPyPackageManagerDefsUninstallOptsConda);
+      const AOpts: TPyPackageManagerDefsOptsCondaUninstall);
   public
     constructor Create(const APackageName: TPyPackageName); override;
     destructor Destroy(); override;
   published
-    property InstallOptions: TPyPackageManagerDefsInstallOptsConda read FInstallOptions write SetInstallOptions;
-    property UninstallOptions: TPyPackageManagerDefsUninstallOptsConda read FUninstallOptions write SetUninstallOptions;
+    property InstallOptions: TPyPackageManagerDefsOptsCondaInstall read FInstallOptions write SetInstallOptions;
+    property UninstallOptions: TPyPackageManagerDefsOptsCondaUninstall read FUninstallOptions write SetUninstallOptions;
   end;
 
 implementation
@@ -64,8 +64,8 @@ constructor TPyPackageManagerDefsConda.Create(
   const APackageName: TPyPackageName);
 begin
   inherited;
-  FInstallOptions := TPyPackageManagerDefsInstallOptsConda.Create();
-  FUninstallOptions := TPyPackageManagerDefsUninstallOptsConda.Create();
+  FInstallOptions := TPyPackageManagerDefsOptsCondaInstall.Create();
+  FUninstallOptions := TPyPackageManagerDefsOptsCondaUninstall.Create();
 end;
 
 destructor TPyPackageManagerDefsConda.Destroy;
@@ -76,13 +76,13 @@ begin
 end;
 
 procedure TPyPackageManagerDefsConda.SetInstallOptions(
-  const AOpts: TPyPackageManagerDefsInstallOptsConda);
+  const AOpts: TPyPackageManagerDefsOptsCondaInstall);
 begin
   FInstallOptions.Assign(AOpts);
 end;
 
 procedure TPyPackageManagerDefsConda.SetUninstallOptions(
-  const AOpts: TPyPackageManagerDefsUninstallOptsConda);
+  const AOpts: TPyPackageManagerDefsOptsCondaUninstall);
 begin
   FUninstallOptions.Assign(AOpts);
 end;

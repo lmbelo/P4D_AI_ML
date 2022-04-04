@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, TensorFlow;
+  Classes, PyCore, TensorFlow;
 
 procedure Register();
 begin
-  RegisterComponents('TensorFlow', [TTensorFlow]);
+  RegisterComponents(COMP_PALETTE_NAME, [TTensorFlow]);
 end;
 
 end.

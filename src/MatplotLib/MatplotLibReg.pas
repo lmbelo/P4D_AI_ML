@@ -36,11 +36,11 @@ procedure Register();
 implementation
 
 uses
-  Classes, MatplotLib;
+  Classes, PyCore, MatplotLib;
 
 procedure Register();
 begin
-  RegisterComponents('MatplotLib', [TMatplotLib]);
+  RegisterComponents(COMP_PALETTE_NAME, [TMatplotLib]);
 end;
 
 end.
