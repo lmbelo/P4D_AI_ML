@@ -32,7 +32,8 @@ unit PyEnvironment;
 interface
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.SysUtils,
+  PyEnvironment.Intf;
 
 type
 
@@ -50,7 +51,7 @@ type
   (*                      +-- python version/                              *)
   (*                           +-- python directory                        *)
   (*-----------------------------------------------------------------------*)
-  TPyEnvironment = class abstract(TComponent)
+  TPyEnvironment = class abstract(TComponent, IEnvironmentPaths)
   public type
     TArchitecture = (arAny, arIntelX86, arIntelX64, arARM32, arARM64);
     TPlatform = (pfAny, pfWindows, pfMacOS, pfLinux);
@@ -80,6 +81,16 @@ type
     /// </summary>
     function GetEnvironmentPath(): string; virtual; abstract;
   public
+    {***** IEnvironmentPaths implementation *****}
+
+    //Python environment paths
+    function GetHome(): string; virtual;
+    function GetProgramName(): string; virtual;
+
+    //Python file paths
+    function GetSharedLibrary(): string; virtual;
+    function GetExecutable(): string; virtual;
+  public
     /// <summary>
     ///   Check if the current platform and architecture is compatible with the evnrionment definitions.
     /// </summary>
@@ -88,6 +99,10 @@ type
     ///   Check if a compatible environment exists.
     /// </summary>
     function Exists(): boolean; virtual;
+    /// <summary>
+    ///   Prepares the component.
+    /// </summary>
+    procedure Prepare(); virtual;
   public
     //Platform and achitecture
 
@@ -196,6 +211,70 @@ begin
     arARM32   : Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arARM32;
     arARM64   : Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arARM64;
     else Result := false;
+  end;
+end;
+
+procedure TPyEnvironment.Prepare;
+begin
+  //
+end;
+
+function TPyEnvironment.GetHome: string;
+begin
+  Result := GetEnvironmentPath();
+end;
+
+function TPyEnvironment.GetProgramName: string;
+begin
+  Result := GetEnvironmentPath();
+end;
+
+function TPyEnvironment.GetSharedLibrary: string;
+var
+  LLibName: string;
+  LFiles: TArray<string>;
+begin
+  { TODO : (BETA) Improve localizer }
+  case ResolvePlatform() of
+    TPlatform.pfWindows: begin
+      if PythonVersion.StartsWith('3.5') then
+        LLibName := 'python35.dll'
+      else if PythonVersion.StartsWith('3.6') then
+        LLibName := 'python36.dll'
+      else if PythonVersion.StartsWith('3.7') then
+        LLibName := 'python37.dll'
+      else if PythonVersion.StartsWith('3.8') then
+        LLibName := 'python38.dll'
+      else if PythonVersion.StartsWith('3.9') then
+        LLibName := 'python39.dll'
+      else if PythonVersion.StartsWith('3.10') then
+        LLibName := 'python310.dll'
+      else Result := String.Empty;
+
+      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), LLibName, TSearchOption.soTopDirectoryOnly);
+      if Length(LFiles) > 0 then
+        Result := LFiles[0]
+      else
+        Result := String.Empty;
+    end
+    else raise EUnsupportedPlatform.Create('Unsupported platform.');
+  end;
+end;
+
+function TPyEnvironment.GetExecutable: string;
+var
+  LFiles: TArray<string>;
+begin
+  { TODO : (BETA) Improve localizer }
+  case ResolvePlatform() of
+    TPlatform.pfWindows: begin
+      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), 'python.exe', TSearchOption.soTopDirectoryOnly);
+      if Length(LFiles) > 0 then
+        Result := LFiles[0]
+      else
+        Result := String.Empty;
+    end
+    else raise EUnsupportedPlatform.Create('Unsupported platform.');
   end;
 end;
 

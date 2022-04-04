@@ -1,4 +1,4 @@
-package P4DEnvironment;
+package dclP4DEnvironment;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -25,17 +25,16 @@ package P4DEnvironment;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'P4D AI&ML - Python environments'}
 {$LIBSUFFIX AUTO}
-{$RUNONLY}
+{$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  p4denvironment;
 
 contains
-  PyEnvironment in '..\src\PyEnvironment\PyEnvironment.pas',
-  PyEmbedded in '..\src\PyEnvironment\PyEmbedded.pas',
-  PyUserFile in '..\src\PyEnvironment\PyUserFile.pas',
-  PyEnvironment.Intf in '..\src\PyEnvironment\PyEnvironment.Intf.pas';
+  PyEnvReg in '..\src\PyEnvironment\PyEnvReg.pas';
 
 end.

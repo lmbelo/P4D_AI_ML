@@ -1,4 +1,4 @@
-unit PyEmbeddedEnv;
+unit PyEmbedded;
 
 interface
 
@@ -25,7 +25,7 @@ type
   /// <summary>
   ///   Provide access to a Python environment based on embeddables.
   /// </summary>
-  TPyEmbeddedEnv = class(TPyEnvironment, IEnvironmentPaths)
+  TPyEmbedded = class(TPyEnvironment)
   private
     FEmbeddablesPath: string;
     FEnvironmentsPath: string;
@@ -33,16 +33,6 @@ type
     FOnUnzipProgress: TZipProgressEvent;
     FBeforeCreate: TNotifyEvent;
     FAfterCreate: TNotifyEvent;
-  private
-    {***** IEnvironmentPaths implementation *****}
-
-    //Python environment paths
-    function GetHome(): string;
-    function GetProgramName(): string;
-
-    //Python file paths
-    function GetSharedLibrary(): string;
-    function GetExecutable(): string;
   protected
     /// <summary>
     ///   Having the EmbeddablesPath empty, the app path is used as root.
@@ -63,7 +53,7 @@ type
     /// <summary>
     ///   Navigates through the embeddables searching for a compatible distribution.
     /// </summary>
-    function EmbeddableExists(): boolean; virtual;
+    function EmbeddableExists(): boolean;
     /// <summary>
     ///   Creates a new environment based on the current settings.
     ///   An embeddable distribution will be used as an "image".
@@ -72,7 +62,7 @@ type
   protected
     function GetEnvironmentPath(): string; override;
   public
-    procedure Run();
+    procedure Prepare(); override;
   published
     property Architecture;
     property Platform;
@@ -95,16 +85,21 @@ type
     property AfterCreate: TNotifyEvent read FAfterCreate write FAfterCreate;
   end;
 
-  EEmbeddableNotAvailable = class(Exception);
+  EEmbeddableNotFound = class(Exception);
+
+const
+  PYTHON_ROOT_DIR_NAME = 'python';
+  PYTHON_EMBEDDABLES_DIR_NAME = 'embeddables';
+  PYTHON_ENVIRONMENT_DIR_NAME = 'environments';
 
 implementation
 
 uses
   System.IOUtils;
 
-{ TPyEmbeddedEnv }
+{ TPyEmbedded }
 
-function TPyEmbeddedEnv.GetEmbeddablePackage: string;
+function TPyEmbedded.GetEmbeddablePackage: string;
 var
   LFiles: TArray<string>;
 begin
@@ -115,18 +110,16 @@ begin
     Result := String.Empty;
 end;
 
-function TPyEmbeddedEnv.GetEmbeddablePath: string;
+function TPyEmbedded.GetEmbeddablePath: string;
 begin
-  Result :=
-    TPath.Combine(PythonVersion,
-      TPath.Combine(GetArchitectureName(),
+  Result := TPath.Combine(
+    TPath.Combine(ResolveEmbeddablesPath(), PYTHON_ROOT_DIR_NAME),
+      TPath.Combine(PYTHON_EMBEDDABLES_DIR_NAME,
         TPath.Combine(GetPlatformName(),
-          TPath.Combine(
-            TPath.Combine(ResolveEmbeddablesPath(), 'python'),
-            'embeddables'))));
+          TPath.Combine(GetArchitectureName(), PythonVersion))));
 end;
 
-function TPyEmbeddedEnv.ResolveEmbeddablesPath: string;
+function TPyEmbedded.ResolveEmbeddablesPath: string;
 begin
   if not FEmbeddablesPath.IsEmpty() then
     Result := FEmbeddablesPath
@@ -134,7 +127,7 @@ begin
     Result := ExtractFilePath(ParamStr(0));
 end;
 
-function TPyEmbeddedEnv.ResolveEnvironmentsPath: string;
+function TPyEmbedded.ResolveEnvironmentsPath: string;
 begin
   if not FEnvironmentsPath.IsEmpty() then
     Result := FEnvironmentsPath
@@ -142,35 +135,31 @@ begin
     Result := ExtractFilePath(ParamStr(0));
 end;
 
-procedure TPyEmbeddedEnv.Run;
-var
-  LPackage: string;
+procedure TPyEmbedded.Prepare;
 begin
-  LPackage := GetEmbeddablePackage();
   if not Exists() then begin
-    if not TFile.Exists(LPackage) then
-      raise EEmbeddableNotAvailable.CreateFmt('Embeddable not available. %s', [LPackage]);
+    if not EmbeddableExists() then
+      raise EEmbeddableNotFound.CreateFmt(
+        'Embeddable package not found.' + #13#10 + '%s', [GetEmbeddablePath()]);
     CreateEnvironment();
   end;
 end;
 
-function TPyEmbeddedEnv.GetEnvironmentPath: string;
+function TPyEmbedded.GetEnvironmentPath: string;
 begin
-  Result :=
-    TPath.Combine(PythonVersion,
-      TPath.Combine(GetArchitectureName(),
+  Result := TPath.Combine(
+    TPath.Combine(ResolveEmbeddablesPath(), PYTHON_ROOT_DIR_NAME),
+      TPath.Combine(PYTHON_ENVIRONMENT_DIR_NAME,
         TPath.Combine(GetPlatformName(),
-          TPath.Combine(
-            TPath.Combine(ResolveEnvironmentsPath(), 'python'),
-            'environments'))));
+          TPath.Combine(GetArchitectureName(), PythonVersion))));
 end;
 
-function TPyEmbeddedEnv.EmbeddableExists: boolean;
+function TPyEmbedded.EmbeddableExists: boolean;
 begin
   Result := TFile.Exists(GetEmbeddablePackage());
 end;
 
-procedure TPyEmbeddedEnv.CreateEnvironment;
+procedure TPyEmbedded.CreateEnvironment;
 begin
   if Assigned(FBeforeCreate) then
     FBeforeCreate(Self);
@@ -180,50 +169,6 @@ begin
 
   if Assigned(FAfterCreate) then
     FAfterCreate(Self);
-end;
-
-function TPyEmbeddedEnv.GetHome: string;
-begin
-  Result := GetEnvironmentPath();
-end;
-
-function TPyEmbeddedEnv.GetProgramName: string;
-begin
-  Result := GetEnvironmentPath();
-end;
-
-function TPyEmbeddedEnv.GetSharedLibrary: string;
-var
-  LFiles: TArray<string>;
-begin
-  { TODO : (BETA) Improve localizer }
-  case ResolvePlatform() of
-    TPlatform.pfWindows: begin
-      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), 'python*.dll', TSearchOption.soTopDirectoryOnly);
-      if Length(LFiles) > 0 then
-        Result := LFiles[0]
-      else
-        Result := String.Empty;
-    end
-    else raise EUnsupportedPlatform.Create('Unsupported platform.');
-  end;
-end;
-
-function TPyEmbeddedEnv.GetExecutable: string;
-var
-  LFiles: TArray<string>;
-begin
-  { TODO : (BETA) Improve localizer }
-  case ResolvePlatform() of
-    TPlatform.pfWindows: begin
-      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), 'python.exe', TSearchOption.soTopDirectoryOnly);
-      if Length(LFiles) > 0 then
-        Result := LFiles[0]
-      else
-        Result := String.Empty;
-    end
-    else raise EUnsupportedPlatform.Create('Unsupported platform.');
-  end;
 end;
 
 end.

@@ -31,19 +31,16 @@ unit PyTorchReg;
 
 interface
 
-const
-  PYTORCH_PAGE = 'PyTorch';
-
 procedure Register();
 
 implementation
 
 uses
-  Classes, PyTorch;
+  Classes, PyCore, PyTorch;
 
 procedure Register();
 begin
-  RegisterComponents(PYTORCH_PAGE, [TPyTorch]);
+  RegisterComponents(COMP_PALETTE_NAME, [TPyTorch]);
 end;
 
 end.

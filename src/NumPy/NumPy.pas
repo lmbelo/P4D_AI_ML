@@ -50,7 +50,9 @@ implementation
 
 uses
   System.Variants,
-  PyPackage.Manager.ManagerKind, PyPackage.Manager.Pip;
+  PyPackage.Manager.ManagerKind,
+  PyPackage.Manager.Pip,
+  PyPackage.Manager.Conda;
 
 { TNumPy }
 
@@ -74,9 +76,14 @@ begin
   inherited;
   with AModel do begin
     PackageName := 'numpy';
+    //NumPy from PIP
     PackageManagers.Add(
       TPyPackageManagerKind.pip,
       TPyPackageManagerPip.Create('numpy'));
+    //NumPy from Conda
+    PackageManagers.Add(
+      TPyPackageManagerKind.conda,
+      TPyPackageManagerConda.Create('numpy'));
   end;
 end;
 
