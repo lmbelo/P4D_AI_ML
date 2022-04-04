@@ -22,6 +22,7 @@ type
   (*                      +-- python version/                              *)
   (*                           +-- python zip                              *)
   (*-----------------------------------------------------------------------*)
+  [ComponentPlatforms(pidAllPlatforms)]
   /// <summary>
   ///   Provide access to a Python environment based on embeddables.
   /// </summary>
