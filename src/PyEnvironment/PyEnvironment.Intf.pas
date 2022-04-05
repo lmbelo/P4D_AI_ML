@@ -3,7 +3,7 @@ unit PyEnvironment.Intf;
 interface
 
 type
-  IEnvironmentPaths = interface
+  IEnvironmentSettings = interface
     ['{D53389EA-11C7-457E-851B-417AA43032C0}']
 
     {***** Python environment paths *****}

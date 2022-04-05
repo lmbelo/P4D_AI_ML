@@ -40,7 +40,7 @@ uses
 
 procedure Register();
 begin
-  RegisterComponents(COMP_PALETTE_NAME, [TNumPy]);
+  RegisterComponents(DSE_PALETTE_NAME, [TNumPy]);
 end;
 
 end.

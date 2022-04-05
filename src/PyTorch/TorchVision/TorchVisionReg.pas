@@ -40,7 +40,7 @@ uses
 
 procedure Register();
 begin
-  RegisterComponents(COMP_PALETTE_NAME, [TTorchVision]);
+  RegisterComponents(DSE_PALETTE_NAME, [TTorchVision]);
 end;
 
 end.
