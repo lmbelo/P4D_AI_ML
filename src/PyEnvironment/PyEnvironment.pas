@@ -37,7 +37,6 @@ uses
   PyEnvironment.Intf;
 
 type
-
   (*-----------------------------------------------------------------------*)
   (*                                                                       *)
   (*                      Environment structure example                    *)
@@ -52,7 +51,7 @@ type
   (*                      +-- python version/                              *)
   (*                           +-- python directory                        *)
   (*-----------------------------------------------------------------------*)
-  TPyEnvironment = class abstract(TComponent, IEnvironmentPaths)
+  TPyEnvironment = class abstract(TComponent, IEnvironmentSettings)
   public type
     TArchitecture = (arAny, arIntelX86, arIntelX64, arARM32, arARM64);
     TPlatform = (pfAny, pfWindows, pfMacOS, pfLinux);
@@ -60,7 +59,8 @@ type
     FArchitecture: TArchitecture;
     FPlatform: TPlatform;    
     FPythonVersion: string;
-  protected    
+  protected
+    procedure Loaded; override;
     /// <summary>
     ///   Having the architecture set to "any", we consider the current architecture.
     /// </summary>
@@ -88,9 +88,9 @@ type
     /// </summary>
     function GetEnvironmentPath(): string; virtual; abstract;
     /// <summary>
-    ///   Prepares the component.
+    ///   Internally setup the environment.
     /// </summary>
-    procedure Prepare(); virtual;
+    procedure InternalSetup(); virtual;
   public
     {***** IEnvironmentPaths implementation *****}
 
@@ -102,6 +102,8 @@ type
     function GetSharedLibrary(): string; virtual;
     function GetExecutable(): string; virtual;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy(); override;
     /// <summary>
     ///   Check if the current platform and architecture is compatible with the evnrionment definitions.
     /// </summary>
@@ -136,7 +138,25 @@ type
     ///   Specifies the Python version.
     /// </summary>
     property PythonVersion: string read FPythonVersion write FPythonVersion;
-  end;  
+  end;
+
+  TPyPlatformHelper = record helper for TPyEnvironment.TPlatform
+  public
+    function AsSysPlatform(): TOSVersion.TPlatform;
+    function ToString(): string;
+
+    class function FromSysPlatform(
+      const APlatform: TOSVersion.TPlatform): TPyEnvironment.TPlatform; static;
+  end;
+
+  TPyArchitectureHelper = record helper for TPyEnvironment.TArchitecture
+  public
+    function AsSysArchitecture(): TOSVersion.TArchitecture;
+    function ToString(): string;
+
+    class function FromSysArchitecture(
+      const AArchitecture: TOSVersion.TArchitecture): TPyEnvironment.TArchitecture; static;
+  end;
 
   EEnvironmentNotAvailable = class(Exception);
 
@@ -149,20 +169,15 @@ type
 implementation
 
 uses
-  System.IOUtils;
+  System.IOUtils, System.Character,
+  PyEnvironment.Manager;
 
 { TPyEnvironment }
 
 function TPyEnvironment.ResolveArchitecture: TArchitecture;
 begin
   if (FArchitecture = TArchitecture.arAny) then
-    case TOSVersion.Architecture of
-      TOSVersion.TArchitecture.arIntelX86: Result := arIntelX86;
-      TOSVersion.TArchitecture.arIntelX64: Result := arIntelX64;
-      TOSVersion.TArchitecture.arARM32   : Result := arARM32; 
-      TOSVersion.TArchitecture.arARM64   : Result := arARM64;
-      else raise EUnsupportedArchitecture.Create('Unsupported architecture.');     
-    end
+    Result := TPyEnvironment.TArchitecture.FromSysArchitecture(TOSVersion.Architecture)
   else
     Result := FArchitecture;
 end;
@@ -170,19 +185,25 @@ end;
 function TPyEnvironment.ResolvePlatform: TPlatform;
 begin
   if (FPlatform = pfAny) then
-    case TOSVersion.Platform of
-      TOSVersion.TPlatform.pfWindows: Result := pfWindows; 
-      TOSVersion.TPlatform.pfMacOS  : Result := pfMacOS;
-      TOSVersion.TPlatform.pfLinux  : Result := pfLinux;
-      else raise EUnsupportedPlatform.Create('Unsupported platform.');
-    end
+    Result := TPyEnvironment.TPlatform.FromSysPlatform(TOSVersion.Platform)
   else
     Result := FPlatform;
 end;
 
 procedure TPyEnvironment.Setup;
 begin
-  Prepare();
+  InternalSetup();
+end;
+
+constructor TPyEnvironment.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TPyEnvironment.Destroy;
+begin
+  inherited;
+  TPyManager.Instance.UnregisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
 end;
 
 function TPyEnvironment.Exists: boolean;
@@ -199,14 +220,7 @@ begin
   else
     LArchitecture := FArchitecture;
 
-  case LArchitecture of
-    arAny     : Result := 'any';
-    arIntelX86: Result := 'intelx86';
-    arIntelX64: Result := 'intelx64';
-    arARM32   : Result := 'arm32';
-    arARM64   : Result := 'arm64';
-    else Result := String.Empty;
-  end;
+  Result := LArchitecture.ToString().ToLower();
 end;
 
 function TPyEnvironment.GetPlatformName(const AResolve: boolean): string;
@@ -218,53 +232,30 @@ begin
   else
     LPlatform := FPlatform;
 
-  case LPlatform of
-    pfAny    : Result := 'any';
-    pfWindows: Result := 'windows';
-    pfMacOS  : Result := 'macos';
-    pfLinux  : Result := 'linux';
-  end;
+  Result := LPlatform.ToString().ToLower();
 end;
 
 function TPyEnvironment.IsSupported: boolean;
 begin
   if (FPlatform = pfAny) and (FArchitecture = arAny) then
-    Exit(true);
+    Result := true
+  else
+    Result := (FPlatform.AsSysPlatform() = TOSVersion.Platform)
+      and (FArchitecture.AsSysArchitecture() = TOSVersion.Architecture);
+end;
 
-  case ResolvePlatform() of
-    pfWindows: Result := TOSVersion.Platform = TOSVersion.TPlatform.pfWindows;
-    pfMacOS  : Result := TOSVersion.Platform = TOSVersion.TPlatform.pfMacOS;
-    pfLinux  : Result := TOSVersion.Platform = TOSVersion.TPlatform.pfLinux;
-    else Result := false;
-  end;
-
-  if not Result then
-    Exit(false);
-
-  case ResolveArchitecture() of  
-    arIntelX86: Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arIntelX86;
-    arIntelX64: Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arIntelX64;
-    arARM32   : Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arARM32;
-    arARM64   : Result := TOSVersion.Architecture = TOSVersion.TArchitecture.arARM64;
-    else Result := false;
-  end;
+procedure TPyEnvironment.Loaded;
+begin
+  inherited;
+  TPyManager.Instance.RegisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
 end;
 
 procedure TPyEnvironment.Patch(const APythonEngine: TPythonEngine);
-var
-  LSharedLibrary: string;
 begin
-  APythonEngine.UseLastKnownVersion := false;
-  APythonEngine.PythonHome := GetHome();
-  APythonEngine.ProgramName := GetProgramName();
-  LSharedLibrary := GetSharedLibrary();
-  APythonEngine.DllPath := ExtractFilePath(LSharedLibrary);
-  APythonEngine.DllName := ExtractFileName(LSharedLibrary);
-  APythonEngine.InitScript.Add('import sys');
-  APythonEngine.InitScript.Add(Format('sys.executable = r"%s"', [GetExecutable()]));
+  TPyManager.Patch(APythonEngine, Self);
 end;
 
-procedure TPyEnvironment.Prepare;
+procedure TPyEnvironment.InternalSetup;
 begin
   //
 end;
@@ -281,30 +272,29 @@ end;
 
 function TPyEnvironment.GetSharedLibrary: string;
 var
+  LVerNum: string;
+  I: integer;
   LLibName: string;
-  LFiles: TArray<string>;
 begin
   { TODO : (BETA) Improve localizer }
+  LVerNum := String.Empty;
+  for I := Low(PythonVersion) to High(PythonVersion) do
+    if Char.IsDigit(PythonVersion, I) then
+      LVerNum := LVerNum + PythonVersion[I];
+
   case ResolvePlatform() of
     TPlatform.pfWindows: begin
-      if PythonVersion.StartsWith('3.5') then
-        LLibName := 'python35.dll'
-      else if PythonVersion.StartsWith('3.6') then
-        LLibName := 'python36.dll'
-      else if PythonVersion.StartsWith('3.7') then
-        LLibName := 'python37.dll'
-      else if PythonVersion.StartsWith('3.8') then
-        LLibName := 'python38.dll'
-      else if PythonVersion.StartsWith('3.9') then
-        LLibName := 'python39.dll'
-      else if PythonVersion.StartsWith('3.10') then
-        LLibName := 'python310.dll'
-      else Result := String.Empty;
+      if LVerNum.IsEmpty() then
+        Exit(String.Empty);
 
-      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), LLibName, TSearchOption.soTopDirectoryOnly);
-      if Length(LFiles) > 0 then
-        Result := LFiles[0]
-      else
+      for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do
+        if LVerNum.StartsWith(PYTHON_KNOWN_VERSIONS[I].RegVersion) then begin
+          LLibName := PYTHON_KNOWN_VERSIONS[I].DllName;
+          Break;
+        end;
+
+      Result := TPath.Combine(GetEnvironmentPath(), LLibName);
+      if not TFile.Exists(Result) then
         Result := String.Empty;
     end
     else raise EUnsupportedPlatform.Create('Unsupported platform.');
@@ -312,19 +302,86 @@ begin
 end;
 
 function TPyEnvironment.GetExecutable: string;
-var
-  LFiles: TArray<string>;
 begin
   { TODO : (BETA) Improve localizer }
   case ResolvePlatform() of
     TPlatform.pfWindows: begin
-      LFiles := TDirectory.GetFiles(GetEnvironmentPath(), 'python.exe', TSearchOption.soTopDirectoryOnly);
-      if Length(LFiles) > 0 then
-        Result := LFiles[0]
-      else
+      Result := TPath.Combine(GetEnvironmentPath(), 'python.exe');
+      if not TFile.Exists(Result) then
         Result := String.Empty;
     end
     else raise EUnsupportedPlatform.Create('Unsupported platform.');
+  end;
+end;
+
+{ TPyPlatformHelper }
+
+class function TPyPlatformHelper.FromSysPlatform(
+  const APlatform: TOSVersion.TPlatform): TPyEnvironment.TPlatform;
+begin
+  case APlatform of
+    TOSVersion.TPlatform.pfWindows: Result := TPyEnvironment.TPlatform.pfWindows;
+    TOSVersion.TPlatform.pfMacOS  : Result := TPyEnvironment.TPlatform.pfWindows;
+    TOSVersion.TPlatform.pfLinux  : Result := TPyEnvironment.TPlatform.pfWindows;
+    else raise EUnsupportedPlatform.Create('Unsupported platform.');
+  end;
+end;
+
+function TPyPlatformHelper.AsSysPlatform: TOSVersion.TPlatform;
+begin
+  case Self of
+    pfAny     : Result := TOSVersion.Platform;
+    pfWindows : Result := TOSVersion.TPlatform.pfWindows;
+    pfMacOS   : Result := TOSVersion.TPlatform.pfMacOS;
+    pfLinux   : Result := TOSVersion.TPlatform.pfLinux;
+    else raise EUnsupportedPlatform.Create('Unsupported platform.');
+  end;
+end;
+
+function TPyPlatformHelper.ToString: string;
+begin
+  case Self of
+    pfAny     : Result := 'Any';
+    pfWindows : Result := 'Windows';
+    pfMacOS   : Result := 'MacOS';
+    pfLinux   : Result := 'Linux';
+  end;
+end;
+
+{ TPyArchitectureHelper }
+
+class function TPyArchitectureHelper.FromSysArchitecture(
+  const AArchitecture: TOSVersion.TArchitecture): TPyEnvironment.TArchitecture;
+begin
+  case AArchitecture of
+    TOSVersion.TArchitecture.arIntelX86: Result := TPyEnvironment.TArchitecture.arIntelX86;
+    TOSVersion.TArchitecture.arIntelX64: Result := TPyEnvironment.TArchitecture.arIntelX64;
+    TOSVersion.TArchitecture.arARM32   : Result := TPyEnvironment.TArchitecture.arARM32;
+    TOSVersion.TArchitecture.arARM64   : Result := TPyEnvironment.TArchitecture.arARM64;
+    else raise EUnsupportedArchitecture.Create('Unsupported architecture.');
+  end;
+end;
+
+function TPyArchitectureHelper.AsSysArchitecture: TOSVersion.TArchitecture;
+begin
+  case Self of
+    arAny      : Result := TOSVersion.Architecture;
+    arIntelX86 : Result := TOSVersion.TArchitecture.arIntelX86;
+    arIntelX64 : Result := TOSVersion.TArchitecture.arIntelX64;
+    arARM32    : Result := TOSVersion.TArchitecture.arARM32;
+    arARM64    : Result := TOSVersion.TArchitecture.arARM64;
+    else raise EUnsupportedArchitecture.Create('Unsupported architecture.');
+  end;
+end;
+
+function TPyArchitectureHelper.ToString: string;
+begin
+  case Self of
+    arAny      : Result := 'Any';
+    arIntelX86 : Result := 'IntelX86';
+    arIntelX64 : Result := 'IntelX64';
+    arARM32    : Result := 'ARM32';
+    arARM64    : Result := 'ARM64';
   end;
 end;
 

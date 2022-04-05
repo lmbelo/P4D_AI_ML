@@ -40,7 +40,7 @@ uses
 
 procedure Register();
 begin
-  RegisterComponents(COMP_PALETTE_NAME, [TPyTorch]);
+  RegisterComponents(DSE_PALETTE_NAME, [TPyTorch]);
 end;
 
 end.
