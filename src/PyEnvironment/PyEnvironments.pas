@@ -34,12 +34,14 @@ type
     FEnvironments: TPyEnvironmentCollection;
     FAutoLoad: boolean;
     FPythonEngine: TPythonEngine;
+    FPythonVersion: string;
     procedure SetEnvironments(const Value: TPyEnvironmentCollection);
+    procedure SetPythonEngine(const Value: TPythonEngine);
   protected 
     procedure Loaded(); override;
   protected
     function CreateCollection(): TPyEnvironmentCollection; virtual; abstract;
-    procedure Prepare(); virtual; abstract;
+    procedure Prepare(); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -48,7 +50,8 @@ type
   published
     property Environments: TPyEnvironmentCollection read FEnvironments write SetEnvironments;
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
-    property PythonEngine: TPythonEngine read FPythonEngine write FPythonEngine;
+    property PythonVersion: string read FPythonVersion write FPythonVersion;
+    property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
   end;
 
 
@@ -71,6 +74,7 @@ type
   TPyEmbeddableItem = class(TPyEmbeddableBaseItem)
   private
     FEmbeddablePackage: string;
+    FScanned: boolean;
     function FindSharedLibrary(): string;
     function FindExecutable(): string; 
   protected
@@ -89,6 +93,7 @@ type
     function GetEnvironmentPath(): string; 
   public
     procedure Setup(); override;
+    property Scanned: boolean read FScanned write FScanned;
   published
     property EmbeddablePackage: string read FEmbeddablePackage write FEmbeddablePackage;
   end;
@@ -97,21 +102,35 @@ type
 
   TPyEmbeddableCollection = class(TPyEnvironmentCollection);
 
+  [ComponentPlatforms(pidAllPlatforms)]
   TPyEmbeddedEnvironment = class(TPyEnvironment)
+  private type
+    TScanner = class(TPersistent)
+    private
+      FAutoScan: boolean;
+      FEmbeddablesPath: string;
+      FEnvironmentPath: string;
+    public
+      procedure Scan(ACallback: TProc<TPythonVersionProp, string>);
+    published
+      property AutoScan: boolean read FAutoScan write FAutoScan default false;
+      property EmbeddablesPath: string read FEmbeddablesPath write FEmbeddablesPath;
+      /// <summary>
+      ///   Default environment path.
+      /// </summary>
+      property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
+    end;
   private
-    FDirectory: string;
-    FScan: boolean;
-    FEnvironmentPath: string;
+    FScanner: TScanner;
+    procedure SetScanner(const Value: TScanner);
   protected
     function CreateCollection(): TPyEnvironmentCollection; override;
     procedure Prepare(); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy(); override;
   published
-    property Directory: string read FDirectory write FDirectory;
-    property Scan: boolean read FScan write FScan default false;
-    /// <summary>
-    ///   Default environment path.
-    /// </summary>
-    property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
+    property Scanner: TScanner read FScanner write SetScanner;
   end;
 
   (*-----------------------------------------------------------------------*)
@@ -132,6 +151,7 @@ type
 
   TPyTransientCollection = class(TPyEnvironmentCollection);
 
+  [ComponentPlatforms(pidAllPlatforms)]
   TPyTransientEnvironment = class(TPyEnvironment)
   private
     FFilePath: string;    
@@ -178,6 +198,8 @@ begin
   if not Assigned(LItem) then
     Exit();
 
+  LItem.Setup();
+
   FPythonEngine.UnloadDll();
   FPythonEngine.UseLastKnownVersion := false;
   FPythonEngine.PythonHome := LItem.Home;
@@ -209,10 +231,25 @@ begin
     Prepare();
 end;
 
+procedure TPyEnvironment.Prepare;
+begin
+  if FAutoLoad and Assigned(FPythonEngine) then
+    Activate(PythonVersion);
+end;
+
 procedure TPyEnvironment.SetEnvironments(
   const Value: TPyEnvironmentCollection);
 begin
   FEnvironments.Assign(Value);
+end;
+
+procedure TPyEnvironment.SetPythonEngine(const Value: TPythonEngine);
+begin
+  if (Value <> FPythonEngine) then begin
+    FPythonEngine := Value;
+    if Assigned(FPythonEngine) then
+      FPythonEngine.AutoLoad := false;
+  end;
 end;
 
 { TPyEmbeddableItem }
@@ -246,21 +283,12 @@ end;
 
 function TPyEmbeddableItem.FindSharedLibrary: string;
 var
-  LVerNum: string;
   I: integer;
   LLibName: string;
 begin
   { TODO : (BETA) Improve localizer }
-  LVerNum := String.Empty;
-  for I := Low(PythonVersion) to High(PythonVersion) do
-    if Char.IsDigit(PythonVersion, I) then
-      LVerNum := LVerNum + PythonVersion[I];
-
-  if LVerNum.IsEmpty() then
-    Exit(String.Empty);
-
   for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do
-    if LVerNum.StartsWith(PYTHON_KNOWN_VERSIONS[I].RegVersion) then begin
+    if PythonVersion.StartsWith(PYTHON_KNOWN_VERSIONS[I].RegVersion) then begin
       LLibName := PYTHON_KNOWN_VERSIONS[I].DllName;
       Break;
     end;
@@ -280,7 +308,7 @@ end;
 
 function TPyEmbeddableItem.GetEnvironmentPath: string;
 begin
-  Result := TPath.Combine(EnvironmentPath, PythonVersion);
+  Result := EnvironmentPath; //TPath.Combine(EnvironmentPath, PythonVersion);
 end;
 
 procedure TPyEmbeddableItem.Setup;
@@ -291,11 +319,25 @@ begin
       raise EEmbeddableNotFound.CreateFmt(
         'Embeddable package not found.' + #13#10 + '%s', [FEmbeddablePackage]);
     CreateEnvironment();
-    LoadSettings();
   end;
+
+  if FScanned then
+    LoadSettings();
 end;
 
 { TPyEmbeddedEnvironment }
+
+constructor TPyEmbeddedEnvironment.Create(AOwner: TComponent);
+begin
+  inherited;
+  FScanner := TScanner.Create();
+end;
+
+destructor TPyEmbeddedEnvironment.Destroy;
+begin
+  FScanner.Free();
+  inherited;
+end;
 
 function TPyEmbeddedEnvironment.CreateCollection: TPyEnvironmentCollection;
 begin
@@ -305,27 +347,26 @@ end;
 procedure TPyEmbeddedEnvironment.Prepare;
 var
   LItem: TPyEmbeddableItem;
-  I: Integer;
-  LPath: string;
-  LFiles: TArray<string>;
 begin
-  if not FScan then
-    Exit();
+  if FScanner.AutoScan then begin
+    FScanner.Scan(
+      procedure(APyVersionInfo: TPythonVersionProp; AEmbeddablePackage: string) begin
+        if Assigned(Environments.LocateEnvironment(APyVersionInfo.RegVersion)) then
+          Exit;
 
-  if not TDirectory.Exists(FDirectory) then
-    raise Exception.Create('Directory not found.');
-
-  for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do begin
-    LPath := TPath.Combine(FDirectory, PYTHON_KNOWN_VERSIONS[I].RegVersion);
-    LFiles := TDirectory.GetFiles(LPath, '*.zip', TSearchOption.soTopDirectoryOnly);
-    if (Length(LFiles) = 0) then
-      Continue;
-
-    LItem := TPyEmbeddableItem(Environments.Add());
-    LItem.PythonVersion := PYTHON_KNOWN_VERSIONS[I].RegVersion;
-    LItem.EnvironmentPath := FEnvironmentPath;
-    LItem.EmbeddablePackage := LFiles[0];  
+        LItem := TPyEmbeddableItem(Environments.Add());
+        LItem.Scanned := true;
+        LItem.PythonVersion := APyVersionInfo.RegVersion;
+        LItem.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
+        LItem.EmbeddablePackage := AEmbeddablePackage;
+      end);
   end;
+  inherited;
+end;
+
+procedure TPyEmbeddedEnvironment.SetScanner(const Value: TScanner);
+begin
+  FScanner.Assign(Value);
 end;
 
 { TPyTransientItem }
@@ -359,13 +400,16 @@ begin
 
     for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do begin
       for LPythonVersion in TJSONArray(LPythonVersions) do begin
-        LEnviromentInfo := LPythonVersion.FindValue(PYTHON_KNOWN_VERSIONS[I].RegVersion);
+        if not (LPythonVersion is TJSONObject) then
+          raise EInvalidFileStructure.Create('Invalid file structure.');
+
+        LEnviromentInfo := TJSONObject(LPythonVersion).Values[PYTHON_KNOWN_VERSIONS[I].RegVersion];
 
         if not Assigned(LEnviromentInfo) then
           Continue;
 
         if not (LEnviromentInfo is TJSONObject) then
-          raise EInvalidFileStructure.Create('Invalid file structure.');  
+          raise EInvalidFileStructure.Create('Invalid file structure.');
         
         AProc(PYTHON_KNOWN_VERSIONS[I].RegVersion, TJSONObject(LEnviromentInfo)); 
       end;
@@ -391,6 +435,36 @@ begin
     AEnvironmentInfo.TryGetValue<string>('shared_library', LItem.FSharedLibrary);
     AEnvironmentInfo.TryGetValue<string>('executable', LItem.FExecutable);
   end);
+
+  inherited;
+end;
+
+{ TPyEmbeddedEnvironment.TScanner }
+
+procedure TPyEmbeddedEnvironment.TScanner.Scan(
+  ACallback: TProc<TPythonVersionProp, string>);
+var
+  I: Integer;
+  LPath: string;
+  LFiles: TArray<string>;
+begin
+  if not Assigned(ACallback) then
+    Exit;
+
+  if not TDirectory.Exists(FEmbeddablesPath) then
+    raise Exception.Create('Directory not found.');
+
+  for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do begin
+    LPath := TPath.Combine(FEmbeddablesPath, PYTHON_KNOWN_VERSIONS[I].RegVersion);
+    if not TDirectory.Exists(LPath) then
+      Continue;
+
+    LFiles := TDirectory.GetFiles(LPath, '*.zip', TSearchOption.soTopDirectoryOnly);
+    if (Length(LFiles) = 0) then
+      Continue;
+
+    ACallback(PYTHON_KNOWN_VERSIONS[I], LFiles[0]);
+  end;
 end;
 
 end.
