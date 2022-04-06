@@ -36,11 +36,12 @@ procedure Register();
 implementation
 
 uses
-  Classes, PyEmbedded, PyShared;
+  Classes, PyEnvironment.Manager, PyEnvironment.Embedded, PyEnvironment.Shared, PyEnvironments;
 
 procedure Register();
 begin
-  RegisterComponents('P4D - Python Environments', [TPyEmbedded, TPyShared]);
+  RegisterComponents('Python - Environments', [
+    {TPyManager, TPyEnvironmentEmbedded, TPyEnvironmentShared,} TPyEmbeddedEnvironment, TPyTransientEnvironment]);
 end;
 
 end.

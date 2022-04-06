@@ -35,9 +35,11 @@ requires
 
 contains
   PyEnvironment in '..\src\PyEnvironment\PyEnvironment.pas',
-  PyEmbedded in '..\src\PyEnvironment\PyEmbedded.pas',
-  PyShared in '..\src\PyEnvironment\PyShared.pas',
+  PyEnvironment.Embedded in '..\src\PyEnvironment\PyEnvironment.Embedded.pas',
+  PyEnvironment.Shared in '..\src\PyEnvironment\PyEnvironment.Shared.pas',
   PyEnvironment.Intf in '..\src\PyEnvironment\PyEnvironment.Intf.pas',
-  PyEnvironment.Manager in '..\src\PyEnvironment\PyEnvironment.Manager.pas';
+  PyEnvironment.Collection in '..\src\PyEnvironment\PyEnvironment.Collection.pas',
+  PyEnvironment.Manager in '..\src\PyEnvironment\PyEnvironment.Manager.pas',
+  PyEnvironments in '..\src\PyEnvironment\PyEnvironments.pas';
 
 end.
