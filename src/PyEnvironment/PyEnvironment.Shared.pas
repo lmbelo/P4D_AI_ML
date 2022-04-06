@@ -27,7 +27,7 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyShared;
+unit PyEnvironment.Shared;
 
 interface
 
@@ -57,7 +57,7 @@ type
   ///   Provide access a shared Python environment based on a JSON file.
   ///   Use "any" for global configuration.
   /// </summary>
-  TPyShared = class(TPyEnvironment)
+  TPyEnvironmentShared = class(TPyEnvironment)
   private
     FFilePath: string;
     FHome: string;
@@ -101,7 +101,7 @@ uses
 
 { TPyUserFile }
 
-procedure TPyShared.LoadInfo(const AProc: TProc<TJSONObject>);
+procedure TPyEnvironmentShared.LoadInfo(const AProc: TProc<TJSONObject>);
 var
   LFile: string;
   LPlatforms: TJSONValue;
@@ -161,7 +161,7 @@ begin
   end;
 end;
 
-function TPyShared.ResolveFilePath: string;
+function TPyEnvironmentShared.ResolveFilePath: string;
 begin
   if not FilePath.IsEmpty() then
     Result := FilePath
@@ -169,12 +169,12 @@ begin
     Result := TPath.Combine(ExtractFilePath(ParamStr(0)), JSON_FILE_NAME);
 end;
 
-function TPyShared.GetEnvironmentPath: string;
+function TPyEnvironmentShared.GetEnvironmentPath: string;
 begin
   Result := GetHome();
 end;
 
-procedure TPyShared.InternalSetup;
+procedure TPyEnvironmentShared.InternalSetup;
 begin
   inherited;
   LoadInfo(procedure(AJSONObj: TJSONObject)
@@ -186,22 +186,22 @@ begin
     end);
 end;
 
-function TPyShared.GetHome: string;
+function TPyEnvironmentShared.GetHome: string;
 begin
   Result := FHome;
 end;
 
-function TPyShared.GetProgramName: string;
+function TPyEnvironmentShared.GetProgramName: string;
 begin
   Result := FProgramName;
 end;
 
-function TPyShared.GetSharedLibrary: string;
+function TPyEnvironmentShared.GetSharedLibrary: string;
 begin
   Result := FSharedLibrary;
 end;
 
-function TPyShared.GetExecutable: string;
+function TPyEnvironmentShared.GetExecutable: string;
 begin
   Result := FExecutable;
 end;

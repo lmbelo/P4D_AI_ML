@@ -170,7 +170,7 @@ implementation
 
 uses
   System.IOUtils, System.Character,
-  PyEnvironment.Manager;
+  PyEnvironment.Collection;
 
 { TPyEnvironment }
 
@@ -203,7 +203,7 @@ end;
 destructor TPyEnvironment.Destroy;
 begin
   inherited;
-  TPyManager.Instance.UnregisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
+  TPyEnvironmentCollection.Instance.UnregisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
 end;
 
 function TPyEnvironment.Exists: boolean;
@@ -247,12 +247,12 @@ end;
 procedure TPyEnvironment.Loaded;
 begin
   inherited;
-  TPyManager.Instance.RegisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
+  TPyEnvironmentCollection.Instance.RegisterEnvironment(FPlatform, FArchitecture, FPythonVersion, Self);
 end;
 
 procedure TPyEnvironment.Patch(const APythonEngine: TPythonEngine);
 begin
-  TPyManager.Patch(APythonEngine, Self);
+  TPyEnvironmentCollection.Patch(APythonEngine, Self);
 end;
 
 procedure TPyEnvironment.InternalSetup;

@@ -27,7 +27,7 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEmbedded;
+unit PyEnvironment.Embedded;
 
 interface
 
@@ -55,7 +55,7 @@ type
   /// <summary>
   ///   Provide access to a Python environment based on embeddables.
   /// </summary>
-  TPyEmbedded = class(TPyEnvironment)
+  TPyEnvironmentEmbedded = class(TPyEnvironment)
   private
     FEmbeddablesPath: string;
     FEnvironmentsPath: string;
@@ -129,7 +129,7 @@ uses
 
 { TPyEmbedded }
 
-function TPyEmbedded.GetEmbeddablePackage: string;
+function TPyEnvironmentEmbedded.GetEmbeddablePackage: string;
 var
   LFiles: TArray<string>;
 begin
@@ -140,7 +140,7 @@ begin
     Result := String.Empty;
 end;
 
-function TPyEmbedded.GetEmbeddablePath: string;
+function TPyEnvironmentEmbedded.GetEmbeddablePath: string;
 begin
   Result := TPath.Combine(
     TPath.Combine(ResolveEmbeddablesPath(), PYTHON_ROOT_DIR_NAME),
@@ -149,7 +149,7 @@ begin
           TPath.Combine(GetArchitectureName(), PythonVersion))));
 end;
 
-function TPyEmbedded.ResolveEmbeddablesPath: string;
+function TPyEnvironmentEmbedded.ResolveEmbeddablesPath: string;
 begin
   if not FEmbeddablesPath.IsEmpty() then
     Result := FEmbeddablesPath
@@ -157,7 +157,7 @@ begin
     Result := ExtractFilePath(ParamStr(0));
 end;
 
-function TPyEmbedded.ResolveEnvironmentsPath: string;
+function TPyEnvironmentEmbedded.ResolveEnvironmentsPath: string;
 begin
   if not FEnvironmentsPath.IsEmpty() then
     Result := FEnvironmentsPath
@@ -165,7 +165,7 @@ begin
     Result := ExtractFilePath(ParamStr(0));
 end;
 
-procedure TPyEmbedded.InternalSetup;
+procedure TPyEnvironmentEmbedded.InternalSetup;
 begin
   if not Exists() then begin
     if not EmbeddableExists() then
@@ -175,8 +175,9 @@ begin
   end;
 end;
 
-function TPyEmbedded.GetEnvironmentPath: string;
+function TPyEnvironmentEmbedded.GetEnvironmentPath: string;
 begin
+  inherited;
   Result := TPath.Combine(
     TPath.Combine(ResolveEmbeddablesPath(), PYTHON_ROOT_DIR_NAME),
       TPath.Combine(PYTHON_ENVIRONMENT_DIR_NAME,
@@ -184,12 +185,12 @@ begin
           TPath.Combine(GetArchitectureName(), PythonVersion))));
 end;
 
-function TPyEmbedded.EmbeddableExists: boolean;
+function TPyEnvironmentEmbedded.EmbeddableExists: boolean;
 begin
   Result := TFile.Exists(GetEmbeddablePackage());
 end;
 
-procedure TPyEmbedded.CreateEnvironment;
+procedure TPyEnvironmentEmbedded.CreateEnvironment;
 begin
   if Assigned(FBeforeCreate) then
     FBeforeCreate(Self);

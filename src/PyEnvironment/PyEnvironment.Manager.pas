@@ -9,7 +9,7 @@
 (*                                                                        *)
 (*  Project page:                https://github.com/lmbelo/P4D_AI_ML      *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironment Manager layer                           *)
+(*  Functionality:  PyEnvironment layer                                   *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -33,144 +33,53 @@ unit PyEnvironment.Manager;
 interface
 
 uses
-  System.Classes, System.Generics.Collections,
-  PythonEngine,
-  PyEnvironment,
-  PyEnvironment.Intf;
+  System.Classes,
+  PythonEngine;
 
 type
-  TPyManager = class
+  TPyManager = class(TComponent)
   private
-    class var FInstance: TPyManager;
-  private
-    FDictionary: TDictionary<string, IEnvironmentSettings>;
-    function FormatKey(const APlatform: TPyEnvironment.TPlatform;
-      const AArchitecture: TPyEnvironment.TArchitecture;
-      APythonVersion: string): string;
-  private
-    class constructor Create();
-    class destructor Destroy();
+    FEnabled: boolean;
+    FPythonVersion: string;
+    FPythonEngine: TPythonEngine;
+    procedure SetPythonEngine(const Value: TPythonEngine);
+  protected
+    procedure Loaded(); override;
   public
-    constructor Create();
-    destructor Destroy(); override;
-
-    {***** Registration methods *****}
-    procedure RegisterEnvironment(const APlatform: TPyEnvironment.TPlatform;
-      const AArchitecture: TPyEnvironment.TArchitecture;
-      APythonVersion: string; ASettings: IEnvironmentSettings);
-    procedure UnregisterEnvironment(const APlatform: TPyEnvironment.TPlatform;
-      const AArchitecture: TPyEnvironment.TArchitecture;
-      APythonVersion: string; ASettings: IEnvironmentSettings);
-
-    function UseEnvironment(const APlatform: TPyEnvironment.TPlatform;
-      const AArchitecture: TPyEnvironment.TArchitecture;
-      APythonVersion: string; APythonEngine: TPythonEngine): boolean; overload;
-    function UseEnvironment(APythonVersion: string; APythonEngine: TPythonEngine): boolean; overload;
-
-    class procedure Patch(APythonEngine: TPythonEngine; ASettings: IEnvironmentSettings);
-
-    class property Instance: TPyManager read FInstance;
+    constructor Create(AOwner: TComponent); override;
+  published
+    property Enabled: boolean read FEnabled write FEnabled default true;
+    property PythonVersion: string read FPythonVersion write FPythonVersion;
+    property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
   end;
 
 implementation
 
 uses
-  System.SysUtils;
+  PyEnvironment.Collection;
 
 { TPyManager }
 
-class constructor TPyManager.Create;
-begin
-  FInstance := TPyManager.Create();
-end;
-
-class destructor TPyManager.Destroy;
-begin
-  FInstance.Free();
-end;
-
-constructor TPyManager.Create;
+constructor TPyManager.Create(AOwner: TComponent);
 begin
   inherited;
-  FDictionary := TDictionary<string, IEnvironmentSettings>.Create();
+  FEnabled := true;
 end;
 
-destructor TPyManager.Destroy;
+procedure TPyManager.Loaded;
 begin
-  FDictionary.Free();
   inherited;
+  if Assigned(FPythonEngine) and FEnabled then
+    TPyEnvironmentCollection.Instance.UseEnvironment(FPythonVersion, FPythonEngine);
 end;
 
-procedure TPyManager.RegisterEnvironment(
-  const APlatform: TPyEnvironment.TPlatform;
-  const AArchitecture: TPyEnvironment.TArchitecture; APythonVersion: string;
-  ASettings: IEnvironmentSettings);
+procedure TPyManager.SetPythonEngine(const Value: TPythonEngine);
 begin
-  FDictionary.Add(FormatKey(APlatform, AArchitecture, APythonVersion), ASettings);
-end;
-
-procedure TPyManager.UnregisterEnvironment(
-  const APlatform: TPyEnvironment.TPlatform;
-  const AArchitecture: TPyEnvironment.TArchitecture;
-  APythonVersion: string; ASettings: IEnvironmentSettings);
-var
-  LKey: string;
-  LSettings: IEnvironmentSettings;
-begin
-  LKey := FormatKey(APlatform, AArchitecture, APythonVersion);
-  if FDictionary.TryGetValue(LKey, LSettings) and (LSettings = ASettings) then
-    FDictionary.Remove(LKey);
-end;
-
-function TPyManager.FormatKey(const APlatform: TPyEnvironment.TPlatform;
-  const AArchitecture: TPyEnvironment.TArchitecture;
-  APythonVersion: string): string;
-begin
-  Result := Format('%s.%s.%s', [APlatform.ToString(), AArchitecture.ToString(), APythonVersion]);
-end;
-
-class procedure TPyManager.Patch(APythonEngine: TPythonEngine;
-  ASettings: IEnvironmentSettings);
-var
-  LSharedLibrary: string;
-begin
-  APythonEngine.UseLastKnownVersion := false;
-  APythonEngine.PythonHome := ASettings.GetHome();
-  APythonEngine.ProgramName := ASettings.GetProgramName();
-  LSharedLibrary := ASettings.GetSharedLibrary();
-  APythonEngine.DllPath := ExtractFilePath(LSharedLibrary);
-  APythonEngine.DllName := ExtractFileName(LSharedLibrary);
-  APythonEngine.InitScript.Add('import sys');
-  APythonEngine.InitScript.Add(Format('sys.executable = r"%s"', [ASettings.GetExecutable()]));
-end;
-
-function TPyManager.UseEnvironment(APythonVersion: string;
-  APythonEngine: TPythonEngine): boolean;
-begin
-  if UseEnvironment(
-    //Current platform
-    TPyEnvironment.TPlatform.FromSysPlatform(TOSVersion.Platform),
-    //Current architecture
-    TPyEnvironment.TArchitecture.FromSysArchitecture(TOSVersion.Architecture),
-    APythonVersion, APythonEngine)
-  then
-    Result := true
-  else
-    Result := UseEnvironment(
-      TPyEnvironment.TPlatform.pfAny,
-      TPyEnvironment.TArchitecture.arAny,
-      APythonVersion, APythonEngine)
-end;
-
-function TPyManager.UseEnvironment(const APlatform: TPyEnvironment.TPlatform;
-  const AArchitecture: TPyEnvironment.TArchitecture; APythonVersion: string;
-  APythonEngine: TPythonEngine): boolean;
-var
-  LSettings: IEnvironmentSettings;
-begin
-  Result := FDictionary.TryGetValue(FormatKey(APlatform, AArchitecture, APythonVersion), LSettings);
-  if Result then
-    TPyManager.Patch(APythonEngine, LSettings);
+  if (Value <> FPythonEngine) then begin
+    FPythonEngine := Value;
+    if Assigned(FPythonEngine) then
+      FPythonEngine.AutoLoad := false;
+  end;
 end;
 
 end.

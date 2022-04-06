@@ -38,7 +38,7 @@ type
   TPyExecCmdResultCode = integer;
 
 const
-  DSE_PALETTE_NAME = 'P4D - Data Science Ecosystem';
+  DSE_PALETTE_NAME = 'Python - Data Science Ecosystem';
 
 implementation
 
