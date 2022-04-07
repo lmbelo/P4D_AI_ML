@@ -41,7 +41,10 @@ uses
 procedure Register();
 begin
   RegisterComponents('Python - Environments', [
-    {TPyManager, TPyEnvironmentEmbedded, TPyEnvironmentShared,} TPyEmbeddedEnvironment, TPyTransientEnvironment]);
+    //Environments
+    TPyEmbeddedEnvironment, TPyTransientEnvironment,
+    //Add-ons
+    TPyEnvironmentAddOns, TPyEnvironmentAddOnUser, TPyEnvironmentAddOnGetPip]);
 end;
 
 end.

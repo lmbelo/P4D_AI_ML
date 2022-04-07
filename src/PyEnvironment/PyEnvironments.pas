@@ -7,6 +7,31 @@ uses
   PythonEngine;
 
 type
+  TPyEnvironmentItem = class;
+  TPyEnvironmentAddOns = class;
+
+  TPyEnvironmentAddOnExecute = procedure(AEnvironment: TPyEnvironmentItem) of object;
+
+  TPyEnvironmentCustomAddOn = class(TComponent)
+  private
+    FAddOns: TPyEnvironmentAddOns;
+    FOnExecute: TPyEnvironmentAddOnExecute;
+  public
+    procedure Execute(AEnvironment: TPyEnvironmentItem); virtual; abstract;
+  published
+    property AddOns: TPyEnvironmentAddOns read FAddOns write FAddOns;
+    property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
+  end;
+
+  TPyEnvironmentAddOnUser = class(TPyEnvironmentCustomAddOn);
+
+  TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn);
+
+  TPyEnvironmentAddOns = class(TComponent);
+
+
+
+
   TPyEnvironmentItem = class abstract(TCollectionItem)
   private
     FPythonVersion: string;
@@ -35,6 +60,7 @@ type
     FAutoLoad: boolean;
     FPythonEngine: TPythonEngine;
     FPythonVersion: string;
+    FAddOns: TPyEnvironmentAddOns;
     procedure SetEnvironments(const Value: TPyEnvironmentCollection);
     procedure SetPythonEngine(const Value: TPythonEngine);
   protected 
@@ -53,6 +79,7 @@ type
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
     property PythonVersion: string read FPythonVersion write FPythonVersion;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
+    property AddOns: TPyEnvironmentAddOns read FAddOns write FAddOns;
   end;
 
 
