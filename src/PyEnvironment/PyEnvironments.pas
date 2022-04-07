@@ -39,6 +39,7 @@ type
     procedure SetPythonEngine(const Value: TPythonEngine);
   protected 
     procedure Loaded(); override;
+    procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
   protected
     function CreateCollection(): TPyEnvironmentCollection; virtual; abstract;
     procedure Prepare(); virtual;
@@ -231,6 +232,15 @@ begin
     Prepare();
 end;
 
+procedure TPyEnvironment.Notification(AComponent: TComponent;
+  AOperation: TOperation);
+begin
+  inherited;
+  if (AOperation = opRemove) and (AComponent = FPythonEngine) then begin
+    FPythonEngine := nil;
+  end;
+end;
+
 procedure TPyEnvironment.Prepare;
 begin
   if FAutoLoad and Assigned(FPythonEngine) then
@@ -246,9 +256,13 @@ end;
 procedure TPyEnvironment.SetPythonEngine(const Value: TPythonEngine);
 begin
   if (Value <> FPythonEngine) then begin
-    FPythonEngine := Value;
     if Assigned(FPythonEngine) then
+      FPythonEngine.RemoveFreeNotification(Self);
+    FPythonEngine := Value;
+    if Assigned(FPythonEngine) then begin
+      FPythonEngine.FreeNotification(Self);
       FPythonEngine.AutoLoad := false;
+    end;
   end;
 end;
 
@@ -424,17 +438,18 @@ begin
   if not TFile.Exists(FFilePath) then
     raise Exception.Create('File not found.');
 
-  EnumerateEnvironments(procedure(APythonVersion: string; AEnvironmentInfo: TJSONObject) 
-  var
-    LItem: TPyTransientItem;
-  begin 
-    LItem := TPyTransientItem(Environments.Add());
-    LItem.PythonVersion := APythonVersion;
-    AEnvironmentInfo.TryGetValue<string>('home', LItem.FHome);
-    AEnvironmentInfo.TryGetValue<string>('program_name', LItem.FProgramName);
-    AEnvironmentInfo.TryGetValue<string>('shared_library', LItem.FSharedLibrary);
-    AEnvironmentInfo.TryGetValue<string>('executable', LItem.FExecutable);
-  end);
+  EnumerateEnvironments(
+    procedure(APythonVersion: string; AEnvironmentInfo: TJSONObject)
+    var
+      LItem: TPyTransientItem;
+    begin
+      LItem := TPyTransientItem(Environments.Add());
+      LItem.PythonVersion := APythonVersion;
+      AEnvironmentInfo.TryGetValue<string>('home', LItem.FHome);
+      AEnvironmentInfo.TryGetValue<string>('program_name', LItem.FProgramName);
+      AEnvironmentInfo.TryGetValue<string>('shared_library', LItem.FSharedLibrary);
+      AEnvironmentInfo.TryGetValue<string>('executable', LItem.FExecutable);
+    end);
 
   inherited;
 end;
