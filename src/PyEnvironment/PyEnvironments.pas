@@ -4,33 +4,49 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.JSON,
-  PythonEngine;
+  PythonEngine, System.Generics.Collections;
 
 type
+  TExecuteAction = byte;
   TPyEnvironmentItem = class;
+  TPyEnvironmentCustomAddOn = class;
   TPyEnvironmentAddOns = class;
+  TPyEnvironment = class;
 
-  TPyEnvironmentAddOnExecute = procedure(AEnvironment: TPyEnvironmentItem) of object;
+  TPyEnvironmentAddOnExecute = procedure(AAction: TExecuteAction; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem) of object;
+  TPyEnvironmentAddOnExecuteError = procedure(AException: Exception; const AAddOn: TPyEnvironmentCustomAddOn; AEnvironment: TPyEnvironmentItem) of object;
 
   TPyEnvironmentCustomAddOn = class(TComponent)
   private
     FAddOns: TPyEnvironmentAddOns;
     FOnExecute: TPyEnvironmentAddOnExecute;
+    procedure SetAddOns(const Value: TPyEnvironmentAddOns);
+  protected
+    procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
   public
-    procedure Execute(AEnvironment: TPyEnvironmentItem); virtual; abstract;
+    procedure Execute(AAction: TExecuteAction; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem); virtual;
   published
-    property AddOns: TPyEnvironmentAddOns read FAddOns write FAddOns;
+    property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
     property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
   end;
 
   TPyEnvironmentAddOnUser = class(TPyEnvironmentCustomAddOn);
 
-  TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn);
+  TPyEnvironmentAddOns = class(TComponent)
+  private
+    FList: TList<TPyEnvironmentCustomAddOn>;
+    FOnExecuteError: TPyEnvironmentAddOnExecuteError;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy(); override;
 
-  TPyEnvironmentAddOns = class(TComponent);
+    procedure Add(AAddOn: TPyEnvironmentCustomAddOn);
+    procedure Remove(AAddOn: TPyEnvironmentCustomAddOn);
 
-
-
+    procedure Execute(AAction: TExecuteAction; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem);
+  published
+    property OnExecuteError: TPyEnvironmentAddOnExecuteError read FOnExecuteError write FOnExecuteError;
+  end;
 
   TPyEnvironmentItem = class abstract(TCollectionItem)
   private
@@ -69,6 +85,7 @@ type
   protected
     function CreateCollection(): TPyEnvironmentCollection; virtual; abstract;
     procedure Prepare(); virtual;
+    procedure NotifyAction(AAction: TExecuteAction; AEnvironment: TPyEnvironmentItem); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -194,6 +211,10 @@ type
   EEmbeddableNotFound = class(Exception);
   EInvalidFileStructure = class(Exception);
 
+const
+  BEFORE_SETUP_ACTION = $0;
+  AFTER_SETUP_ACTION = $1;
+
 implementation
 
 uses
@@ -226,6 +247,8 @@ begin
   if not Assigned(LItem) then
     Exit();
 
+  NotifyAction(BEFORE_SETUP_ACTION, LItem);
+
   LItem.Setup();
 
   FPythonEngine.UnloadDll();
@@ -238,6 +261,8 @@ begin
 
   FPythonEngine.ExecString('import sys');
   FPythonEngine.ExecString(AnsiString(Format('sys.executable = r"%s"', [LItem.Executable])));
+
+  NotifyAction(AFTER_SETUP_ACTION, LItem);
 end;
 
 constructor TPyEnvironment.Create(AOwner: TComponent);
@@ -266,6 +291,15 @@ begin
   if (AOperation = opRemove) and (AComponent = FPythonEngine) then begin
     FPythonEngine := nil;
   end;
+end;
+
+procedure TPyEnvironment.NotifyAction(AAction: TExecuteAction;
+  AEnvironment: TPyEnvironmentItem);
+begin
+  if not Assigned(FAddOns) then
+    Exit();
+
+  FAddOns.Execute(AAction, Self, AEnvironment);
 end;
 
 procedure TPyEnvironment.Prepare;
@@ -506,6 +540,83 @@ begin
       Continue;
 
     ACallback(PYTHON_KNOWN_VERSIONS[I], LFiles[0]);
+  end;
+end;
+
+{ TPyEnvironmentCustomAddOn }
+
+procedure TPyEnvironmentCustomAddOn.Execute(AAction: TExecuteAction;
+  AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem);
+begin
+  if Assigned(FOnExecute) then
+    FOnExecute(AAction, AManager, AEnvironment);
+end;
+
+procedure TPyEnvironmentCustomAddOn.Notification(AComponent: TComponent;
+  AOperation: TOperation);
+begin
+  inherited;
+  if (AOperation = opRemove) and (AComponent = FAddOns) then begin
+    SetAddOns(nil);
+  end;
+end;
+
+procedure TPyEnvironmentCustomAddOn.SetAddOns(
+  const Value: TPyEnvironmentAddOns);
+begin
+  if Assigned(FAddOns) then begin
+    FAddOns.RemoveFreeNotification(Self);
+    FAddOns.Remove(Self);
+  end;
+
+  FAddOns := Value;
+  if Assigned(FAddOns) then begin
+    FAddOns.FreeNotification(Self);
+    FAddOns.Add(Self);
+  end;
+end;
+
+{ TPyEnvironmentAddOns }
+
+constructor TPyEnvironmentAddOns.Create(AOwner: TComponent);
+begin
+  inherited;
+  FList := TList<TPyEnvironmentCustomAddOn>.Create();
+end;
+
+destructor TPyEnvironmentAddOns.Destroy;
+begin
+  FList.Free();
+  inherited;
+end;
+
+procedure TPyEnvironmentAddOns.Add(AAddOn: TPyEnvironmentCustomAddOn);
+begin
+  if not FList.Contains(AAddOn) then
+    FList.Add(AAddOn);
+end;
+
+procedure TPyEnvironmentAddOns.Remove(AAddOn: TPyEnvironmentCustomAddOn);
+begin
+  if FList.Contains(AAddOn) then
+    FList.Remove(AAddOn);
+end;
+
+procedure TPyEnvironmentAddOns.Execute(AAction: TExecuteAction;
+  AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem);
+var
+  LItem: TPyEnvironmentCustomAddOn;
+begin
+  for LItem in FList do begin
+    try
+      LItem.Execute(AAction, AManager, AEnvironment);
+    except
+      on E: Exception do
+        if Assigned(FOnExecuteError) then begin
+          FOnExecuteError(E, LItem, AEnvironment);
+        end else
+          raise;
+    end;
   end;
 end;
 
