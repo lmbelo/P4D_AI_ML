@@ -36,7 +36,7 @@ procedure Register();
 implementation
 
 uses
-  Classes, PyEnvironment.Manager, PyEnvironment.Embedded, PyEnvironment.Shared, PyEnvironments;
+  Classes, PyEnvironments, PyEnvironment.AddOnGetPip;
 
 procedure Register();
 begin
