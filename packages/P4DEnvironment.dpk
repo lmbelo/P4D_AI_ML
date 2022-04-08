@@ -40,6 +40,7 @@ contains
   PyEnvironment.Intf in '..\src\PyEnvironment\PyEnvironment.Intf.pas',
   PyEnvironment.Collection in '..\src\PyEnvironment\PyEnvironment.Collection.pas',
   PyEnvironment.Manager in '..\src\PyEnvironment\PyEnvironment.Manager.pas',
-  PyEnvironments in '..\src\PyEnvironment\PyEnvironments.pas';
+  PyEnvironments in '..\src\PyEnvironment\PyEnvironments.pas',
+  PyEnvironment.AddOnGetPip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOnGetPip.pas';
 
 end.
