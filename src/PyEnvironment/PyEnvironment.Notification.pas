@@ -33,23 +33,21 @@ unit PyEnvironment.Notification;
 interface
 
 uses
-  System.Classes, System.Generics.Collections,
-  PyEnvironment.Info;
+  System.Classes, System.Generics.Collections;
 
 type
   TEnvironmentNotification = byte;
 
   TOnReceiveNotification = procedure(ANotifier: TObject;
-    ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
-    const AArgs: TObject) of object;
+    ANotification: TEnvironmentNotification; const AArgs: TObject) of object;
 
   TOnSendNotification = procedure(ANotification: TEnvironmentNotification;
-    AInfo: TPyEnvironmentInfo; var ABroadcast: boolean) of object;
+    var ABroadcast: boolean; const AArgs: TObject) of object;
 
   IEnvironmentNotified = interface
     ['{D528B694-C4C4-4A96-BF40-2153CCC80243}']
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
+      const AArgs: TObject);
   end;
 
   IEnvironmentNotifier = interface
@@ -58,7 +56,7 @@ type
     procedure RemoveListener(const AListener: IEnvironmentNotified);
 
     procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
+      const AArgs: TObject);
   end;
 
   TEnvironmentBroadcaster = class(TInterfacedPersistent, IEnvironmentNotifier)
@@ -77,7 +75,7 @@ type
     procedure RemoveListener(const AListener: IEnvironmentNotified);
 
     procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo; const AArgs: TObject = nil);
+      const AArgs: TObject);
 
     class property Instance: TEnvironmentBroadcaster read FInstance write FInstance;
   end;
@@ -87,8 +85,10 @@ const
   AFTER_ACTIVATE_NOTIFICATION = $1;
   BEFORE_DEACTIVATE_NOTIFICATION = $02;
   AFTER_DEACTIVATE_NOTIFICATION = $03;
-  BEFORE_CREATE_ENVIRONMENT = $04;
-  AFTER_CREATE_ENVIRONMENT = $05;
+  BEFORE_CREATE_ENVIRONMENT_NOTIFICATION = $04;
+  AFTER_CREATE_ENVIRONMENT_NOTIFICATION = $05;
+  BEFORE_UNZIP_NOTIFICATION = $06;
+  AFTER_UNZIP_NOTIFICATION = $07;
 
 implementation
 
@@ -127,13 +127,12 @@ begin
 end;
 
 procedure TEnvironmentBroadcaster.NotifyAll(ANotifier: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
-  const AArgs: TObject);
+  ANotification: TEnvironmentNotification; const AArgs: TObject);
 var
   LListener: IEnvironmentNotified;
 begin
   for LListener in FListeners do begin
-    LListener.NotifyUpadte(ANotifier, ANotification, AInfo, AArgs);
+    LListener.NotifyUpadte(ANotifier, ANotification, AArgs);
   end;
 end;
 

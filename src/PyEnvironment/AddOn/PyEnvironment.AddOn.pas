@@ -72,7 +72,7 @@ type
   private
     FEnabled: boolean;
     procedure NotifyUpadte(ASender: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
+      const AArgs: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -148,21 +148,21 @@ begin
 end;
 
 procedure TPyEnvironmentAddOns.NotifyUpadte(ASender: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
+  ANotification: TEnvironmentNotification;
   const AArgs: TObject);
 var
   LItem: TPyEnvironmentCustomAddOn;
 begin
-  if not FEnabled then
+  if not (FEnabled and (AArgs is TPyEnvironmentInfo)) then
     Exit;
 
   for LItem in FList do begin
     try
-      LItem.Execute(ASender, ANotification, AInfo);
+      LItem.Execute(ASender, ANotification, TPyEnvironmentInfo(AArgs));
     except
       on E: Exception do
         if Assigned(FOnExecuteError) then begin
-          FOnExecuteError(E, LItem, AInfo);
+          FOnExecuteError(E, LItem, TPyEnvironmentInfo(AArgs));
         end else
           raise;
     end;

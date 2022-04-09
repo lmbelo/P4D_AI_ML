@@ -134,7 +134,9 @@ uses
 procedure TPyEmbeddableInfo.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
+  TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_UNZIP_NOTIFICATION, Self);
   TZipFile.ExtractZipFile(FEmbeddablePackage, GetEnvironmentPath(), DoZipProgressEvt);
+  TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_UNZIP_NOTIFICATION, Self);
 end;
 
 procedure TPyEmbeddableInfo.DoZipProgressEvt(Sender: TObject; FileName: string;
@@ -203,9 +205,9 @@ begin
       raise EEmbeddableNotFound.CreateFmt(
         'Embeddable package not found.' + #13#10 + '%s', [FEmbeddablePackage]);
 
-    TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_CREATE_ENVIRONMENT, Self);
+    TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_CREATE_ENVIRONMENT_NOTIFICATION, Self);
     CreateEnvironment();
-    TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_CREATE_ENVIRONMENT, Self);
+    TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_CREATE_ENVIRONMENT_NOTIFICATION, Self);
   end;
 
   if FScanned then
