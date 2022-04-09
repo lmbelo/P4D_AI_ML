@@ -7,9 +7,8 @@ uses
 
 type
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
-
   public
-    procedure Execute(AAction: TExecuteAction; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem); override;
+    procedure Execute(AAction: TEnvironmentNotification; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem); override;
   end;
 
   EPipSetupFailed = class(Exception);
@@ -20,9 +19,11 @@ uses
   System.Classes, System.Types, System.IOUtils, System.Variants,
   VarPyth;
 
+ {$R ..\..\..\resources\getpipscript.res}
+
 { TPyEnvinonmentAddOnGetPip }
 
-procedure TPyEnvironmentAddOnGetPip.Execute(AAction: TExecuteAction;
+procedure TPyEnvironmentAddOnGetPip.Execute(AAction: TEnvironmentNotification;
   AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem);
 var
   LResStream: TResourceStream;
@@ -34,7 +35,7 @@ var
   LOut: variant;
 begin
   inherited;
-  if (AAction <> AFTER_SETUP_ACTION) then
+  if (AAction <> AFTER_SETUP_NOTIFICATION) then
     Exit;
 
   LSubproc := Import('subprocess');
