@@ -40,7 +40,8 @@ type
   TEnvironmentNotification = byte;
 
   TOnReceiveNotification = procedure(ANotifier: TObject;
-    ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo) of object;
+    ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
+    const AArgs: TObject) of object;
 
   TOnSendNotification = procedure(ANotification: TEnvironmentNotification;
     AInfo: TPyEnvironmentInfo; var ABroadcast: boolean) of object;
@@ -48,7 +49,7 @@ type
   IEnvironmentNotified = interface
     ['{D528B694-C4C4-4A96-BF40-2153CCC80243}']
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
   end;
 
   IEnvironmentNotifier = interface
@@ -57,7 +58,7 @@ type
     procedure RemoveListener(const AListener: IEnvironmentNotified);
 
     procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
   end;
 
   TEnvironmentBroadcaster = class(TInterfacedPersistent, IEnvironmentNotifier)
@@ -76,7 +77,7 @@ type
     procedure RemoveListener(const AListener: IEnvironmentNotified);
 
     procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      AInfo: TPyEnvironmentInfo; const AArgs: TObject = nil);
 
     class property Instance: TEnvironmentBroadcaster read FInstance write FInstance;
   end;
@@ -126,12 +127,13 @@ begin
 end;
 
 procedure TEnvironmentBroadcaster.NotifyAll(ANotifier: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
+  const AArgs: TObject);
 var
   LListener: IEnvironmentNotified;
 begin
   for LListener in FListeners do begin
-    LListener.NotifyUpadte(ANotifier, ANotification, AInfo);
+    LListener.NotifyUpadte(ANotifier, ANotification, AInfo, AArgs);
   end;
 end;
 

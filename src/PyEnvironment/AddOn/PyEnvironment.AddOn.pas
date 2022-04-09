@@ -72,7 +72,7 @@ type
   private
     FEnabled: boolean;
     procedure NotifyUpadte(ASender: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -148,7 +148,8 @@ begin
 end;
 
 procedure TPyEnvironmentAddOns.NotifyUpadte(ASender: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
+  const AArgs: TObject);
 var
   LItem: TPyEnvironmentCustomAddOn;
 begin

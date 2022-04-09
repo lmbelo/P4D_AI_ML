@@ -58,7 +58,7 @@ type
       AInfo: TPyEnvironmentInfo); virtual;
     //IEnvironmentNotified implementation
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      AInfo: TPyEnvironmentInfo; const AArgs: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -158,10 +158,11 @@ begin
 end;
 
 procedure TPyCustomEnvironment.NotifyUpadte(ANotifier: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo;
+  const AArgs: TObject);
 begin
   if (ANotifier <> Self) and Assigned(FOnReceiveNotification) then
-    FOnReceiveNotification(ANotifier, ANotification, AInfo);
+    FOnReceiveNotification(ANotifier, ANotification, AInfo, AArgs);
 end;
 
 procedure TPyCustomEnvironment.NotifyAll(ANotification: TEnvironmentNotification;
