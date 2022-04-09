@@ -34,9 +34,12 @@ requires
   Python;
 
 contains
-  PyEnvironments in '..\src\PyEnvironment\PyEnvironments.pas',
-  PyEnvironment.AddOnGetPip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOnGetPip.pas',
-  PyEnvironment.Transient in '..\src\PyEnvironment\PyEnvironment.Transient.pas',
-  PyEnvironment.Embeddable in '..\src\PyEnvironment\PyEnvironment.Embeddable.pas';
+  PyEnvironment in '..\src\PyEnvironment\PyEnvironment.pas',
+  PyEnvironment.AddOn.GetPip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.GetPip.pas',
+  PyEnvironment.Local in '..\src\PyEnvironment\PyEnvironment.Local.pas',
+  PyEnvironment.Embeddable in '..\src\PyEnvironment\PyEnvironment.Embeddable.pas',
+  PyEnvironment.Info in '..\src\PyEnvironment\PyEnvironment.Info.pas',
+  PyEnvironment.AddOn in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.pas',
+  PyEnvironment.Notification in '..\src\PyEnvironment\PyEnvironment.Notification.pas';
 
 end.

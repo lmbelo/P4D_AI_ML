@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvironments.Transient'                               *)
+(* Module:  Unit 'PyEnvironment.Local'                                    *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironments Transient layer                        *)
+(*  Functionality:  PyEnvironment Local                                   *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -28,12 +28,13 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvironment.Transient;
+unit PyEnvironment.Local;
 
 interface
 
 uses
-  System.Classes, System.SysUtils, System.JSON, PyEnvironments;
+  System.Classes, System.SysUtils, System.JSON,
+  PyEnvironment, PyEnvironment.Info;
 
 type
   (*-----------------------------------------------------------------------*)
@@ -47,12 +48,15 @@ type
   (*          "shared_library": "",                                        *)
   (*          "executable": ""}}]                                          *)
   (*-----------------------------------------------------------------------*)
-  TPyTransientItem = class(TPyEnvironmentItem);
+  TPyLocalInfo = class(TPyEnvironmentInfo)
+  public
+    procedure Setup(); override;
+  end;
 
-  TPyTransientCollection = class(TPyEnvironmentCollection);
+  TPyLocalCollection = class(TPyEnvironmentCollection);
 
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyTransientEnvironment = class(TPyEnvironment)
+  TPyLocalEnvironment = class(TPyCustomEnvironment)
   private
     FFilePath: string;
     procedure EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
@@ -63,19 +67,21 @@ type
     property FilePath: string read FFilePath write FFilePath;
   end;
 
+  EInvalidFileStructure = class(Exception);
+
 implementation
 
 uses
   System.IOUtils, PythonEngine;
 
-{ TPyTransientEnvironment }
+{ TPyLocalEnvironment }
 
-function TPyTransientEnvironment.CreateCollection: TPyEnvironmentCollection;
+function TPyLocalEnvironment.CreateCollection: TPyEnvironmentCollection;
 begin
-  Result := TPyTransientCollection.Create(Self, TPyTransientItem);
+  Result := TPyLocalCollection.Create(Self, TPyLocalInfo);
 end;
 
-procedure TPyTransientEnvironment.EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
+procedure TPyLocalEnvironment.EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
 var
   LPythonVersions: TJSONValue;
   I: Integer;
@@ -111,7 +117,7 @@ begin
   end;
 end;
 
-procedure TPyTransientEnvironment.Prepare;
+procedure TPyLocalEnvironment.Prepare;
 begin
   if not TFile.Exists(FFilePath) then
     raise Exception.Create('File not found.');
@@ -119,9 +125,9 @@ begin
   EnumerateEnvironments(
     procedure(APythonVersion: string; AEnvironmentInfo: TJSONObject)
     var
-      LItem: TPyTransientItem;
+      LItem: TPyLocalInfo;
     begin
-      LItem := TPyTransientItem(Environments.Add());
+      LItem := TPyLocalInfo(Environments.Add());
       LItem.PythonVersion := APythonVersion;
       LItem.Home := AEnvironmentInfo.GetValue<string>('home');
       LItem.ProgramName := AEnvironmentInfo.GetValue<string>('program_name');
@@ -129,6 +135,13 @@ begin
       LItem.Executable := AEnvironmentInfo.GetValue<string>('executable');
     end);
 
+  inherited;
+end;
+
+{ TPyLocalInfo }
+
+procedure TPyLocalInfo.Setup;
+begin
   inherited;
 end;
 

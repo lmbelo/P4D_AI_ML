@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvironments.AddOnGetPip'                             *)
+(* Module:  Unit 'PyEnvironment.AddOnGetPip'                              *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironments GetPip plugin                          *)
+(*  Functionality:  PyEnvironment GetPip plugin                           *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -28,17 +28,19 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvironment.AddOnGetPip;
+unit PyEnvironment.AddOn.GetPip;
 
 interface
 
 uses
-  System.SysUtils, PyEnvironments;
+  System.SysUtils,
+  PyEnvironment.AddOn, PyEnvironment.Info, PyEnvironment.Notification;
 
 type
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
   public
-    procedure Execute(AAction: TEnvironmentNotification; AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem); override;
+    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
+      AInfo: TPyEnvironmentInfo); override;
   end;
 
   EPipSetupFailed = class(Exception);
@@ -46,15 +48,14 @@ type
 implementation
 
 uses
-  System.Classes, System.Types, System.IOUtils, System.Variants,
-  VarPyth;
+  System.Classes, System.Types, System.IOUtils, System.Variants, VarPyth;
 
  {$R ..\..\..\resources\getpipscript.res}
 
-{ TPyEnvinonmentAddOnGetPip }
+{ TPyEnvironmentAddOnGetPip }
 
-procedure TPyEnvironmentAddOnGetPip.Execute(AAction: TEnvironmentNotification;
-  AManager: TPyEnvironment; AEnvironment: TPyEnvironmentItem);
+procedure TPyEnvironmentAddOnGetPip.Execute(ASender: TObject;
+  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
 var
   LResStream: TResourceStream;
   LFileName: string;
@@ -65,7 +66,7 @@ var
   LOut: variant;
 begin
   inherited;
-  if (AAction <> AFTER_SETUP_NOTIFICATION) then
+  if (ANotification <> AFTER_ACTIVATE_NOTIFICATION) then
     Exit;
 
   LSubproc := Import('subprocess');
@@ -73,7 +74,7 @@ begin
   //Identify if PIP is available
   LOut := LSubproc.run(
     VarPythonCreate([
-      AEnvironment.Executable, '-m', 'pip', '--version'], stTuple),
+      AInfo.Executable, '-m', 'pip', '--version'], stTuple),
     capture_output:=true, text:=true, shell:=true);
 
   if (LOut.returncode = 0) then
@@ -81,7 +82,7 @@ begin
 
   //Patch the _pth file to work with site packages
   LPths := TDirectory.GetFiles(
-    AEnvironment.Home, 'python*._pth', TSearchOption.soTopDirectoryOnly);
+    AInfo.Home, 'python*._pth', TSearchOption.soTopDirectoryOnly);
   if (Length(LPths) > 0) then begin
     LStrings := TStringList.Create();
     try
@@ -102,7 +103,7 @@ begin
     LResStream.SaveToFile(LFileName);
 
     LOut := LSubproc.run(
-      VarPythonCreate([AEnvironment.Executable, LFileName], stTuple),
+      VarPythonCreate([AInfo.Executable, LFileName], stTuple),
       capture_output:=true, text:=true, shell:=true);
 
     if (LOut.returncode <> 0) then

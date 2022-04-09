@@ -1,14 +1,15 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvReg'         Copyright (c) 2021                    *)
+(* Module:  Unit 'PyEnvironments.PyEnvironment'                           *)
 (*                                                                        *)
+(*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
 (*                                  Brazil                                *)
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironments Components registration                *)
+(*  Functionality:  PyEnvironments Enfironment Info                       *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -27,27 +28,50 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvReg;
+unit PyEnvironment.Info;
 
 interface
 
-procedure Register();
+uses
+  System.Classes;
+
+type
+  TPyEnvironmentInfo = class abstract(TCollectionItem)
+  private
+    FPythonVersion: string;
+    FHome: string;
+    FProgramName: string;
+    FSharedLibrary: string;
+    FExecutable: string;
+  public
+    procedure Setup(); virtual; abstract;
+  published
+    property PythonVersion: string read FPythonVersion write FPythonVersion;
+    property Home: string read FHome write FHome;
+    property ProgramName: string read FProgramName write FProgramName;
+    property SharedLibrary: string read FSharedLibrary write FSharedLibrary;
+    property Executable: string read FExecutable write FExecutable;
+  end;
+
+  TPyEnvironmentCollection = class abstract(TOwnedCollection)
+  public
+    function LocateEnvironment(APythonVersion: string): TPyEnvironmentInfo; virtual;
+  end;
 
 implementation
 
-uses
-  Classes,
-  PyEnvironment,
-  PyEnvironment.Embeddable, PyEnvironment.Local,
-  PyEnvironment.AddOn, PyEnvironment.AddOn.GetPip;
+{ TPyEnvironmentCollection }
 
-procedure Register();
+function TPyEnvironmentCollection.LocateEnvironment(
+  APythonVersion: string): TPyEnvironmentInfo;
+var
+  I: Integer;
 begin
-  RegisterComponents('Python - Environments', [
-    //Environments
-    TPyEmbeddedEnvironment, TPyLocalEnvironment,
-    //Add-ons
-    TPyEnvironmentAddOns, TPyEnvironmentAddOnUser, TPyEnvironmentAddOnGetPip]);
+  for I := 0 to Count - 1 do begin
+    if (TPyEnvironmentInfo(Items[I]).PythonVersion = APythonVersion) then
+      Exit(TPyEnvironmentInfo(Items[I]));
+  end;
+  Result := nil;
 end;
 
 end.

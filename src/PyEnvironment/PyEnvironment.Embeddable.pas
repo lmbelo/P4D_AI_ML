@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvironments.Embeddable'                              *)
+(* Module:  Unit 'PyEnvironment.Embeddable'                               *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironments Embeddable layer                       *)
+(*  Functionality:  PyEnvironment Embeddable                              *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -33,7 +33,8 @@ unit PyEnvironment.Embeddable;
 interface
 
 uses
-  System.Classes, System.SysUtils, PyEnvironments, PythonEngine;
+  System.Classes, System.SysUtils,
+  PyEnvironment, PyEnvironment.Info, PythonEngine;
 
 type
   (*-----------------------------------------------------------------------*)
@@ -44,14 +45,14 @@ type
   (*  +-- python version/                                                  *)
   (*       +-- python zip                                                  *)
   (*-----------------------------------------------------------------------*)
-  TPyEmbeddableBaseItem = class(TPyEnvironmentItem)
+  TPyEmbeddableBaseInfo = class(TPyEnvironmentInfo)
   private
     FEnvironmentPath: string;
   published
     property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
   end;
 
-  TPyEmbeddableItem = class(TPyEmbeddableBaseItem)
+  TPyEmbeddableInfo = class(TPyEmbeddableBaseInfo)
   private
     FEmbeddablePackage: string;
     FScanned: boolean;
@@ -78,12 +79,10 @@ type
     property EmbeddablePackage: string read FEmbeddablePackage write FEmbeddablePackage;
   end;
 
-  TPyEmbeddableResourceItem = class(TPyEmbeddableBaseItem);
-
   TPyEmbeddableCollection = class(TPyEnvironmentCollection);
 
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyEmbeddedEnvironment = class(TPyEnvironment)
+  TPyEmbeddedEnvironment = class(TPyCustomEnvironment)
   private type
     TScanner = class(TPersistent)
     private
@@ -113,30 +112,32 @@ type
     property Scanner: TScanner read FScanner write SetScanner;
   end;
 
+  EEmbeddableNotFound = class(Exception);
+
 implementation
 
 uses
-  System.Zip, System.IOUtils;
+  System.Zip, System.IOUtils, PyEnvironment.Notification;
 
-{ TPyEmbeddableItem }
+{ TPyEmbeddableInfo }
 
-procedure TPyEmbeddableItem.CreateEnvironment;
+procedure TPyEmbeddableInfo.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
   TZipFile.ExtractZipFile(FEmbeddablePackage, GetEnvironmentPath());
 end;
 
-function TPyEmbeddableItem.EmbeddableExists: boolean;
+function TPyEmbeddableInfo.EmbeddableExists: boolean;
 begin
   Result := TFile.Exists(FEmbeddablePackage);
 end;
 
-function TPyEmbeddableItem.EnvironmentExists: boolean;
+function TPyEmbeddableInfo.EnvironmentExists: boolean;
 begin
   Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
-function TPyEmbeddableItem.FindExecutable: string;
+function TPyEmbeddableInfo.FindExecutable: string;
 begin
   {$IFDEF MSWINDOWS}
   Result := TPath.Combine(GetEnvironmentPath(), 'python.exe');
@@ -147,7 +148,7 @@ begin
   {$IFEND}
 end;
 
-function TPyEmbeddableItem.FindSharedLibrary: string;
+function TPyEmbeddableInfo.FindSharedLibrary: string;
 var
   I: integer;
   LLibName: string;
@@ -164,7 +165,7 @@ begin
     Result := String.Empty;
 end;
 
-procedure TPyEmbeddableItem.LoadSettings;
+procedure TPyEmbeddableInfo.LoadSettings;
 begin
   Home := GetEnvironmentPath();
   ProgramName := GetEnvironmentPath();
@@ -172,19 +173,22 @@ begin
   Executable := FindExecutable();
 end;
 
-function TPyEmbeddableItem.GetEnvironmentPath: string;
+function TPyEmbeddableInfo.GetEnvironmentPath: string;
 begin
-  Result := EnvironmentPath; //TPath.Combine(EnvironmentPath, PythonVersion);
+  Result := EnvironmentPath;
 end;
 
-procedure TPyEmbeddableItem.Setup;
+procedure TPyEmbeddableInfo.Setup;
 begin
   inherited;
   if not EnvironmentExists() then begin
     if not EmbeddableExists() then
       raise EEmbeddableNotFound.CreateFmt(
         'Embeddable package not found.' + #13#10 + '%s', [FEmbeddablePackage]);
+
+    TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_CREATE_ENVIRONMENT, Self);
     CreateEnvironment();
+    TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_CREATE_ENVIRONMENT, Self);
   end;
 
   if FScanned then
@@ -207,12 +211,12 @@ end;
 
 function TPyEmbeddedEnvironment.CreateCollection: TPyEnvironmentCollection;
 begin
-  Result := TPyEmbeddableCollection.Create(Self, TPyEmbeddableItem);
+  Result := TPyEmbeddableCollection.Create(Self, TPyEmbeddableInfo);
 end;
 
 procedure TPyEmbeddedEnvironment.Prepare;
 var
-  LItem: TPyEmbeddableItem;
+  LItem: TPyEmbeddableInfo;
 begin
   if FScanner.AutoScan then begin
     FScanner.Scan(
@@ -220,7 +224,7 @@ begin
         if Assigned(Environments.LocateEnvironment(APyVersionInfo.RegVersion)) then
           Exit;
 
-        LItem := TPyEmbeddableItem(Environments.Add());
+        LItem := TPyEmbeddableInfo(Environments.Add());
         LItem.Scanned := true;
         LItem.PythonVersion := APyVersionInfo.RegVersion;
         LItem.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
