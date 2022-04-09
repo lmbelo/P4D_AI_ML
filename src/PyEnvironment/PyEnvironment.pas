@@ -36,9 +36,6 @@ uses
   PyEnvironment.Info, PyEnvironment.AddOn, PyEnvironment.Notification, PythonEngine;
 
 type
-  TOnEnvironmentUpdated = procedure(ANotification: TEnvironmentNotification;
-    AInfo: TPyEnvironmentInfo; var ABroadcast: boolean) of object;
-
   TPyCustomEnvironment = class(TComponent, IEnvironmentNotified)
   private
     FEnvironments: TPyEnvironmentCollection;
@@ -46,7 +43,7 @@ type
     FPythonEngine: TPythonEngine;
     FPythonVersion: string;
     FAddOns: TPyEnvironmentAddOns;
-    FOnEnvironmentUpdated: TOnEnvironmentUpdated;
+    FOnSendNotification: TOnSendNotification;
     FOnReceiveNotification: TOnReceiveNotification;
     procedure SetEnvironments(const Value: TPyEnvironmentCollection);
     procedure SetPythonEngine(const Value: TPythonEngine);
@@ -57,7 +54,7 @@ type
   protected
     function CreateCollection(): TPyEnvironmentCollection; virtual; abstract;
     procedure Prepare(); virtual;
-    procedure NotifyUpdated(ANotification: TEnvironmentNotification;
+    procedure NotifyAll(ANotification: TEnvironmentNotification;
       AInfo: TPyEnvironmentInfo); virtual;
     //IEnvironmentNotified implementation
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
@@ -74,8 +71,8 @@ type
     property PythonVersion: string read FPythonVersion write FPythonVersion;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
     property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
-
-    property OnUpdated: TOnEnvironmentUpdated read FOnEnvironmentUpdated write FOnEnvironmentUpdated;
+    //Broacast events
+    property OnSendNotification: TOnSendNotification read FOnSendNotification write FOnSendNotification;
     property OnReceiveNotification: TOnReceiveNotification read FOnReceiveNotification write FOnReceiveNotification;
   end;
 
@@ -92,7 +89,6 @@ end;
 
 destructor TPyCustomEnvironment.Destroy;
 begin
-  Deactivate();
   TEnvironmentBroadcaster.Instance.RemoveListener(Self);
   FEnvironments.Free();
   inherited;
@@ -127,7 +123,7 @@ begin
   if not Assigned(LInfo) then
     Exit();
 
-  NotifyUpdated(BEFORE_ACTIVATE_NOTIFICATION, LInfo);
+  NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LInfo);
 
   LInfo.Setup();
 
@@ -142,12 +138,12 @@ begin
   FPythonEngine.ExecString('import sys');
   FPythonEngine.ExecString(AnsiString(Format('sys.executable = r"%s"', [LInfo.Executable])));
 
-  NotifyUpdated(AFTER_ACTIVATE_NOTIFICATION, LInfo);
+  NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LInfo);
 end;
 
 procedure TPyCustomEnvironment.Deactivate;
 begin
-  NotifyUpdated(BEFORE_DEACTIVATE_NOTIFICATION, nil);
+  NotifyAll(BEFORE_DEACTIVATE_NOTIFICATION, nil);
 
   if not Assigned(FPythonEngine) then
     Exit();
@@ -158,7 +154,7 @@ begin
   FPythonEngine.DllPath := String.Empty;
   FPythonEngine.DllName := String.Empty;
 
-  NotifyUpdated(AFTER_DEACTIVATE_NOTIFICATION, nil);
+  NotifyAll(AFTER_DEACTIVATE_NOTIFICATION, nil);
 end;
 
 procedure TPyCustomEnvironment.NotifyUpadte(ANotifier: TObject;
@@ -168,15 +164,15 @@ begin
     FOnReceiveNotification(ANotifier, ANotification, AInfo);
 end;
 
-procedure TPyCustomEnvironment.NotifyUpdated(ANotification: TEnvironmentNotification;
+procedure TPyCustomEnvironment.NotifyAll(ANotification: TEnvironmentNotification;
   AInfo: TPyEnvironmentInfo);
 var
   LBroadcast: Boolean;
 begin
   LBroadcast := true;
 
-  if Assigned(FOnEnvironmentUpdated) then
-    FOnEnvironmentUpdated(ANotification, AInfo, LBroadcast);
+  if Assigned(FOnSendNotification) then
+    FOnSendNotification(ANotification, AInfo, LBroadcast);
 
   if LBroadcast then
     TEnvironmentBroadcaster.Instance.NotifyAll(Self, ANotification, AInfo);
@@ -217,7 +213,8 @@ begin
     FPythonEngine := Value;
     if Assigned(FPythonEngine) then begin
       FPythonEngine.FreeNotification(Self);
-      FPythonEngine.AutoLoad := false;
+      if (csDesigning in ComponentState) then
+        FPythonEngine.AutoLoad := false;
     end;
   end;
 end;

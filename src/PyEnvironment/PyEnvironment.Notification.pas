@@ -42,6 +42,9 @@ type
   TOnReceiveNotification = procedure(ANotifier: TObject;
     ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo) of object;
 
+  TOnSendNotification = procedure(ANotification: TEnvironmentNotification;
+    AInfo: TPyEnvironmentInfo; var ABroadcast: boolean) of object;
+
   IEnvironmentNotified = interface
     ['{D528B694-C4C4-4A96-BF40-2153CCC80243}']
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;

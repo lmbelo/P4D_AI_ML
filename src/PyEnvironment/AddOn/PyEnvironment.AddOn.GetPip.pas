@@ -65,9 +65,10 @@ var
   LSubproc: variant;
   LOut: variant;
 begin
-  inherited;
   if (ANotification <> AFTER_ACTIVATE_NOTIFICATION) then
     Exit;
+
+  inherited;
 
   LSubproc := Import('subprocess');
 
