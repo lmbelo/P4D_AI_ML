@@ -33,10 +33,11 @@ unit PyEnvironment.AddOn.GetPip;
 interface
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes,
   PyEnvironment.AddOn, PyEnvironment.Info, PyEnvironment.Notification;
 
 type
+  [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
   public
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
@@ -48,7 +49,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Types, System.IOUtils, System.Variants, VarPyth;
+  System.Types, System.IOUtils, System.Variants, VarPyth;
 
  {$R ..\..\..\resources\getpipscript.res}
 

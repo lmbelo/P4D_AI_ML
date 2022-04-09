@@ -63,8 +63,10 @@ type
     property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
   end;
 
+  [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOnUser = class(TPyEnvironmentCustomAddOn);
 
+  [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOns = class(TComponent, IEnvironmentNotified)
   private
     FList: TList<TPyEnvironmentCustomAddOn>;
