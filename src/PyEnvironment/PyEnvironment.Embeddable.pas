@@ -33,7 +33,7 @@ unit PyEnvironment.Embeddable;
 interface
 
 uses
-  System.Classes, System.SysUtils,
+  System.Classes, System.SysUtils, System.Zip,
   PyEnvironment, PyEnvironment.Info, PythonEngine;
 
 type
@@ -45,6 +45,10 @@ type
   (*  +-- python version/                                                  *)
   (*       +-- python zip                                                  *)
   (*-----------------------------------------------------------------------*)
+
+  TPyEmbeddableInfo = class;
+  TZipProgress = procedure(Sender: TObject; AInfo: TPyEmbeddableInfo; FileName: string; Header: TZipHeader; Position: Int64) of object;
+
   TPyEmbeddableBaseInfo = class(TPyEnvironmentInfo)
   private
     FEnvironmentPath: string;
@@ -56,8 +60,11 @@ type
   private
     FEmbeddablePackage: string;
     FScanned: boolean;
+    FOnZipProgress: TZipProgress;
     function FindSharedLibrary(): string;
     function FindExecutable(): string;
+  private
+    procedure DoZipProgressEvt(Sender: TObject; FileName: string; Header: TZipHeader; Position: Int64);
   protected
     function EnvironmentExists(): boolean;
     /// <summary>
@@ -77,6 +84,7 @@ type
     property Scanned: boolean read FScanned write FScanned;
   published
     property EmbeddablePackage: string read FEmbeddablePackage write FEmbeddablePackage;
+    property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
   TPyEmbeddableCollection = class(TPyEnvironmentCollection);
@@ -101,6 +109,7 @@ type
     end;
   private
     FScanner: TScanner;
+    FOnZipProgress: TZipProgress;
     procedure SetScanner(const Value: TScanner);
   protected
     function CreateCollection(): TPyEnvironmentCollection; override;
@@ -110,6 +119,7 @@ type
     destructor Destroy(); override;
   published
     property Scanner: TScanner read FScanner write SetScanner;
+    property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
   EEmbeddableNotFound = class(Exception);
@@ -117,14 +127,21 @@ type
 implementation
 
 uses
-  System.Zip, System.IOUtils, PyEnvironment.Notification;
+  System.IOUtils, PyEnvironment.Notification;
 
 { TPyEmbeddableInfo }
 
 procedure TPyEmbeddableInfo.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
-  TZipFile.ExtractZipFile(FEmbeddablePackage, GetEnvironmentPath());
+  TZipFile.ExtractZipFile(FEmbeddablePackage, GetEnvironmentPath(), DoZipProgressEvt);
+end;
+
+procedure TPyEmbeddableInfo.DoZipProgressEvt(Sender: TObject; FileName: string;
+  Header: TZipHeader; Position: Int64);
+begin
+  if Assigned(FOnZipProgress) then
+    FOnZipProgress(Sender, Self, FileName, Header, Position);
 end;
 
 function TPyEmbeddableInfo.EmbeddableExists: boolean;
@@ -229,6 +246,7 @@ begin
         LItem.PythonVersion := APyVersionInfo.RegVersion;
         LItem.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
         LItem.EmbeddablePackage := AEmbeddablePackage;
+        LItem.OnZipProgress := FOnZipProgress;
       end);
   end;
   inherited;
