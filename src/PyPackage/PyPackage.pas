@@ -311,6 +311,10 @@ end;
 function TPyManagedPackage.GetPackageManager(
   const AManagerKind: TPyPackageManagerKind): IPyPackageManager;
 begin
+  if not FModel.PackageManagers.ContainsKey(AManagerKind) then
+    raise EManagerUnavailable.CreateFmt('%s manager unavailable for package %s', [
+      AManagerKind.ToString(), GetPyModuleName()]);
+
   Result := FModel.PackageManagers.Items[AManagerKind];
 end;
 
