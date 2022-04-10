@@ -67,20 +67,21 @@ type
   TPyEnvironmentAddOnUser = class(TPyEnvironmentCustomAddOn);
 
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyEnvironmentAddOns = class(TComponent, IEnvironmentNotified)
+  TPyEnvironmentAddOns = class(TComponent)
   private
     FList: TList<TPyEnvironmentCustomAddOn>;
     FOnExecuteError: TPyEnvironmentAddOnExecuteError;
   private
     FEnabled: boolean;
-    procedure NotifyUpadte(ASender: TObject; ANotification: TEnvironmentNotification;
-      const AArgs: TObject);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
     procedure Add(AAddOn: TPyEnvironmentCustomAddOn);
     procedure Remove(AAddOn: TPyEnvironmentCustomAddOn);
+
+    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
+      AInfo: TPyEnvironmentInfo);
   published
     property Enabled: boolean read FEnabled write FEnabled default true;
     property OnExecuteError: TPyEnvironmentAddOnExecuteError
@@ -137,6 +138,27 @@ begin
   inherited;
 end;
 
+procedure TPyEnvironmentAddOns.Execute(ASender: TObject;
+  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+var
+  LItem: TPyEnvironmentCustomAddOn;
+begin
+  if not FEnabled then
+    Exit;
+
+  for LItem in FList do begin
+    try
+      LItem.Execute(ASender, ANotification, AInfo);
+    except
+      on E: Exception do
+        if Assigned(FOnExecuteError) then begin
+          FOnExecuteError(E, LItem, AInfo);
+        end else
+          raise;
+    end;
+  end;
+end;
+
 procedure TPyEnvironmentAddOns.Add(AAddOn: TPyEnvironmentCustomAddOn);
 begin
   if not FList.Contains(AAddOn) then
@@ -147,28 +169,6 @@ procedure TPyEnvironmentAddOns.Remove(AAddOn: TPyEnvironmentCustomAddOn);
 begin
   if FList.Contains(AAddOn) then
     FList.Remove(AAddOn);
-end;
-
-procedure TPyEnvironmentAddOns.NotifyUpadte(ASender: TObject;
-  ANotification: TEnvironmentNotification;
-  const AArgs: TObject);
-var
-  LItem: TPyEnvironmentCustomAddOn;
-begin
-  if not (FEnabled and (AArgs is TPyEnvironmentInfo)) then
-    Exit;
-
-  for LItem in FList do begin
-    try
-      LItem.Execute(ASender, ANotification, TPyEnvironmentInfo(AArgs));
-    except
-      on E: Exception do
-        if Assigned(FOnExecuteError) then begin
-          FOnExecuteError(E, LItem, TPyEnvironmentInfo(AArgs));
-        end else
-          raise;
-    end;
-  end;
 end;
 
 end.
