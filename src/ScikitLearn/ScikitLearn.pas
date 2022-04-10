@@ -118,7 +118,7 @@ begin
     PackageName := 'scikitlearn';
     PackageManagers.Add(
       TPyPackageManagerKind.pip,
-      TPyPackageManagerPip.Create('scikitlearn'));
+      TPyPackageManagerPip.Create('scikit-learn'));
   end;
 end;
 
