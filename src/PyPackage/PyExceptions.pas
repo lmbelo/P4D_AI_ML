@@ -41,6 +41,8 @@ type
   EModuleNotReady = class(EPyCommonException)
   end;
 
+  EManagerNotAvailable = class(EPyCommonException);
+
   EPyPackageNotInstalled = class(EPyCommonException)
   end;
 
