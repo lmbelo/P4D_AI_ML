@@ -38,6 +38,21 @@ uses
 type
   TPyPackageManagerKind = (pip, conda);
 
+  TPyPackageManagerKindHelper = record helper for TPyPackageManagerKind
+  public
+    function ToString(): string;
+  end;
+
 implementation
+
+{ TPyPackageManagerKindHelper }
+
+function TPyPackageManagerKindHelper.ToString: string;
+begin
+  case Self of
+    pip   : Result := 'PIP';
+    conda : Result := 'Conda';
+  end;
+end;
 
 end.
