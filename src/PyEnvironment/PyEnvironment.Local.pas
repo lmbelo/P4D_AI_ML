@@ -56,7 +56,7 @@ type
   TPyLocalCollection = class(TPyEnvironmentCollection);
 
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyLocalEnvironment = class(TPyCustomEnvironment)
+  TPyLocalEnvironment = class(TPyEnvironment)
   private
     FFilePath: string;
     procedure EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
