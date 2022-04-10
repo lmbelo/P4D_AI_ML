@@ -46,20 +46,13 @@ type
   (*       +-- python zip                                                  *)
   (*-----------------------------------------------------------------------*)
 
-  TPyEmbeddableInfo = class;
-  TZipProgress = procedure(Sender: TObject; AInfo: TPyEmbeddableInfo; FileName: string; Header: TZipHeader; Position: Int64) of object;
+  TPyCustomEmbeddableInfo = class;
+  TZipProgress = procedure(Sender: TObject; AInfo: TPyCustomEmbeddableInfo; FileName: string; Header: TZipHeader; Position: Int64) of object;
 
-  TPyEmbeddableBaseInfo = class(TPyEnvironmentInfo)
-  private
-    FEnvironmentPath: string;
-  published
-    property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
-  end;
-
-  TPyEmbeddableInfo = class(TPyEmbeddableBaseInfo)
+  TPyCustomEmbeddableInfo = class(TPyEnvironmentInfo)
   private
     FEmbeddablePackage: string;
-    FScanned: boolean;
+    FEnvironmentPath: string;
     FOnZipProgress: TZipProgress;
     function FindSharedLibrary(): string;
     function FindExecutable(): string;
@@ -76,21 +69,37 @@ type
     ///   An embeddable distribution will be used as an "image".
     /// </summary>
     procedure CreateEnvironment(); virtual;
-    procedure LoadSettings();
+    procedure LoadSettings(); virtual;
   protected
     function GetEnvironmentPath(): string;
   public
     procedure Setup(); override;
-    property Scanned: boolean read FScanned write FScanned;
   published
     property EmbeddablePackage: string read FEmbeddablePackage write FEmbeddablePackage;
+    property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
     property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
+  end;
+
+  TPyEmbeddableInfo = class(TPyCustomEmbeddableInfo)
+  private
+    FScanned: boolean;
+  protected
+    procedure LoadSettings(); override;
+  public
+    property Scanned: boolean read FScanned write FScanned;
   end;
 
   TPyEmbeddableCollection = class(TPyEnvironmentCollection);
 
+  TPyCustomEmbeddedEnvironment = class(TPyEnvironment)
+  private
+    FOnZipProgress: TZipProgress;
+  published
+    property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
+  end;
+
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyEmbeddedEnvironment = class(TPyCustomEnvironment)
+  TPyEmbeddedEnvironment = class(TPyCustomEmbeddedEnvironment)
   private type
     TScanner = class(TPersistent)
     private
@@ -109,7 +118,6 @@ type
     end;
   private
     FScanner: TScanner;
-    FOnZipProgress: TZipProgress;
     procedure SetScanner(const Value: TScanner);
   protected
     function CreateCollection(): TPyEnvironmentCollection; override;
@@ -119,7 +127,6 @@ type
     destructor Destroy(); override;
   published
     property Scanner: TScanner read FScanner write SetScanner;
-    property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
   EEmbeddableNotFound = class(Exception);
@@ -129,9 +136,9 @@ implementation
 uses
   System.IOUtils, PyEnvironment.Notification;
 
-{ TPyEmbeddableInfo }
+{ TPyCustomEmbeddableInfo }
 
-procedure TPyEmbeddableInfo.CreateEnvironment;
+procedure TPyCustomEmbeddableInfo.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
   TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_UNZIP_NOTIFICATION, Self);
@@ -139,24 +146,24 @@ begin
   TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_UNZIP_NOTIFICATION, Self);
 end;
 
-procedure TPyEmbeddableInfo.DoZipProgressEvt(Sender: TObject; FileName: string;
+procedure TPyCustomEmbeddableInfo.DoZipProgressEvt(Sender: TObject; FileName: string;
   Header: TZipHeader; Position: Int64);
 begin
   if Assigned(FOnZipProgress) then
     FOnZipProgress(Sender, Self, FileName, Header, Position);
 end;
 
-function TPyEmbeddableInfo.EmbeddableExists: boolean;
+function TPyCustomEmbeddableInfo.EmbeddableExists: boolean;
 begin
   Result := TFile.Exists(FEmbeddablePackage);
 end;
 
-function TPyEmbeddableInfo.EnvironmentExists: boolean;
+function TPyCustomEmbeddableInfo.EnvironmentExists: boolean;
 begin
   Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
-function TPyEmbeddableInfo.FindExecutable: string;
+function TPyCustomEmbeddableInfo.FindExecutable: string;
 begin
   {$IFDEF MSWINDOWS}
   Result := TPath.Combine(GetEnvironmentPath(), 'python.exe');
@@ -167,7 +174,7 @@ begin
   {$IFEND}
 end;
 
-function TPyEmbeddableInfo.FindSharedLibrary: string;
+function TPyCustomEmbeddableInfo.FindSharedLibrary: string;
 var
   I: integer;
   LLibName: string;
@@ -184,7 +191,7 @@ begin
     Result := String.Empty;
 end;
 
-procedure TPyEmbeddableInfo.LoadSettings;
+procedure TPyCustomEmbeddableInfo.LoadSettings;
 begin
   Home := GetEnvironmentPath();
   ProgramName := GetEnvironmentPath();
@@ -192,12 +199,12 @@ begin
   Executable := FindExecutable();
 end;
 
-function TPyEmbeddableInfo.GetEnvironmentPath: string;
+function TPyCustomEmbeddableInfo.GetEnvironmentPath: string;
 begin
   Result := EnvironmentPath;
 end;
 
-procedure TPyEmbeddableInfo.Setup;
+procedure TPyCustomEmbeddableInfo.Setup;
 begin
   inherited;
   if not EnvironmentExists() then begin
@@ -210,8 +217,15 @@ begin
     TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_CREATE_ENVIRONMENT_NOTIFICATION, Self);
   end;
 
+  LoadSettings();
+end;
+
+{ TPyEmbeddableInfo }
+
+procedure TPyEmbeddableInfo.LoadSettings;
+begin
   if FScanned then
-    LoadSettings();
+    inherited;
 end;
 
 { TPyEmbeddedEnvironment }
