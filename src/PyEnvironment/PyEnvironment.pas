@@ -65,7 +65,7 @@ type
     
     procedure Activate(APythonVersion: string);
     procedure Deactivate();
-  published
+  public
     property Environments: TPyEnvironmentCollection read FEnvironments write SetEnvironments;
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
     property PythonVersion: string read FPythonVersion write FPythonVersion;
@@ -74,6 +74,17 @@ type
     //Broacast events
     property OnSendNotification: TOnSendNotification read FOnSendNotification write FOnSendNotification;
     property OnReceiveNotification: TOnReceiveNotification read FOnReceiveNotification write FOnReceiveNotification;
+  end;
+
+  TPyEnvironment = class(TPyCustomEnvironment)
+  published
+    property Environments;
+    property AutoLoad;
+    property PythonVersion;
+    property PythonEngine;
+    property AddOns;
+    property OnSendNotification;
+    property OnReceiveNotification;
   end;
 
 implementation
@@ -175,6 +186,9 @@ begin
   if Assigned(FOnSendNotification) then
     FOnSendNotification(ANotification, LBroadcast, AInfo);
 
+  if Assigned(FAddOns) then
+    FAddOns.Execute(Self, ANotification, AInfo);
+
   if LBroadcast then
     TEnvironmentBroadcaster.Instance.NotifyAll(Self, ANotification, AInfo);
 end;
@@ -189,13 +203,11 @@ procedure TPyCustomEnvironment.SetAddOns(const Value: TPyEnvironmentAddOns);
 begin
   if (Value <> FAddOns) then begin
     if Assigned(FAddOns) then begin
-      TEnvironmentBroadcaster.Instance.RemoveListener(FAddOns);
       FAddOns.RemoveFreeNotification(Self);
     end;
     FAddOns := Value;
     if Assigned(FAddOns) then begin
       FAddOns.FreeNotification(Self);
-      TEnvironmentBroadcaster.Instance.AddListener(FAddOns);
     end;
   end;
 end;
