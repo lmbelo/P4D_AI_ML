@@ -46,6 +46,8 @@ type
     function GetPyParent(): TPyModuleBase; virtual;
     //Internal routines
     procedure Loaded; override;
+    //Desing-time actions
+    procedure DesignLoaded(); virtual;
     //Module routines
     procedure EngineLoaded(); override;
     procedure ImportModule(); reintroduce; virtual;
@@ -86,6 +88,12 @@ constructor TPyModuleBase.Create(AOwner: TComponent);
 begin
   inherited;
   FAutoImport := true;
+end;
+
+procedure TPyModuleBase.DesignLoaded;
+begin
+  if FAutoImport and CanImport() then
+    Import();
 end;
 
 destructor TPyModuleBase.Destroy;
@@ -143,8 +151,7 @@ end;
 procedure TPyModuleBase.Loaded;
 begin
   inherited;
-  if FAutoImport and CanImport() then
-    Import();
+  DesignLoaded();
 end;
 
 end.

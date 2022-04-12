@@ -134,8 +134,8 @@ type
     //Utils
     function GetPackageManager(const AManagerKind: TPyPackageManagerKind): IPyPackageManager;
   protected
+    procedure DesignLoaded(); override;
     function GetPyModuleName(): string; override;
-    procedure ImportModule(); override;
   protected
     procedure Prepare(const AModel: TPyPackageModel); virtual; abstract;
   protected
@@ -296,6 +296,13 @@ begin
   Prepare(FModel);
 end;
 
+procedure TPyManagedPackage.DesignLoaded;
+begin
+  if FAutoInstall then
+    InstallPackage();
+  inherited;
+end;
+
 destructor TPyManagedPackage.Destroy;
 begin
   FManagers.Free();
@@ -321,14 +328,6 @@ end;
 function TPyManagedPackage.GetPyModuleName: string;
 begin
   Result := FModel.PackageName;
-end;
-
-procedure TPyManagedPackage.ImportModule;
-begin
-  if FAutoInstall then
-    InstallPackage();
-  CheckInstalled();
-  inherited;
 end;
 
 procedure TPyManagedPackage.Install;
