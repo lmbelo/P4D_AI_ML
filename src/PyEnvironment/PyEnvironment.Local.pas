@@ -130,7 +130,7 @@ begin
       LItem := TPyLocalInfo(Environments.Add());
       LItem.PythonVersion := APythonVersion;
       LItem.Home := AEnvironmentInfo.GetValue<string>('home');
-      LItem.ProgramName := AEnvironmentInfo.GetValue<string>('program_name');
+      LItem.Executable := AEnvironmentInfo.GetValue<string>('program_name');
       LItem.SharedLibrary := AEnvironmentInfo.GetValue<string>('shared_library');
       LItem.Executable := AEnvironmentInfo.GetValue<string>('executable');
     end);

@@ -40,7 +40,6 @@ type
   private
     FPythonVersion: string;
     FHome: string;
-    FProgramName: string;
     FSharedLibrary: string;
     FExecutable: string;
   public
@@ -48,7 +47,6 @@ type
   published
     property PythonVersion: string read FPythonVersion write FPythonVersion;
     property Home: string read FHome write FHome;
-    property ProgramName: string read FProgramName write FProgramName;
     property SharedLibrary: string read FSharedLibrary write FSharedLibrary;
     property Executable: string read FExecutable write FExecutable;
   end;

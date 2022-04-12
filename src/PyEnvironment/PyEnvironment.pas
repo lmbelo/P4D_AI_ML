@@ -62,7 +62,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
-    
+
+    procedure Setup(APythonVersion: string);
     procedure Activate(APythonVersion: string);
     procedure Deactivate();
   public
@@ -108,8 +109,14 @@ end;
 procedure TPyCustomEnvironment.Loaded;
 begin
   inherited;
-  if not (csDesigning in ComponentState) then
-    Prepare();
+  if not (csDesigning in ComponentState)
+    and FAutoLoad
+    and Assigned(FPythonEngine)
+    and not (PythonVersion.IsEmpty) then
+  begin
+    Setup(PythonVersion);
+    Activate(PythonVersion);
+  end;
 end;
 
 procedure TPyCustomEnvironment.Notification(AComponent: TComponent;
@@ -121,6 +128,23 @@ begin
   end else if (AOperation = opRemove) and (AComponent = FAddOns) then begin
     SetAddOns(nil);
   end;
+end;
+
+procedure TPyCustomEnvironment.Setup(APythonVersion: string);
+var
+  LInfo: TPyEnvironmentInfo;
+begin
+  NotifyAll(BEFORE_SETUP_NOTIFICATION, nil);
+
+  Prepare();
+
+  LInfo := FEnvironments.LocateEnvironment(APythonVersion);
+  if not Assigned(LInfo) then
+    Exit();
+
+  LInfo.Setup();
+
+  NotifyAll(AFTER_SETUP_NOTIFICATION, LInfo);
 end;
 
 procedure TPyCustomEnvironment.Activate(APythonVersion: string);
@@ -136,18 +160,13 @@ begin
 
   NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LInfo);
 
-  LInfo.Setup();
-
   FPythonEngine.UnloadDll();
   FPythonEngine.UseLastKnownVersion := false;
   FPythonEngine.PythonHome := LInfo.Home;
-  FPythonEngine.ProgramName := LInfo.ProgramName;
+  FPythonEngine.ProgramName := LInfo.Executable;
   FPythonEngine.DllPath := ExtractFilePath(LInfo.SharedLibrary);
   FPythonEngine.DllName := ExtractFileName(LInfo.SharedLibrary);
   FPythonEngine.LoadDll();
-
-  FPythonEngine.ExecString('import sys');
-  FPythonEngine.ExecString(AnsiString(Format('sys.executable = r"%s"', [LInfo.Executable])));
 
   NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LInfo);
 end;
@@ -195,8 +214,7 @@ end;
 
 procedure TPyCustomEnvironment.Prepare;
 begin
-  if FAutoLoad and Assigned(FPythonEngine) then
-    Activate(PythonVersion);
+  //
 end;
 
 procedure TPyCustomEnvironment.SetAddOns(const Value: TPyEnvironmentAddOns);

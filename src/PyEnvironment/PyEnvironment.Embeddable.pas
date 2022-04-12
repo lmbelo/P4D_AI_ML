@@ -194,7 +194,6 @@ end;
 procedure TPyCustomEmbeddableInfo.LoadSettings;
 begin
   Home := GetEnvironmentPath();
-  ProgramName := GetEnvironmentPath();
   SharedLibrary := FindSharedLibrary();
   Executable := FindExecutable();
 end;
