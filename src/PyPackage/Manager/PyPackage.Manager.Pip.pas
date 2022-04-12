@@ -62,8 +62,8 @@ implementation
 
 uses
   System.Variants, System.SysUtils,
-  PythonEngine, VarPyth,
-  PyUtils, PyExceptions,
+  PythonEngine,
+  PyExecCmd, PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
   PyPackage.Manager.Cmd.Pip;
 
@@ -109,17 +109,19 @@ end;
 function TPyPackageManagerPip.IsInstalled(): boolean;
 var
   LOpts: TPyPackageManagerDefsOptsPipList;
-  LSubproc: variant;
   LIn: TArray<string>;
   LOut: string;
 begin
   LOpts := BuildOptsList();
   try
-    LSubproc := Import('subprocess');
-    LIn := FCmd.BuildListCmd(LOpts);
-    LOut := LSubproc.check_output(TPyEx.List<String>(
-      [GetPythonExe(), '-m', 'pip'] + LIn), shell:=true);
-    Result := LOut.Contains(FDefs.PackageName);
+    LIn := ['-m', 'pip'] + FCmd.BuildListCmd(LOpts);
+    if TPyExecCmdService
+      .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn))
+        .Run(LOut)
+          .Wait() = EXIT_SUCCESS then
+            Result := LOut.Contains(FDefs.PackageName)
+    else
+      raise Exception.CreateFmt('Failed to validate %s installation.', [FDefs.PackageName]);
   finally
     LOpts.Free();
   end;
@@ -127,38 +129,28 @@ end;
 
 function TPyPackageManagerPip.Install(out AOutput: string): boolean;
 var
-  LSubproc: variant;
   LIn: TArray<string>;
-  LOut: variant;
 begin
-  LSubproc := Import('subprocess');
-  LIn := FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
-  LOut := LSubproc.run(TPyEx.List<String>(
-    [GetPythonExe(), '-m', 'pip'] + LIn + [FDefs.PackageName]),
-    capture_output:=true, text:=true, shell:=true);
-  Result := LOut.returncode = 0;
-  if not Result then
-    AOutput := LOut.stderr
-  else
-    AOutput := LOut.stdout;
+  LIn := ['-m', 'pip']
+    + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
+
+   Result := TPyExecCmdService
+    .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn) + ' ' + FDefs.PackageName)
+      .Run(AOutput)
+        .Wait() = EXIT_SUCCESS;
 end;
 
 function TPyPackageManagerPip.Uninstall(out AOutput: string): boolean;
 var
-  LSubproc: variant;
   LIn: TArray<string>;
-  LOut: variant;
 begin
-  LSubproc := Import('subprocess');
-  LIn := FCmd.BuildUninstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
-  LOut := LSubproc.run(TPyEx.List<String>(
-    [GetPythonExe(), '-m', 'pip'] + LIn + [FDefs.PackageName]),
-    capture_output:=true, text:=true, shell:=true);
-  Result := LOut.returncode = 0;
-  if not Result then
-    AOutput := LOut.stderr
-  else
-    AOutput := LOut.stdout;
+  LIn := ['-m', 'pip']
+    + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
+
+  Result := TPyExecCmdService
+    .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn) + ' ' + FDefs.PackageName)
+      .Run(AOutput)
+        .Wait() = EXIT_SUCCESS;
 end;
 
 end.

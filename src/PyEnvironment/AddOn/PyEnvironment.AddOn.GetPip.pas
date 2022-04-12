@@ -34,7 +34,7 @@ interface
 
 uses
   System.SysUtils, System.Classes,
-  PyEnvironment.AddOn, PyEnvironment.Info, PyEnvironment.Notification;
+  PyExecCmd, PyEnvironment.AddOn, PyEnvironment.Info, PyEnvironment.Notification;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
@@ -63,23 +63,14 @@ var
   LPths: TArray<string>;
   LStrings: TStringList;
   I: Integer;
-  LSubproc: variant;
-  LOut: variant;
+  LOut: string;
 begin
-  if (ANotification <> AFTER_ACTIVATE_NOTIFICATION) then
-    Exit;
-
   inherited;
 
-  LSubproc := Import('subprocess');
+  if (ANotification <> AFTER_SETUP_NOTIFICATION) then
+    Exit;
 
-  //Identify if PIP is available
-  LOut := LSubproc.run(
-    VarPythonCreate([
-      AInfo.Executable, '-m', 'pip', '--version'], stTuple),
-    capture_output:=true, text:=true, shell:=true);
-
-  if (LOut.returncode = 0) then
+  if (TPyExecCmdService.Cmd(AInfo.Executable, '-m pip --version').Run().Wait() = 0) then
     Exit;
 
   //Patch the _pth file to work with site packages
@@ -103,14 +94,11 @@ begin
   LResStream := TResourceStream.Create(HInstance, 'getpippy', RT_RCDATA);
   try
     LResStream.SaveToFile(LFileName);
-
-    LOut := LSubproc.run(
-      VarPythonCreate([AInfo.Executable, LFileName], stTuple),
-      capture_output:=true, text:=true, shell:=true);
-
-    if (LOut.returncode <> 0) then
-      raise EPipSetupFailed.Create(
-        'Failed to setup PIP. ' + #13#10 + VarToStr(LOut.stderr));
+     if TPyExecCmdService
+      .Cmd(AInfo.Executable, LFileName)
+        .Run(LOut)
+          .Wait() <> EXIT_SUCCESS then
+            raise EPipSetupFailed.Create('Failed to setup PIP.' + #13#10 + LOut);
   finally
     LResStream.Free();
   end;
