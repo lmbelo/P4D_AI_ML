@@ -115,7 +115,7 @@ procedure TScikitLearn.Prepare(const AModel: TPyPackageModel);
 begin
   inherited;
   with AModel do begin
-    PackageName := 'scikitlearn';
+    PackageName := 'sklearn';
     PackageManagers.Add(
       TPyPackageManagerKind.pip,
       TPyPackageManagerPip.Create('scikit-learn'));
