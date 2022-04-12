@@ -162,9 +162,9 @@ begin
 
   FPythonEngine.UnloadDll();
   FPythonEngine.UseLastKnownVersion := false;
-  FPythonEngine.PythonHome := LInfo.Home;
-  FPythonEngine.ProgramName := LInfo.Executable;
-  FPythonEngine.DllPath := ExtractFilePath(LInfo.SharedLibrary);
+  FPythonEngine.PythonHome := ExpandFileName(LInfo.Home);
+  FPythonEngine.ProgramName := ExpandFileName(LInfo.Executable);
+  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(LInfo.SharedLibrary));
   FPythonEngine.DllName := ExtractFileName(LInfo.SharedLibrary);
   FPythonEngine.LoadDll();
 
