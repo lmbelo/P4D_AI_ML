@@ -33,29 +33,29 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.JSON, System.Generics.Collections,
-  PyEnvironment.Info, PyEnvironment.AddOn, PyEnvironment.Notification, PythonEngine;
+  PyEnvironment.Distribution, PyEnvironment.AddOn, PyEnvironment.Notification, PythonEngine;
 
 type
   TPyCustomEnvironment = class(TComponent, IEnvironmentNotified)
   private
-    FEnvironments: TPyEnvironmentCollection;
+    FDistributions: TPyDistributionCollection;
     FAutoLoad: boolean;
     FPythonEngine: TPythonEngine;
     FPythonVersion: string;
     FAddOns: TPyEnvironmentAddOns;
     FOnSendNotification: TOnSendNotification;
     FOnReceiveNotification: TOnReceiveNotification;
-    procedure SetEnvironments(const Value: TPyEnvironmentCollection);
-    procedure SetPythonEngine(const Value: TPythonEngine);
+    procedure SetEnvironments(const ADistributions: TPyDistributionCollection);
+    procedure SetPythonEngine(const APythonEngine: TPythonEngine);
     procedure SetAddOns(const Value: TPyEnvironmentAddOns);
   protected 
     procedure Loaded(); override;
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
   protected
-    function CreateCollection(): TPyEnvironmentCollection; virtual; abstract;
+    function CreateCollection(): TPyDistributionCollection; virtual; abstract;
     procedure Prepare(); virtual;
     procedure NotifyAll(ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo); virtual;
+      ADistribution: TPyDistribution); virtual;
     //IEnvironmentNotified implementation
     procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
       const AArgs: TObject);
@@ -67,7 +67,7 @@ type
     procedure Activate(APythonVersion: string);
     procedure Deactivate();
   public
-    property Environments: TPyEnvironmentCollection read FEnvironments write SetEnvironments;
+    property Distributions: TPyDistributionCollection read FDistributions write SetEnvironments;
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
     property PythonVersion: string read FPythonVersion write FPythonVersion;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
@@ -79,7 +79,7 @@ type
 
   TPyEnvironment = class(TPyCustomEnvironment)
   published
-    property Environments;
+    property Distributions;
     property AutoLoad;
     property PythonVersion;
     property PythonEngine;
@@ -94,7 +94,7 @@ implementation
 
 constructor TPyCustomEnvironment.Create(AOwner: TComponent);
 begin
-  FEnvironments := CreateCollection();
+  FDistributions := CreateCollection();
   inherited;
   TEnvironmentBroadcaster.Instance.AddListener(Self);
 end;
@@ -102,7 +102,7 @@ end;
 destructor TPyCustomEnvironment.Destroy;
 begin
   TEnvironmentBroadcaster.Instance.RemoveListener(Self);
-  FEnvironments.Free();
+  FDistributions.Free();
   inherited;
 end;
 
@@ -132,43 +132,43 @@ end;
 
 procedure TPyCustomEnvironment.Setup(APythonVersion: string);
 var
-  LInfo: TPyEnvironmentInfo;
+  LDistribution: TPyDistribution;
 begin
   NotifyAll(BEFORE_SETUP_NOTIFICATION, nil);
 
   Prepare();
 
-  LInfo := FEnvironments.LocateEnvironment(APythonVersion);
-  if not Assigned(LInfo) then
+  LDistribution := FDistributions.LocateEnvironment(APythonVersion);
+  if not Assigned(LDistribution) then
     Exit();
 
-  LInfo.Setup();
+  LDistribution.Setup();
 
-  NotifyAll(AFTER_SETUP_NOTIFICATION, LInfo);
+  NotifyAll(AFTER_SETUP_NOTIFICATION, LDistribution);
 end;
 
 procedure TPyCustomEnvironment.Activate(APythonVersion: string);
 var
-  LInfo: TPyEnvironmentInfo;
+  LDistribution: TPyDistribution;
 begin
   if not Assigned(FPythonEngine) then
     Exit();
 
-  LInfo := FEnvironments.LocateEnvironment(APythonVersion);
-  if not Assigned(LInfo) then
+  LDistribution := FDistributions.LocateEnvironment(APythonVersion);
+  if not Assigned(LDistribution) then
     Exit();
 
-  NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LInfo);
+  NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LDistribution);
 
   FPythonEngine.UnloadDll();
   FPythonEngine.UseLastKnownVersion := false;
-  FPythonEngine.PythonHome := ExpandFileName(LInfo.Home);
-  FPythonEngine.ProgramName := ExpandFileName(LInfo.Executable);
-  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(LInfo.SharedLibrary));
-  FPythonEngine.DllName := ExtractFileName(LInfo.SharedLibrary);
+  FPythonEngine.PythonHome := ExpandFileName(LDistribution.Home);
+  FPythonEngine.ProgramName := ExpandFileName(LDistribution.Executable);
+  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(LDistribution.SharedLibrary));
+  FPythonEngine.DllName := ExtractFileName(LDistribution.SharedLibrary);
   FPythonEngine.LoadDll();
 
-  NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LInfo);
+  NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LDistribution);
 end;
 
 procedure TPyCustomEnvironment.Deactivate;
@@ -196,20 +196,20 @@ begin
 end;
 
 procedure TPyCustomEnvironment.NotifyAll(ANotification: TEnvironmentNotification;
-  AInfo: TPyEnvironmentInfo);
+  ADistribution: TPyDistribution);
 var
   LBroadcast: Boolean;
 begin
   LBroadcast := true;
 
   if Assigned(FOnSendNotification) then
-    FOnSendNotification(ANotification, LBroadcast, AInfo);
+    FOnSendNotification(ANotification, LBroadcast, ADistribution);
 
   if Assigned(FAddOns) then
-    FAddOns.Execute(Self, ANotification, AInfo);
+    FAddOns.Execute(Self, ANotification, ADistribution);
 
   if LBroadcast then
-    TEnvironmentBroadcaster.Instance.NotifyAll(Self, ANotification, AInfo);
+    TEnvironmentBroadcaster.Instance.NotifyAll(Self, ANotification, ADistribution);
 end;
 
 procedure TPyCustomEnvironment.Prepare;
@@ -231,17 +231,17 @@ begin
 end;
 
 procedure TPyCustomEnvironment.SetEnvironments(
-  const Value: TPyEnvironmentCollection);
+  const ADistributions: TPyDistributionCollection);
 begin
-  FEnvironments.Assign(Value);
+  FDistributions.Assign(ADistributions);
 end;
 
-procedure TPyCustomEnvironment.SetPythonEngine(const Value: TPythonEngine);
+procedure TPyCustomEnvironment.SetPythonEngine(const APythonEngine: TPythonEngine);
 begin
-  if (Value <> FPythonEngine) then begin
+  if (APythonEngine <> FPythonEngine) then begin
     if Assigned(FPythonEngine) then
       FPythonEngine.RemoveFreeNotification(Self);
-    FPythonEngine := Value;
+    FPythonEngine := APythonEngine;
     if Assigned(FPythonEngine) then begin
       FPythonEngine.FreeNotification(Self);
       if (csDesigning in ComponentState) then

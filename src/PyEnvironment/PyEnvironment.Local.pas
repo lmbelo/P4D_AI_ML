@@ -34,7 +34,7 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.JSON,
-  PyEnvironment, PyEnvironment.Info;
+  PyEnvironment, PyEnvironment.Distribution;
 
 type
   (*-----------------------------------------------------------------------*)
@@ -48,12 +48,12 @@ type
   (*          "shared_library": "",                                        *)
   (*          "executable": ""}}]                                          *)
   (*-----------------------------------------------------------------------*)
-  TPyLocalInfo = class(TPyEnvironmentInfo)
+  TPyLocalDistribution = class(TPyDistribution)
   public
     procedure Setup(); override;
   end;
 
-  TPyLocalCollection = class(TPyEnvironmentCollection);
+  TPyLocalCollection = class(TPyDistributionCollection);
 
   [ComponentPlatforms(pidAllPlatforms)]
   TPyLocalEnvironment = class(TPyEnvironment)
@@ -61,7 +61,7 @@ type
     FFilePath: string;
     procedure EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
   protected
-    function CreateCollection(): TPyEnvironmentCollection; override;
+    function CreateCollection(): TPyDistributionCollection; override;
     procedure Prepare(); override;
   published
     property FilePath: string read FFilePath write FFilePath;
@@ -74,11 +74,18 @@ implementation
 uses
   System.IOUtils, PythonEngine;
 
+{ TPyLocalDistribution }
+
+procedure TPyLocalDistribution.Setup;
+begin
+  inherited;
+end;
+
 { TPyLocalEnvironment }
 
-function TPyLocalEnvironment.CreateCollection: TPyEnvironmentCollection;
+function TPyLocalEnvironment.CreateCollection: TPyDistributionCollection;
 begin
-  Result := TPyLocalCollection.Create(Self, TPyLocalInfo);
+  Result := TPyLocalCollection.Create(Self, TPyLocalDistribution);
 end;
 
 procedure TPyLocalEnvironment.EnumerateEnvironments(const AProc: TProc<string, TJSONObject>);
@@ -86,7 +93,7 @@ var
   LPythonVersions: TJSONValue;
   I: Integer;
   LPythonVersion: TJSONValue;
-  LEnviromentInfo: TJSONValue;
+  LDistribution: TJSONValue;
 begin
   if not TFile.Exists(FFilePath) then
     raise EFileNotFoundException.CreateFmt('File not found.' + #13#10 + '%s', [FFilePath]);
@@ -101,15 +108,15 @@ begin
         if not (LPythonVersion is TJSONObject) then
           raise EInvalidFileStructure.Create('Invalid file structure.');
 
-        LEnviromentInfo := TJSONObject(LPythonVersion).Values[PYTHON_KNOWN_VERSIONS[I].RegVersion];
+        LDistribution := TJSONObject(LPythonVersion).Values[PYTHON_KNOWN_VERSIONS[I].RegVersion];
 
-        if not Assigned(LEnviromentInfo) then
+        if not Assigned(LDistribution) then
           Continue;
 
-        if not (LEnviromentInfo is TJSONObject) then
+        if not (LDistribution is TJSONObject) then
           raise EInvalidFileStructure.Create('Invalid file structure.');
 
-        AProc(PYTHON_KNOWN_VERSIONS[I].RegVersion, TJSONObject(LEnviromentInfo));
+        AProc(PYTHON_KNOWN_VERSIONS[I].RegVersion, TJSONObject(LDistribution));
       end;
     end;
   finally
@@ -125,23 +132,16 @@ begin
   EnumerateEnvironments(
     procedure(APythonVersion: string; AEnvironmentInfo: TJSONObject)
     var
-      LItem: TPyLocalInfo;
+      LDistribution: TPyLocalDistribution;
     begin
-      LItem := TPyLocalInfo(Environments.Add());
-      LItem.PythonVersion := APythonVersion;
-      LItem.Home := AEnvironmentInfo.GetValue<string>('home');
-      LItem.Executable := AEnvironmentInfo.GetValue<string>('program_name');
-      LItem.SharedLibrary := AEnvironmentInfo.GetValue<string>('shared_library');
-      LItem.Executable := AEnvironmentInfo.GetValue<string>('executable');
+      LDistribution := TPyLocalDistribution(Distributions.Add());
+      LDistribution.PythonVersion := APythonVersion;
+      LDistribution.Home := AEnvironmentInfo.GetValue<string>('home');
+      LDistribution.Executable := AEnvironmentInfo.GetValue<string>('program_name');
+      LDistribution.SharedLibrary := AEnvironmentInfo.GetValue<string>('shared_library');
+      LDistribution.Executable := AEnvironmentInfo.GetValue<string>('executable');
     end);
 
-  inherited;
-end;
-
-{ TPyLocalInfo }
-
-procedure TPyLocalInfo.Setup;
-begin
   inherited;
 end;
 

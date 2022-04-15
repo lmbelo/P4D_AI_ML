@@ -127,6 +127,9 @@ type
     FAfterUninstall: TNotifyEvent;
     //Getters and Setters
     procedure SetManagers(const Value: TPyManagers);
+    //Internal delegations
+    function InternalInstall(out AOutput: string): boolean;
+    function InternalUninstall(out AOutput: string): boolean;
     //Throw errors
     procedure RaiseInstallationError(LOutput: string);
     procedure RaiseUninstallationError(LOutput: string);
@@ -361,7 +364,7 @@ end;
 procedure TPyManagedPackage.RaiseInstallationError(LOutput: string);
 begin
   raise EPyModuleInstallError.CreateFmt(
-    'An error occurred while uninstalling the package %s.'
+    'An error occurred while installing the package %s.'
   + ''#13''#10''
   + '%s', [PyModuleName, LOutput]);
 end;
@@ -373,6 +376,16 @@ begin
       RaiseNotInstalled();
 end;
 
+function TPyManagedPackage.InternalInstall(out AOutput: string): boolean;
+begin
+  Result := GetPackageManager(ManagerKind).Install(AOutput);
+end;
+
+function TPyManagedPackage.InternalUninstall(out AOutput: string): boolean;
+begin
+  Result := GetPackageManager(ManagerKind).Uninstall(AOutput);
+end;
+
 procedure TPyManagedPackage.InstallPackage;
 var
   LOutput: string;
@@ -382,7 +395,7 @@ begin
       if Assigned(FBeforeInstall) then
         FBeforeInstall(Self);
 
-      if GetPackageManager(ManagerKind).Install(LOutput) then begin
+      if InternalInstall(LOutput) then begin
         if Assigned(FAfterInstall) then
           FAfterInstall(Self);
       end else
@@ -402,7 +415,7 @@ begin
       if Assigned(FBeforeUninstall) then
         FBeforeUninstall(Self);
 
-      if not GetPackageManager(ManagerKind).UnInstall(LOutput) then
+      if not InternalUninstall(LOutput) then
         if Assigned(FOnUninstallError) then
           FOnUninstallError(Self, LOutput)
         else

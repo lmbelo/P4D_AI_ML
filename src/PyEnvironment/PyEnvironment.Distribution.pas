@@ -28,7 +28,7 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvironment.Info;
+unit PyEnvironment.Distribution;
 
 interface
 
@@ -36,7 +36,7 @@ uses
   System.Classes;
 
 type
-  TPyEnvironmentInfo = class abstract(TCollectionItem)
+  TPyDistribution = class abstract(TCollectionItem)
   private
     FPythonVersion: string;
     FHome: string;
@@ -51,23 +51,23 @@ type
     property Executable: string read FExecutable write FExecutable;
   end;
 
-  TPyEnvironmentCollection = class abstract(TOwnedCollection)
+  TPyDistributionCollection = class abstract(TOwnedCollection)
   public
-    function LocateEnvironment(APythonVersion: string): TPyEnvironmentInfo; virtual;
+    function LocateEnvironment(APythonVersion: string): TPyDistribution; virtual;
   end;
 
 implementation
 
-{ TPyEnvironmentCollection }
+{ TPyDistributionCollection }
 
-function TPyEnvironmentCollection.LocateEnvironment(
-  APythonVersion: string): TPyEnvironmentInfo;
+function TPyDistributionCollection.LocateEnvironment(
+  APythonVersion: string): TPyDistribution;
 var
   I: Integer;
 begin
   for I := 0 to Count - 1 do begin
-    if (TPyEnvironmentInfo(Items[I]).PythonVersion = APythonVersion) then
-      Exit(TPyEnvironmentInfo(Items[I]));
+    if (TPyDistribution(Items[I]).PythonVersion = APythonVersion) then
+      Exit(TPyDistribution(Items[I]));
   end;
   Result := nil;
 end;

@@ -34,14 +34,15 @@ interface
 
 uses
   System.SysUtils, System.Classes,
-  PyExecCmd, PyEnvironment.AddOn, PyEnvironment.Info, PyEnvironment.Notification;
+  PyExecCmd,
+  PyEnvironment.Distribution, PyEnvironment.Notification, PyEnvironment.AddOn;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
   public
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo); override;
+      ADistribution: TPyDistribution); override;
   end;
 
   EPipSetupFailed = class(Exception);
@@ -56,7 +57,7 @@ uses
 { TPyEnvironmentAddOnGetPip }
 
 procedure TPyEnvironmentAddOnGetPip.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
 var
   LResStream: TResourceStream;
   LFileName: string;
@@ -70,12 +71,12 @@ begin
   if (ANotification <> AFTER_SETUP_NOTIFICATION) then
     Exit;
 
-  if (TPyExecCmdService.Cmd(AInfo.Executable, '-m pip --version').Run().Wait() = 0) then
+  if (TPyExecCmdService.Cmd(ADistribution.Executable, '-m pip --version').Run().Wait() = 0) then
     Exit;
 
   //Patch the _pth file to work with site packages
   LPths := TDirectory.GetFiles(
-    AInfo.Home, 'python*._pth', TSearchOption.soTopDirectoryOnly);
+    ADistribution.Home, 'python*._pth', TSearchOption.soTopDirectoryOnly);
   if (Length(LPths) > 0) then begin
     LStrings := TStringList.Create();
     try
@@ -95,7 +96,7 @@ begin
   try
     LResStream.SaveToFile(LFileName);
      if TPyExecCmdService
-      .Cmd(AInfo.Executable, LFileName)
+      .Cmd(ADistribution.Executable, LFileName)
         .Run(LOut)
           .Wait() <> EXIT_SUCCESS then
             raise EPipSetupFailed.Create('Failed to setup PIP.' + #13#10 + LOut);

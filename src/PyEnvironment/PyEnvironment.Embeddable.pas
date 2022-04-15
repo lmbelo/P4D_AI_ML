@@ -34,7 +34,7 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Zip,
-  PyEnvironment, PyEnvironment.Info, PythonEngine;
+  PyEnvironment, PyEnvironment.Distribution, PythonEngine;
 
 type
   (*-----------------------------------------------------------------------*)
@@ -46,10 +46,12 @@ type
   (*       +-- python zip                                                  *)
   (*-----------------------------------------------------------------------*)
 
-  TPyCustomEmbeddableInfo = class;
-  TZipProgress = procedure(Sender: TObject; AInfo: TPyCustomEmbeddableInfo; FileName: string; Header: TZipHeader; Position: Int64) of object;
+  TPyCustomEmbeddableDistribution = class;
+  TZipProgress = procedure(Sender: TObject;
+    ADistribution: TPyCustomEmbeddableDistribution; FileName: string;
+    Header: TZipHeader; Position: Int64) of object;
 
-  TPyCustomEmbeddableInfo = class(TPyEnvironmentInfo)
+  TPyCustomEmbeddableDistribution = class(TPyDistribution)
   private
     FEmbeddablePackage: string;
     FEnvironmentPath: string;
@@ -80,7 +82,7 @@ type
     property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
-  TPyEmbeddableInfo = class(TPyCustomEmbeddableInfo)
+  TPyEmbeddableDistribution = class(TPyCustomEmbeddableDistribution)
   private
     FScanned: boolean;
   protected
@@ -89,7 +91,7 @@ type
     property Scanned: boolean read FScanned write FScanned;
   end;
 
-  TPyEmbeddableCollection = class(TPyEnvironmentCollection);
+  TPyEmbeddableCollection = class(TPyDistributionCollection);
 
   TPyCustomEmbeddedEnvironment = class(TPyEnvironment)
   private
@@ -120,7 +122,7 @@ type
     FScanner: TScanner;
     procedure SetScanner(const Value: TScanner);
   protected
-    function CreateCollection(): TPyEnvironmentCollection; override;
+    function CreateCollection(): TPyDistributionCollection; override;
     procedure Prepare(); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -136,9 +138,9 @@ implementation
 uses
   System.IOUtils, PyEnvironment.Notification;
 
-{ TPyCustomEmbeddableInfo }
+{ TPyCustomEmbeddableDistribution }
 
-procedure TPyCustomEmbeddableInfo.CreateEnvironment;
+procedure TPyCustomEmbeddableDistribution.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
   TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_UNZIP_NOTIFICATION, Self);
@@ -146,24 +148,24 @@ begin
   TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_UNZIP_NOTIFICATION, Self);
 end;
 
-procedure TPyCustomEmbeddableInfo.DoZipProgressEvt(Sender: TObject; FileName: string;
+procedure TPyCustomEmbeddableDistribution.DoZipProgressEvt(Sender: TObject; FileName: string;
   Header: TZipHeader; Position: Int64);
 begin
   if Assigned(FOnZipProgress) then
     FOnZipProgress(Sender, Self, FileName, Header, Position);
 end;
 
-function TPyCustomEmbeddableInfo.EmbeddableExists: boolean;
+function TPyCustomEmbeddableDistribution.EmbeddableExists: boolean;
 begin
   Result := TFile.Exists(FEmbeddablePackage);
 end;
 
-function TPyCustomEmbeddableInfo.EnvironmentExists: boolean;
+function TPyCustomEmbeddableDistribution.EnvironmentExists: boolean;
 begin
   Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
-function TPyCustomEmbeddableInfo.FindExecutable: string;
+function TPyCustomEmbeddableDistribution.FindExecutable: string;
 begin
   {$IFDEF MSWINDOWS}
   Result := TPath.Combine(GetEnvironmentPath(), 'python.exe');
@@ -174,7 +176,7 @@ begin
   {$IFEND}
 end;
 
-function TPyCustomEmbeddableInfo.FindSharedLibrary: string;
+function TPyCustomEmbeddableDistribution.FindSharedLibrary: string;
 var
   I: integer;
   LLibName: string;
@@ -191,19 +193,19 @@ begin
     Result := String.Empty;
 end;
 
-procedure TPyCustomEmbeddableInfo.LoadSettings;
+procedure TPyCustomEmbeddableDistribution.LoadSettings;
 begin
   Home := GetEnvironmentPath();
   SharedLibrary := FindSharedLibrary();
   Executable := FindExecutable();
 end;
 
-function TPyCustomEmbeddableInfo.GetEnvironmentPath: string;
+function TPyCustomEmbeddableDistribution.GetEnvironmentPath: string;
 begin
   Result := EnvironmentPath;
 end;
 
-procedure TPyCustomEmbeddableInfo.Setup;
+procedure TPyCustomEmbeddableDistribution.Setup;
 begin
   inherited;
   if not EnvironmentExists() then begin
@@ -219,9 +221,9 @@ begin
   LoadSettings();
 end;
 
-{ TPyEmbeddableInfo }
+{ TPyEmbeddableDistribution }
 
-procedure TPyEmbeddableInfo.LoadSettings;
+procedure TPyEmbeddableDistribution.LoadSettings;
 begin
   if FScanned then
     inherited;
@@ -241,27 +243,27 @@ begin
   inherited;
 end;
 
-function TPyEmbeddedEnvironment.CreateCollection: TPyEnvironmentCollection;
+function TPyEmbeddedEnvironment.CreateCollection: TPyDistributionCollection;
 begin
-  Result := TPyEmbeddableCollection.Create(Self, TPyEmbeddableInfo);
+  Result := TPyEmbeddableCollection.Create(Self, TPyEmbeddableDistribution);
 end;
 
 procedure TPyEmbeddedEnvironment.Prepare;
 var
-  LItem: TPyEmbeddableInfo;
+  LDistribution: TPyEmbeddableDistribution;
 begin
   if FScanner.AutoScan then begin
     FScanner.Scan(
       procedure(APyVersionInfo: TPythonVersionProp; AEmbeddablePackage: string) begin
-        if Assigned(Environments.LocateEnvironment(APyVersionInfo.RegVersion)) then
+        if Assigned(Distributions.LocateEnvironment(APyVersionInfo.RegVersion)) then
           Exit;
 
-        LItem := TPyEmbeddableInfo(Environments.Add());
-        LItem.Scanned := true;
-        LItem.PythonVersion := APyVersionInfo.RegVersion;
-        LItem.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
-        LItem.EmbeddablePackage := AEmbeddablePackage;
-        LItem.OnZipProgress := FOnZipProgress;
+        LDistribution := TPyEmbeddableDistribution(Distributions.Add());
+        LDistribution.Scanned := true;
+        LDistribution.PythonVersion := APyVersionInfo.RegVersion;
+        LDistribution.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
+        LDistribution.EmbeddablePackage := AEmbeddablePackage;
+        LDistribution.OnZipProgress := FOnZipProgress;
       end);
   end;
   inherited;

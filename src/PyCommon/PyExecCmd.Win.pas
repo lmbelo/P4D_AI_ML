@@ -148,14 +148,18 @@ begin
   AReader := function(): string begin
     Result := String.Empty;
 
-    while GetIsAlive() do begin
+    while GetIsAlive() and Result.IsEmpty() do begin
       Result := Result + PeekMessage();
     end;
+
+    if not Result.IsEmpty() then
+      Exit;
 
     //Preventing race condition...
     repeat
       LBuffer := PeekMessage();
-      Result := Result + LBuffer;
+      if not LBuffer.IsEmpty() then
+        Result := Result + LBuffer;
     until (LBuffer.IsEmpty());
   end;
 
@@ -183,7 +187,8 @@ begin
   Result := Run(LReader, LWriter, [TRedirect.stdout]);
   repeat
     LOutput := LReader();
-    AOutput := AOutput + LOutput;
+    if not LOutput.IsEmpty() then
+      AOutput := AOutput + LOutput;
   until LOutput.IsEmpty();
 end;
 

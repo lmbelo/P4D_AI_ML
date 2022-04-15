@@ -34,7 +34,7 @@ interface
 uses
   System.Generics.Collections, System.Rtti, System.SysUtils, System.Variants,
   System.Classes, Winapi.Windows, Winapi.Messages, Vcl.Graphics, Vcl.Controls,
-  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, PythonEngine, Vcl.PythonGUIInputOutput,
+  Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, PythonEngine, PythonVersions, Vcl.PythonGUIInputOutput,
   PyCommon, PyModule, NumPy, PyPackage;
 
 type

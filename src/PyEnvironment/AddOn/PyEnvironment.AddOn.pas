@@ -34,7 +34,7 @@ interface
 
 uses
   System.Classes, System.Generics.Collections, System.SysUtils,
-  PyEnvironment.Info, PyEnvironment.Notification;
+  PyEnvironment.Distribution, PyEnvironment.Notification;
 
 type
   TPyEnvironmentCustomAddOn = class;
@@ -42,11 +42,11 @@ type
 
   TPyEnvironmentAddOnExecute = procedure(ASender: TObject;
     ANotification: TEnvironmentNotification;
-    AInfo: TPyEnvironmentInfo) of object;
+    ADistribution: TPyDistribution) of object;
 
   TPyEnvironmentAddOnExecuteError = procedure(AException: Exception;
     const AAddOn: TPyEnvironmentCustomAddOn;
-    AInfo: TPyEnvironmentInfo) of object;
+    ADistribution: TPyDistribution) of object;
 
   TPyEnvironmentCustomAddOn = class(TComponent)
   private
@@ -57,7 +57,7 @@ type
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
   public
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo); virtual;
+      ADistribution: TPyDistribution); virtual;
   published
     property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
     property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
@@ -81,7 +81,7 @@ type
     procedure Remove(AAddOn: TPyEnvironmentCustomAddOn);
 
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      AInfo: TPyEnvironmentInfo);
+      ADistribution: TPyDistribution);
   published
     property Enabled: boolean read FEnabled write FEnabled default true;
     property OnExecuteError: TPyEnvironmentAddOnExecuteError
@@ -93,10 +93,10 @@ implementation
 { TPyEnvironmentCustomAddOn }
 
 procedure TPyEnvironmentCustomAddOn.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
 begin
   if Assigned(FOnExecute) then
-    FOnExecute(ASender, ANotification, AInfo);
+    FOnExecute(ASender, ANotification, ADistribution);
 end;
 
 procedure TPyEnvironmentCustomAddOn.Notification(AComponent: TComponent;
@@ -139,7 +139,7 @@ begin
 end;
 
 procedure TPyEnvironmentAddOns.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; AInfo: TPyEnvironmentInfo);
+  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
 var
   LItem: TPyEnvironmentCustomAddOn;
 begin
@@ -148,11 +148,11 @@ begin
 
   for LItem in FList do begin
     try
-      LItem.Execute(ASender, ANotification, AInfo);
+      LItem.Execute(ASender, ANotification, ADistribution);
     except
       on E: Exception do
         if Assigned(FOnExecuteError) then begin
-          FOnExecuteError(E, LItem, AInfo);
+          FOnExecuteError(E, LItem, ADistribution);
         end else
           raise;
     end;
