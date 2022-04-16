@@ -160,7 +160,6 @@ begin
 
   NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LDistribution);
 
-  FPythonEngine.UnloadDll();
   FPythonEngine.UseLastKnownVersion := false;
   FPythonEngine.PythonHome := ExpandFileName(LDistribution.Home);
   FPythonEngine.ProgramName := ExpandFileName(LDistribution.Executable);
@@ -206,7 +205,7 @@ begin
     FOnSendNotification(ANotification, LBroadcast, ADistribution);
 
   if Assigned(FAddOns) then
-    FAddOns.Execute(Self, ANotification, ADistribution);
+    FAddOns.Apply(Self, ANotification, ADistribution);
 
   if LBroadcast then
     TEnvironmentBroadcaster.Instance.NotifyAll(Self, ANotification, ADistribution);

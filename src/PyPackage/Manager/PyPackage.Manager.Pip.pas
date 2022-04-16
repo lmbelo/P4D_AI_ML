@@ -110,18 +110,22 @@ function TPyPackageManagerPip.IsInstalled(): boolean;
 var
   LOpts: TPyPackageManagerDefsOptsPipList;
   LIn: TArray<string>;
+  LCode: integer;
   LOut: string;
 begin
   LOpts := BuildOptsList();
   try
     LIn := ['-m', 'pip'] + FCmd.BuildListCmd(LOpts);
-    if TPyExecCmdService
-      .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn))
-        .Run(LOut)
-          .Wait() = EXIT_SUCCESS then
-            Result := LOut.Contains(FDefs.PackageName)
+    LCode := TPyExecCmdService
+              .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn))
+                .Run(LOut)
+                  .Wait();
+    if LCode = EXIT_SUCCESS then
+      Result := LOut.Contains(FDefs.PackageName)
     else
-      raise Exception.CreateFmt('Failed to validate %s installation.', [FDefs.PackageName]);
+      raise Exception.CreateFmt(
+        'Failed to validate %s installation.' + #13#10 + 'ErrorCode = %d - %s', [
+          FDefs.PackageName, LCode, LOut]);
   finally
     LOpts.Free();
   end;

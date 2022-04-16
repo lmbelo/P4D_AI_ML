@@ -5,7 +5,10 @@ unit PyExecCmd.Posix;
 interface
 
 uses
-  Posix.Base, Posix.Fcntl, Posix.Unistd, Posix.SysWait, Posix.Stdlib, Posix.SysTypes, Posix.Signal, Posix.Errno, PyExecCmd;
+  Posix.Base, Posix.Fcntl, Posix.Unistd, Posix.SysWait, Posix.Stdlib,
+  Posix.Stdio, Posix.SysTypes, Posix.Signal, Posix.Errno, Posix.SysStat,
+  Posix.String_,
+  PyExecCmd;
 
 type
   TStreamHandle = pointer;
@@ -15,9 +18,11 @@ type
     FCmd: string;
     FArgs: string;
     FPid: Integer;
-    FParent: TPipeDescriptors;
-    FChild: TPipeDescriptors;
+    FRead: TPipeDescriptors;
+    FWrite: TPipeDescriptors;
+    FExitCode: integer;
     procedure Redirect(out AReader: TReader; out AWriter: TWriter);
+    function PeekMessage(): string;
   protected
     function GetIsAlive: boolean;
     function GetExitCode: Integer;
@@ -36,34 +41,19 @@ type
   end;
 
   EForkFailed = class(EExecCmd);
+  EPipeFailed = class(EExecCmd);
   EInvalidArgument = class(EExecCmd);
   EOperationNotPermitted = class(EExecCmd);
   ENoSuchProcess = class(EExecCmd);
+  EWaitFailed = class(EExecCmd);
 
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.IOUtils;
 
-///  <summary>
-///    Utility function to return a buffer of ASCII-Z data as a string.
-///  </summary>
-function BufferToString(ABuffer: Pointer; AMaxSize: UInt32): string;
-var
-  LCursor: ^UInt8;
-  LEndOfBuffer: NativeUInt;
-begin
-  Result := '';
-  if not Assigned(ABuffer) then
-    Exit;
-    
-  LCursor := ABuffer;
-  LEndOfBuffer := NativeUint(LCursor) + AMaxSize;
-  while (NativeUint(LCursor) < LEndOfBuffer) and (LCursor^ <> 0) do begin
-    Result := Result + Chr(LCursor^);
-    LCursor := Pointer(Succ(NativeUInt(LCursor)));
-  end;
-end;
+const
+  INITIAL_EXIT_CODE = -999;
 
 { TExecCmdPosix }
 
@@ -71,12 +61,16 @@ constructor TExecCmdPosix.Create(const ACmd, AArgs: string);
 begin
   FCmd := ACmd;
   FArgs := AArgs;
+  FExitCode := INITIAL_EXIT_CODE;
 end;
 
 destructor TExecCmdPosix.Destroy;
 begin
   if IsAlive then
     Kill();
+
+  __close(FRead.ReadDes);
+  __close(FWrite.WriteDes);     
   inherited;
 end;
 
@@ -86,12 +80,30 @@ begin
 end;
 
 function TExecCmdPosix.GetIsAlive: boolean;
-begin             
-  Result := (getpgid(FPid) >= 0);       
+var
+  LWaitedPid: integer;
+  LStatus: integer;
+begin
+  if (FExitCode <> INITIAL_EXIT_CODE) then
+    Exit(false);
+    
+  LWaitedPid := waitpid(FPid, @LStatus, WNOHANG);
+  if (LWaitedPid = -1) then
+    raise EWaitFailed.Create('Failed waiting for proess.')
+  else if (LWaitedPid = 0) then
+    Exit(true)
+  else begin    
+    if WIFEXITED(LStatus) then begin
+      FExitCode := WEXITSTATUS(LStatus);      
+    end else begin
+      FExitCode := EXIT_FAILURE;
+    end;
+  end;
+  Result := false;
 end;
 
 procedure TExecCmdPosix.Kill;
-begin        
+begin
   if (Posix.Signal.kill(FPid, Posix.Signal.SIGKILL) <> 0) then
     if (errno = EINVAL) then //Invalid signal
       raise EInvalidArgument.Create('Invalid argument.')
@@ -101,20 +113,52 @@ begin
       raise ENoSuchProcess.Create('No such process.') 
 end;
 
-procedure TExecCmdPosix.Redirect(out AReader: TReader; out AWriter: TWriter);
+function TExecCmdPosix.PeekMessage: string;
 var
   LBuffer: array[0..511] of UInt8;
+  LCount: integer;
+begin   
+  while True do begin
+    LCount := __read(FRead.ReadDes, @LBuffer[0], SizeOf(LBuffer));
+    if (LCount = -1) then begin     
+      if (errno = EINTR) then
+        Continue
+      else
+        Exit(String.Empty);
+    end else if (LCount = 0) then
+      Exit(String.Empty)
+    else begin
+      Exit(Copy(UTF8ToString(@LBuffer[0]), 1, UTF8ToString(@LBuffer[0]).Length -1));
+    end;      
+  end;
+end;
+
+procedure TExecCmdPosix.Redirect(out AReader: PyExecCmd.TReader; out AWriter: PyExecCmd.TWriter);
+var
+  LBuffer: string;
+  M: TMarshaller;
 begin
-  AReader := function(): string 
-  var
-    LCount: Int64;
+  AReader := function(): string
   begin
-    LCount := __read(FParent.ReadDes, @LBuffer[0], SizeOf(LBuffer));     
-    Result := BufferToString(@LBuffer[0], LCount);  
+    Result := String.Empty;
+
+    while GetIsAlive() and Result.IsEmpty() do begin
+      Result := Result + PeekMessage();
+    end;
+
+    if not Result.IsEmpty() then
+      Exit;
+
+    //Preventing race condition...
+    repeat
+      LBuffer := PeekMessage();
+      if not LBuffer.IsEmpty() then
+        Result := Result + LBuffer;
+    until (LBuffer.IsEmpty());
   end;
 
   AWriter := procedure(AIn: string) begin
-    //__write()
+    __write(FWrite.WriteDes, M.AsUtf8(PWideChar(AIn)).ToPointer(), AIn.Length);
   end;
 end;
 
@@ -122,38 +166,55 @@ function TExecCmdPosix.Run(out AOutput: string): IExecCmd;
 var
   LReader: TReader;
   LWriter: TWriter;
+  LOutput: string;
 begin
-  Result := Run(LReader, LWriter, []);
-
-  AOutput := LReader();
-  while GetIsAlive() do
-    AOutput := AOutput + LReader();
+  AOutput := String.Empty;
+  Result := Run(LReader, LWriter, [TRedirect.stdout]);
+  repeat
+    LOutput := LReader();
+    if not LOutput.IsEmpty() then
+      AOutput := AOutput + LOutput;
+  until LOutput.IsEmpty();
 end;
 
-function TExecCmdPosix.Run(out AReader: TReader; out AWriter: TWriter;
+function TExecCmdPosix.Run(out AReader: PyExecCmd.TReader; out AWriter: PyExecCmd.TWriter;
   const ARedirections: TRedirections): IExecCmd;
+var
+  M: TMarshaller;
+  LArgs: array of PAnsiChar;
 begin
-  pipe(FParent);
+  //#define PARENT_READ read_pipe[0]
+  //#define PARENT_WRITE write_pipe[1]
+  //#define CHILD_WRITE read_pipe[1]
+  //#define CHILD_READ  write_pipe[0]
   
+  if (pipe(FRead) = -1) or (pipe(FWrite) = -1) then
+    raise EPipeFailed.Create('Failed to create pipe.');
+
   FPid := fork();
   if (FPid < 0) then
     raise EForkFailed.Create('Failed to fork process.')
   else if (FPid = 0) then begin
-    dup2(FChild.ReadDes, STDIN_FILENO);
-    dup2(FChild.WriteDes, STDOUT_FILENO);
+    while ((dup2(FRead.WriteDes, STDOUT_FILENO) = -1) and (errno = EINTR)) do begin end;
+    while ((dup2(FRead.WriteDes, STDERR_FILENO) = -1) and (errno = EINTR)) do begin end;
+    while ((dup2(FWrite.ReadDes, STDIN_FILENO) = -1) and (errno = EINTR)) do begin end;
+    __close(FRead.WriteDes); 
+    __close(FRead.ReadDes);
+    __close(FWrite.ReadDes);
 
-    __close(FChild.ReadDes);
-    __close(FChild.WriteDes);
-    __close(FParent.ReadDes);
-    __close(FParent.WriteDes);
-
-    execv(PAnsiChar(AnsiString(FCmd)), PPAnsiChar(AnsiString(FArgs)));    
-  end else if (FPid > 0) then begin
-    __close(FChild.ReadDes);
-    __close(FChild.WriteDes);
-  end;
-
-  Redirect(AReader, AWriter);
+    SetLength(LArgs, 2);
+    LArgs[0] := M.AsAnsi(PWideChar(FArgs)).ToPointer();
+    LArgs[1] := PAnsiChar(nil);
+    if execvp(M.AsAnsi(PWideChar(FCmd)).ToPointer(), PPAnsiChar(LArgs)) = -1 then begin 
+      //Halt(errno);
+    end else
+      //Halt(EXIT_FAILURE);
+  end else if (FPid > 0) then begin    
+    __close(FRead.WriteDes);
+    __close(FWrite.ReadDes); 
+    Redirect(AReader, AWriter);
+  end;      
+  Result := Self;
 end;
 
 function TExecCmdPosix.Run: IExecCmd;
@@ -169,14 +230,25 @@ var
   LWaitedPid: integer;
   LStatus: integer;
 begin
-  LWaitedPid := waitpid(FPid, @LStatus, 0);
-  if (LWaitedPid < 0) then
-    Exit(EXIT_FAILURE)
-  else if (LWaitedPid = FPid) then
-    if WIFEXITED(LStatus) then
-      Exit(WEXITSTATUS(LStatus));
-
-  Result := EXIT_SUCCESS;
+  if (FExitCode <> INITIAL_EXIT_CODE) then
+    Exit(FExitCode);
+    
+  LWaitedPid := waitpid(FPid, @LStatus, WNOHANG);
+  repeat
+    if (LWaitedPid = -1) then
+      raise EWaitFailed.Create('Failed waiting for process.')
+    else if (LWaitedPid = 0) then
+      Sleep(100)
+    else begin
+      if WIFEXITED(LStatus) then
+        FExitCode := WEXITSTATUS(LStatus)
+      else
+        FExitCode := EXIT_FAILURE;
+      Exit(FExitCode);
+    end;
+  until (LWaitedPid <> 0);
+  
+  Result := FExitCode;
 end;
 
 end.

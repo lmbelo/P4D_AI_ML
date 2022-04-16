@@ -136,7 +136,11 @@ type
 implementation
 
 uses
-  System.IOUtils, PyEnvironment.Notification;
+  System.IOUtils, System.Character, PyEnvironment.Notification
+  {$IFDEF POSIX}
+  , Posix.SysStat, Posix.Stdlib, Posix.String_, Posix.Errno
+  {$ENDIF}
+  ;
 
 { TPyCustomEmbeddableDistribution }
 
@@ -166,12 +170,26 @@ begin
 end;
 
 function TPyCustomEmbeddableDistribution.FindExecutable: string;
+var
+  LFiles: TArray<string>;
 begin
+  LFiles := [];
   {$IFDEF MSWINDOWS}
   Result := TPath.Combine(GetEnvironmentPath(), 'python.exe');
   if not TFile.Exists(Result) then
     Result := String.Empty;
   {$ELSE}
+  Result := TPath.Combine(GetEnvironmentPath(), 'bin');
+  LFiles := TDirectory.GetFiles(Result, 'python*', TSearchOption.soTopDirectoryOnly,
+    function(const Path: string; const SearchRec: TSearchRec): boolean
+    begin
+      Result := Char.IsDigit(SearchRec.Name, Length(SearchRec.Name) - 1);
+    end);
+  if Length(LFiles) > 0 then begin
+    Result := TPath.Combine(Result, ExtractFileName(LFiles[0]));
+    if not TFile.Exists(Result) then
+      Result := String.Empty;
+  end else
     Result := String.Empty;
   {$IFEND}
 end;
@@ -181,23 +199,28 @@ var
   I: integer;
   LLibName: string;
 begin
-  { TODO : (BETA) Improve localizer }
   for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do
     if PythonVersion.StartsWith(PYTHON_KNOWN_VERSIONS[I].RegVersion) then begin
       LLibName := PYTHON_KNOWN_VERSIONS[I].DllName;
       Break;
     end;
 
-  Result := TPath.Combine(GetEnvironmentPath(), LLibName);
+  {$IFDEF MSWINDOWS}
+  Result := GetEnvironmentPath();
+  {$ELSE}
+  Result := TPath.Combine(GetEnvironmentPath(), 'lib');
+  {$ENDIF}
+
+  Result := TPath.Combine(Result, LLibName);
   if not TFile.Exists(Result) then
     Result := String.Empty;
 end;
 
 procedure TPyCustomEmbeddableDistribution.LoadSettings;
 begin
-  Home := GetEnvironmentPath();
-  SharedLibrary := FindSharedLibrary();
-  Executable := FindExecutable();
+  Home := ExpandFileName(GetEnvironmentPath());
+  SharedLibrary := ExpandFileName(FindSharedLibrary());
+  Executable := ExpandFileName(FindExecutable());
 end;
 
 function TPyCustomEmbeddableDistribution.GetEnvironmentPath: string;
@@ -206,6 +229,12 @@ begin
 end;
 
 procedure TPyCustomEmbeddableDistribution.Setup;
+{$IFDEF POSIX}
+const
+  EXECUTABLE_PERMISSION = '111';
+var
+  M: TMarshaller;
+{$ENDIF POSIX}
 begin
   inherited;
   if not EnvironmentExists() then begin
@@ -219,6 +248,12 @@ begin
   end;
 
   LoadSettings();
+
+  {$IFDEF POSIX}
+//  var I := strtol(EXECUTABLE_PERMISSION, nil, 8);
+//  if (chmod(M.AsAnsi(PWideChar(Executable)).ToPointer(), I) < 0) then
+//    raise Exception.Create('chmod error');
+  {$ENDIF POSIX}
 end;
 
 { TPyEmbeddableDistribution }

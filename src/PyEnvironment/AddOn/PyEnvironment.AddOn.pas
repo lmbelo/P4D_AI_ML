@@ -44,9 +44,9 @@ type
     ANotification: TEnvironmentNotification;
     ADistribution: TPyDistribution) of object;
 
-  TPyEnvironmentAddOnExecuteError = procedure(AException: Exception;
+  TPyEnvironmentAddOnExecuteError = procedure(ADistribution: TPyDistribution;
     const AAddOn: TPyEnvironmentCustomAddOn;
-    ADistribution: TPyDistribution) of object;
+    AException: Exception) of object;
 
   TPyEnvironmentCustomAddOn = class(TComponent)
   private
@@ -80,7 +80,7 @@ type
     procedure Add(AAddOn: TPyEnvironmentCustomAddOn);
     procedure Remove(AAddOn: TPyEnvironmentCustomAddOn);
 
-    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
+    procedure Apply(ASender: TObject; ANotification: TEnvironmentNotification;
       ADistribution: TPyDistribution);
   published
     property Enabled: boolean read FEnabled write FEnabled default true;
@@ -138,21 +138,21 @@ begin
   inherited;
 end;
 
-procedure TPyEnvironmentAddOns.Execute(ASender: TObject;
+procedure TPyEnvironmentAddOns.Apply(ASender: TObject;
   ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
 var
-  LItem: TPyEnvironmentCustomAddOn;
+  LAddOn: TPyEnvironmentCustomAddOn;
 begin
   if not FEnabled then
     Exit;
 
-  for LItem in FList do begin
+  for LAddOn in FList do begin
     try
-      LItem.Execute(ASender, ANotification, ADistribution);
+      LAddOn.Execute(ASender, ANotification, ADistribution);
     except
       on E: Exception do
         if Assigned(FOnExecuteError) then begin
-          FOnExecuteError(E, LItem, ADistribution);
+          FOnExecuteError(ADistribution, LAddOn, E);
         end else
           raise;
     end;
