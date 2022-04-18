@@ -47,6 +47,7 @@ type
     FCmd: IPyPackageManagerCmdIntf;
     //Builders
     function BuildOptsList(): TPyPackageManagerDefsOptsPipList;
+    function BuildEnvp(): TArray<string>;
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
@@ -68,19 +69,6 @@ uses
   PyPackage.Manager.Cmd.Pip;
 
 { TPyPackageManagerPip }
-
-function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
-begin
-  Result := TPyPackageManagerDefsOptsPipList.Create();
-  try
-    Result.User := (FDefs as TPyPackageManagerDefsPip).InstallOptions.User;
-  except
-    on E: Exception do begin
-      Result.Free();
-      raise;
-    end;
-  end;
-end;
 
 constructor TPyPackageManagerPip.Create(const APackageName: TPyPackageName);
 begin
@@ -106,6 +94,26 @@ begin
   Result := FDefs;
 end;
 
+function TPyPackageManagerPip.BuildEnvp: TArray<string>;
+begin
+  Result := ['LD_LIBRARY_PATH=' + GetPythonEngine().DllPath,
+             'PYTHONHOME=' + GetPythonEngine().PythonHome,
+             'PATH=' + ExtractFilePath(GetPythonEngine().ProgramName)];
+end;
+
+function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
+begin
+  Result := TPyPackageManagerDefsOptsPipList.Create();
+  try
+    Result.User := (FDefs as TPyPackageManagerDefsPip).InstallOptions.User;
+  except
+    on E: Exception do begin
+      Result.Free();
+      raise;
+    end;
+  end;
+end;
+
 function TPyPackageManagerPip.IsInstalled(): boolean;
 var
   LOpts: TPyPackageManagerDefsOptsPipList;
@@ -117,7 +125,9 @@ begin
   try
     LIn := ['-m', 'pip'] + FCmd.BuildListCmd(LOpts);
     LCode := TPyExecCmdService
-              .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn))
+              .Cmd(GetPythonEngine().ProgramName,
+                  LIn,
+                  BuildEnvp())
                 .Run(LOut)
                   .Wait();
     if LCode = EXIT_SUCCESS then
@@ -139,7 +149,9 @@ begin
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
 
    Result := TPyExecCmdService
-    .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn) + ' ' + FDefs.PackageName)
+    .Cmd(GetPythonEngine().ProgramName,
+         LIn + [FDefs.PackageName],
+         BuildEnvp())
       .Run(AOutput)
         .Wait() = EXIT_SUCCESS;
 end;
@@ -152,7 +164,9 @@ begin
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
 
   Result := TPyExecCmdService
-    .Cmd(GetPythonEngine().ProgramName, String.Join(' ', LIn) + ' ' + FDefs.PackageName)
+    .Cmd(GetPythonEngine().ProgramName,
+         LIn + [FDefs.PackageName],
+         BuildEnvp())
       .Run(AOutput)
         .Wait() = EXIT_SUCCESS;
 end;

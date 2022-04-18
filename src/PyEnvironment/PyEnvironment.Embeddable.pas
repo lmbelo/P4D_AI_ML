@@ -250,9 +250,9 @@ begin
   LoadSettings();
 
   {$IFDEF POSIX}
-//  var I := strtol(EXECUTABLE_PERMISSION, nil, 8);
-//  if (chmod(M.AsAnsi(PWideChar(Executable)).ToPointer(), I) < 0) then
-//    raise Exception.Create('chmod error');
+  var I := strtol(EXECUTABLE_PERMISSION, nil, 8);
+  if (chmod(M.AsAnsi(PWideChar(Executable)).ToPointer(), I) < 0) then
+    raise Exception.Create('chmod error');
   {$ENDIF POSIX}
 end;
 

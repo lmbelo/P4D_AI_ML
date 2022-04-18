@@ -71,7 +71,7 @@ begin
   if (ANotification <> AFTER_SETUP_NOTIFICATION) then
     Exit;
 
-  if (TPyExecCmdService.Cmd(ADistribution.Executable, '-m pip --version').Run().Wait() = 0) then
+  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run().Wait() = 0) then
     Exit;
 
   //Patch the _pth file to work with site packages
@@ -96,7 +96,7 @@ begin
   try
     LResStream.SaveToFile(LFileName);
      if TPyExecCmdService
-      .Cmd(ADistribution.Executable, LFileName)
+      .Cmd(ADistribution.Executable, [LFileName])
         .Run(LOut)
           .Wait() <> EXIT_SUCCESS then
             raise EPipSetupFailed.Create('Failed to setup PIP.' + #13#10 + LOut);
