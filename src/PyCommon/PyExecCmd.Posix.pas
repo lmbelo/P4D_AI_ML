@@ -16,7 +16,8 @@ type
   TExecCmdPosix = class(TInterfacedObject, IExecCmd)
   private  
     FCmd: string;
-    FArgs: string;
+    FArg: TArray<string>;
+    FEnv: TArray<string>;
     FPid: Integer;
     FRead: TPipeDescriptors;
     FWrite: TPipeDescriptors;
@@ -27,7 +28,7 @@ type
     function GetIsAlive: boolean;
     function GetExitCode: Integer;
   public
-    constructor Create(const ACmd, AArgs: string);
+    constructor Create(const ACmd: string; AArg, AEnv: TArray<string>);
     destructor Destroy(); override;
 
     function Run(): IExecCmd; overload;
@@ -57,10 +58,12 @@ const
 
 { TExecCmdPosix }
 
-constructor TExecCmdPosix.Create(const ACmd, AArgs: string);
+constructor TExecCmdPosix.Create(const ACmd: string; AArg, AEnv: TArray<string>);
 begin
+  inherited Create();
   FCmd := ACmd;
-  FArgs := AArgs;
+  FArg := AArg;
+  FEnv := AEnv;
   FExitCode := INITIAL_EXIT_CODE;
 end;
 
@@ -181,7 +184,8 @@ function TExecCmdPosix.Run(out AReader: PyExecCmd.TReader; out AWriter: PyExecCm
   const ARedirections: TRedirections): IExecCmd;
 var
   M: TMarshaller;
-  LArgs: array of PAnsiChar;
+  LArg, LEnv: array of PAnsiChar;
+  I: Integer;
 begin
   //#define PARENT_READ read_pipe[0]
   //#define PARENT_WRITE write_pipe[1]
@@ -202,14 +206,31 @@ begin
     __close(FRead.ReadDes);
     __close(FWrite.ReadDes);
 
-    SetLength(LArgs, 2);
-    LArgs[0] := M.AsAnsi(PWideChar(FArgs)).ToPointer();
-    LArgs[1] := PAnsiChar(nil);
-    if execvp(M.AsAnsi(PWideChar(FCmd)).ToPointer(), PPAnsiChar(LArgs)) = -1 then begin 
-      //Halt(errno);
+    //https://man7.org/linux/man-pages/man2/execve.2.html
+
+    //argv is an array of pointers to strings passed to the new program
+    //as its command-line arguments. By convention, THE FIRST OF THESE
+    //STRINGS (i.e., argv[0]) SHOULD CONTAIN THE FILENAME ASSOCIATED
+    //WITH THE FILE BEING EXECUTED. The argv array must be terminated
+    //by a NULL pointer. (Thus, in the new program, argv[argc] will be
+    //NULL.)
+
+    SetLength(LArg, Length(FArg) + 2);
+    LArg[0] := M.AsAnsi(PWideChar(ExtractFileName(FCmd))).ToPointer();
+    for I := Low(FArg) to High(FArg) do
+      LArg[I + 1] := M.AsAnsi(PWideChar(FArg[I] + #0)).ToPointer();
+    LArg[High(LArg)] := PAnsiChar(nil);
+
+    SetLength(LEnv, Length(FEnv) + 1);
+    for I := Low(FEnv) to High(FEnv) do
+      LEnv[I] := M.AsAnsi(PWideChar(FEnv[I] + #0)).ToPointer();
+    LEnv[High(LEnv)] := PAnsiChar(nil);
+
+    if execve(M.AsAnsi(PWideChar(FCmd)).ToPointer(), PPAnsiChar(LArg), PPAnsiChar(LEnv)) = -1 then begin
+      Halt(errno);
     end else
-      //Halt(EXIT_FAILURE);
-  end else if (FPid > 0) then begin    
+      Halt(EXIT_FAILURE);
+  end else if (FPid > 0) then begin
     __close(FRead.WriteDes);
     __close(FWrite.ReadDes); 
     Redirect(AReader, AWriter);

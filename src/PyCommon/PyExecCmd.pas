@@ -28,7 +28,8 @@ type
 
   TPyExecCmdService = class
   public
-    class function Cmd(const ACmd, AArgs: string): IExecCmd;
+    class function Cmd(const ACmd: string; const AArg, AEnv: TArray<string>): IExecCmd; overload;
+    class function Cmd(const ACmd: string; const AArg: TArray<string>): IExecCmd; overload;
   end;
 
   EExecCmd = class(Exception);
@@ -48,13 +49,19 @@ uses
 
 { TExecCmdService }
 
-class function TPyExecCmdService.Cmd(const ACmd, AArgs: string): IExecCmd;
+class function TPyExecCmdService.Cmd(const ACmd: string; const AArg, AEnv: TArray<string>): IExecCmd;
 begin
   {$IFDEF MSWINDOWS}
-  Result := TExecCmdWin.Create(ACmd, AArgs);
+  Result := TExecCmdWin.Create(ACmd, AArg, AEnv);
   {$ELSE}
-  Result := TExecCmdPosix.Create(ACmd, AArgs);
+  Result := TExecCmdPosix.Create(ACmd, AArg, AEnv);
   {$ENDIF}
+end;
+
+class function TPyExecCmdService.Cmd(const ACmd: string;
+  const AArg: TArray<string>): IExecCmd;
+begin
+  Result := Cmd(ACmd, AArg, []);
 end;
 
 end.

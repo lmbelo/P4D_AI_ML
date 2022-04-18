@@ -13,7 +13,8 @@ type
   TExecCmdWin = class(TInterfacedObject, IExecCmd)
   private
     FCmd: string;
-    FArgs: string;
+    FArg: TArray<string>;
+    FEnv: TArray<string>;
     FSecurityAttributes: TSecurityAttributes;
     FStartupInfo: TStartupInfo;
     FProcessInfo: TProcessInformation;
@@ -36,7 +37,7 @@ type
     function GetIsAlive: boolean;
     function GetExitCode: Integer;
   public
-    constructor Create(const ACmd, AArgs: string);
+    constructor Create(const ACmd: string; const AArg, AEnv: TArray<string>);
     destructor Destroy(); override;
 
     procedure Redirect(out AReader: TReader; out AWriter: TWriter);
@@ -61,10 +62,11 @@ uses
 
 { TExecCmdWin }
 
-constructor TExecCmdWin.Create(const ACmd, AArgs: string);
+constructor TExecCmdWin.Create(const ACmd: string; const AArg, AEnv: TArray<string>);
 begin
   FCmd := ACmd;
-  FArgs := AArgs;
+  FArg := AArg;
+  FEnv := AEnv;
   //Set the bInheritedHandle to true so pipe handles are inherited
   FSecurityAttributes := Default(TSecurityAttributes);
   with FSecurityAttributes do begin
@@ -130,7 +132,7 @@ end;
 procedure TExecCmdWin.Execute;
 begin
   //Create the process
-  var LCmd := FCmd + ' ' + FArgs;
+  var LCmd := FCmd + ' ' + String.Join(' ', FArg);
   UniqueString(LCmd);
   if not CreateProcess(nil, PWideChar(LCmd), nil, nil, True, 0, nil, nil,
     FStartupInfo, FProcessInfo) then
