@@ -31,7 +31,8 @@ package P4DPyPackage;
 
 requires
   rtl,
-  Python;
+  Python,
+  p4dcommon;
 
 contains
   PyCommon in '..\src\PyPackage\PyCommon.pas',
