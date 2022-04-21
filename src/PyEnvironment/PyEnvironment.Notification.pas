@@ -46,7 +46,7 @@ type
 
   IEnvironmentNotified = interface
     ['{D528B694-C4C4-4A96-BF40-2153CCC80243}']
-    procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
+    procedure NotifyUpdate(ANotifier: TObject; ANotification: TEnvironmentNotification;
       const AArgs: TObject);
   end;
 
@@ -134,7 +134,7 @@ var
   LListener: IEnvironmentNotified;
 begin
   for LListener in FListeners do begin
-    LListener.NotifyUpadte(ANotifier, ANotification, AArgs);
+    LListener.NotifyUpdate(ANotifier, ANotification, AArgs);
   end;
 end;
 
