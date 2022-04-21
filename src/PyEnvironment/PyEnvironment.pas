@@ -39,6 +39,7 @@ type
   TPyCustomEnvironment = class(TComponent, IEnvironmentNotified)
   private
     FDistributions: TPyDistributionCollection;
+    FDistribution: TPyDistribution;
     FAutoLoad: boolean;
     FPythonEngine: TPythonEngine;
     FPythonVersion: string;
@@ -64,8 +65,9 @@ type
     destructor Destroy(); override;
 
     procedure Setup(APythonVersion: string);
-    procedure Activate(APythonVersion: string);
+    procedure Activate();
     procedure Deactivate();
+    procedure Reset();
   public
     property Distributions: TPyDistributionCollection read FDistributions write SetEnvironments;
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
@@ -115,7 +117,7 @@ begin
     and not (PythonVersion.IsEmpty) then
   begin
     Setup(PythonVersion);
-    Activate(PythonVersion);
+    Activate();
   end;
 end;
 
@@ -131,43 +133,35 @@ begin
 end;
 
 procedure TPyCustomEnvironment.Setup(APythonVersion: string);
-var
-  LDistribution: TPyDistribution;
 begin
   NotifyAll(BEFORE_SETUP_NOTIFICATION, nil);
 
   Prepare();
 
-  LDistribution := FDistributions.LocateEnvironment(APythonVersion);
-  if not Assigned(LDistribution) then
+  FDistribution := FDistributions.LocateEnvironment(APythonVersion);
+  if not Assigned(FDistribution) then
     Exit();
 
-  LDistribution.Setup();
+  FDistribution.Setup();
 
-  NotifyAll(AFTER_SETUP_NOTIFICATION, LDistribution);
+  NotifyAll(AFTER_SETUP_NOTIFICATION, FDistribution);
 end;
 
-procedure TPyCustomEnvironment.Activate(APythonVersion: string);
-var
-  LDistribution: TPyDistribution;
+procedure TPyCustomEnvironment.Activate();
 begin
   if not Assigned(FPythonEngine) then
     Exit();
 
-  LDistribution := FDistributions.LocateEnvironment(APythonVersion);
-  if not Assigned(LDistribution) then
-    Exit();
-
-  NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, LDistribution);
+  NotifyAll(BEFORE_ACTIVATE_NOTIFICATION, FDistribution);
 
   FPythonEngine.UseLastKnownVersion := false;
-  FPythonEngine.PythonHome := ExpandFileName(LDistribution.Home);
-  FPythonEngine.ProgramName := ExpandFileName(LDistribution.Executable);
-  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(LDistribution.SharedLibrary));
-  FPythonEngine.DllName := ExtractFileName(LDistribution.SharedLibrary);
+  FPythonEngine.PythonHome := ExpandFileName(FDistribution.Home);
+  FPythonEngine.ProgramName := ExpandFileName(FDistribution.Executable);
+  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(FDistribution.SharedLibrary));
+  FPythonEngine.DllName := ExtractFileName(FDistribution.SharedLibrary);
   FPythonEngine.LoadDll();
 
-  NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LDistribution);
+  NotifyAll(AFTER_ACTIVATE_NOTIFICATION, FDistribution);
 end;
 
 procedure TPyCustomEnvironment.Deactivate;
@@ -214,6 +208,12 @@ end;
 procedure TPyCustomEnvironment.Prepare;
 begin
   //
+end;
+
+procedure TPyCustomEnvironment.Reset;
+begin
+  //...
+  FDistribution := nil;
 end;
 
 procedure TPyCustomEnvironment.SetAddOns(const Value: TPyEnvironmentAddOns);
