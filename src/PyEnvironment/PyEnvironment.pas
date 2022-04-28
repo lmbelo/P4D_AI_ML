@@ -57,7 +57,7 @@ type
     procedure NotifyAll(ANotification: TEnvironmentNotification;
       ADistribution: TPyDistribution); virtual;
     //IEnvironmentNotified implementation
-    procedure NotifyUpadte(ANotifier: TObject; ANotification: TEnvironmentNotification;
+    procedure NotifyUpdate(ANotifier: TObject; ANotification: TEnvironmentNotification;
       const AArgs: TObject);
   public
     constructor Create(AOwner: TComponent); override;
@@ -186,7 +186,7 @@ begin
   NotifyAll(AFTER_DEACTIVATE_NOTIFICATION, nil);
 end;
 
-procedure TPyCustomEnvironment.NotifyUpadte(ANotifier: TObject;
+procedure TPyCustomEnvironment.NotifyUpdate(ANotifier: TObject;
   ANotification: TEnvironmentNotification;
   const AArgs: TObject);
 begin
