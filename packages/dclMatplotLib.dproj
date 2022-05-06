@@ -150,9 +150,37 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dmatplotlib.dcp"/>
         <DCCReference Include="..\src\MatplotLib\MatplotLibReg.pas"/>
-        <RcItem Include="..\images\TMatplotLib.bmp">
+        <RcItem Include="..\images\bmp\16\matplotlib_logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TMatplotLib</ResourceId>
+            <ResourceId>TMATPLOTLIB16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\matplotlib_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TMATPLOTLIB128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\matplotlib_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TMATPLOTLIB32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\matplotlib_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TMATPLOTLIB</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\matplotlib_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TMATPLOTLIB16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\matplotlib_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TMATPLOTLIB32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\matplotlib_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TMATPLOTLIB128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\matplotlib_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TMATPLOTLIB_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

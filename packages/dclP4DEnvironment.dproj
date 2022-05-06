@@ -153,6 +153,198 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4denvironment.dcp"/>
         <DCCReference Include="..\src\PyEnvironment\PyEnvReg.pas"/>
+        <RcItem Include="..\images\png\128x128\embbeded.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\embbeded.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\embbeded.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\embbeded.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\ensurepip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\ensurepip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\ensurepip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\ensurepip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\get_pip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\get_pip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\get_pip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\get_pip.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\add_ons.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\add_ons.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\add_ons.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\add_ons.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\add_on.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\add_on.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\add_on.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\add_on.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\local.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\local.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\local.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\local.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\local.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\local.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\local.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\local.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYLOCALENVIRONMENT</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\add_on.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\add_on.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\add_on.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\add_on.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDON</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\add_ons.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\add_ons.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\add_ons.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\add_ons.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONS16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\embbeded.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\embbeded.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\embbeded.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\embbeded.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYEMBEDDEDENVIRONMENT</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\ensurepip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\ensurepip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\ensurepip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\ensurepip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONENSUREPIP16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\get_pip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\get_pip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\get_pip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\get_pip.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYENVIRONMENTADDONGETPIP</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

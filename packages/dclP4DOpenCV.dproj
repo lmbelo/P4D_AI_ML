@@ -150,9 +150,37 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dopencv.dcp"/>
         <DCCReference Include="..\src\OpenCV\OpenCVReg.pas"/>
-        <RcItem Include="..\images\TOpenCV.bmp">
+        <RcItem Include="..\images\bmp\16\opencv_logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TOpenCV</ResourceId>
+            <ResourceId>TOPENCV16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\opencv_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TOPENCV128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\opencv_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TOPENCV32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\opencv_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TOPENCV</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\opencv_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TOPENCV_PNG16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\opencv_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TOPENCV32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\opencv_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TOPENCV128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\opencv_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TOPENCV_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

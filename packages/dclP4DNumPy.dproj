@@ -184,9 +184,37 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dnumpy.dcp"/>
         <DCCReference Include="..\src\NumPy\NumPyReg.pas"/>
-        <RcItem Include="..\images\TNumPy.bmp">
+        <RcItem Include="..\images\bmp\16\numpy_logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TNumPy</ResourceId>
+            <ResourceId>TNUMPY16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\numpy_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TNUMPY128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\numpy_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TNUMPY32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\numpy_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TNUMPY</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\numpy_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TNUMPY_PNG16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\numpy_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TNUMPY32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\numpy_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TNUMPY128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\numpy_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TNUMPY_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

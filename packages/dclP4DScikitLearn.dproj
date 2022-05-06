@@ -150,9 +150,37 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dscikitlearn.dcp"/>
         <DCCReference Include="..\src\ScikitLearn\ScikitLearnReg.pas"/>
-        <RcItem Include="..\images\TScikitLearn.bmp">
+        <RcItem Include="..\images\bmp\16\scikit-learn_logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TScikitLearn</ResourceId>
+            <ResourceId>TSCIKITLEARN16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\scikit-learn_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TSCIKITLEARN128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\scikit-learn_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TSCIKITLEARN32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\scikit-learn_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TSCIKITLEARN</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\scikit-learn_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TSCIKITLEARN16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\scikit-learn_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TSCIKITLEARN32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\scikit-learn_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TSCIKITLEARN128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\scikit-learn_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TSCIKITLEARN_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

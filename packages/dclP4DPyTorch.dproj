@@ -160,13 +160,69 @@
         <DCCReference Include="p4dpytorch.dcp"/>
         <DCCReference Include="..\src\PyTorch\PyTorchReg.pas"/>
         <DCCReference Include="..\src\PyTorch\TorchVision\TorchVisionReg.pas"/>
-        <RcItem Include="..\images\TPyTorch.bmp">
+        <RcItem Include="..\images\bmp\16\pytorch_vision-logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TPyTorch</ResourceId>
+            <ResourceId>TTORCHVISION16</ResourceId>
         </RcItem>
-        <RcItem Include="..\images\TTorchVision.bmp">
+        <RcItem Include="..\images\bmp\128\pytorch_vision-logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TTorchVision</ResourceId>
+            <ResourceId>TTORCHVISION128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\pytorch_vision-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TTORCHVISION32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\pytorch_vision-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TTORCHVISION</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\pytorch_vision-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTORCHVISION16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\pytorch_vision-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTORCHVISION128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\pytorch_vision-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTORCHVISION32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\pytorch_vision-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTORCHVISION_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\pytorch-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYTORCH16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\pytorch-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYTORCH128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\pytorch-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYTORCH32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\pytorch-logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPYTORCH</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\pytorch-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYTORCH16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\pytorch-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYTORCH32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\pytorch-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYTORCH128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\pytorch-logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPYTORCH_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

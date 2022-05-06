@@ -150,9 +150,37 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="p4dtensorflow.dcp"/>
         <DCCReference Include="..\src\TensorFlow\TensorFlowReg.pas"/>
-        <RcItem Include="..\images\TTensorFlow.bmp">
+        <RcItem Include="..\images\png\16x16\tensorflow_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTENSORFLOW16_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\tensorflow_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTENSORFLOW32_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\tensorflow_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTENSORFLOW128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\tensorflow_logo.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TTENSORFLOW_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\tensorflow_logo.bmp">
             <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TTensorFlow</ResourceId>
+            <ResourceId>TTENSORFLOW16</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\tensorflow_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TTENSORFLOW128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\tensorflow_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TTENSORFLOW32</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\tensorflow_logo.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TTENSORFLOW</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

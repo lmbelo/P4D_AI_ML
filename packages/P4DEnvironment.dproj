@@ -121,6 +121,7 @@
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Distribution.pas"/>
         <DCCReference Include="..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.pas"/>
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Notification.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.EnsurePip.pas"/>
         <RcCompile Include="..\resources\getpipscript.rc">
             <Form>res_script.res</Form>
         </RcCompile>
