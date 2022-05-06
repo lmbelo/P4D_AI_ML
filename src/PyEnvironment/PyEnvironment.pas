@@ -64,7 +64,7 @@ type
     destructor Destroy(); override;
 
     procedure Setup(APythonVersion: string);
-    procedure Activate(APythonVersion: string);
+    function Activate(APythonVersion: string): boolean;
     procedure Deactivate();
   public
     property Distributions: TPyDistributionCollection read FDistributions write SetEnvironments;
@@ -147,10 +147,12 @@ begin
   NotifyAll(AFTER_SETUP_NOTIFICATION, LDistribution);
 end;
 
-procedure TPyCustomEnvironment.Activate(APythonVersion: string);
+function TPyCustomEnvironment.Activate(APythonVersion: string): boolean;
 var
   LDistribution: TPyDistribution;
 begin
+  Result := false;
+
   if not Assigned(FPythonEngine) then
     Exit();
 
@@ -168,6 +170,8 @@ begin
   FPythonEngine.LoadDll();
 
   NotifyAll(AFTER_ACTIVATE_NOTIFICATION, LDistribution);
+
+  Result := FPythonEngine.IsHandleValid();
 end;
 
 procedure TPyCustomEnvironment.Deactivate;
