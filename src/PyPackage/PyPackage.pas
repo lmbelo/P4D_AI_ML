@@ -344,8 +344,14 @@ begin
 end;
 
 function TPyManagedPackage.IsInstalled: boolean;
+var
+  LOutput: string;
 begin
-  Result := GetPackageManager(ManagerKind).IsInstalled();
+  if not GetPackageManager(ManagerKind).IsInstalled(Result, LOutput) then
+    raise EPyModuleCheckInstalledError.CreateFmt(
+      'An error ocurred while verifing %s installation.'
+    + #13#10
+    + '%s', [PyModuleName, LOutput]);
 end;
 
 procedure TPyManagedPackage.RaiseNotInstalled;
@@ -356,16 +362,16 @@ end;
 procedure TPyManagedPackage.RaiseUninstallationError(LOutput: string);
 begin
   raise EPyModuleUnInstallError.CreateFmt(
-    'An error occurred while uninstalling the package %s.'
-  + ''#13''#10''
+    'An error occurred while uninstalling %s.'
+  + #13#10
   + '%s', [PyModuleName, LOutput]);
 end;
 
 procedure TPyManagedPackage.RaiseInstallationError(LOutput: string);
 begin
   raise EPyModuleInstallError.CreateFmt(
-    'An error occurred while installing the package %s.'
-  + ''#13''#10''
+    'An error occurred while installing %s.'
+  + #13#10
   + '%s', [PyModuleName, LOutput]);
 end;
 
