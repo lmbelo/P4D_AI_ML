@@ -35,37 +35,29 @@ uses
   System.SysUtils;
 
 type
-  EPyCommonException = class(Exception)
-  end;
+  EPyCommonException = class(Exception);
 
-  EModuleNotReady = class(EPyCommonException)
-  end;
+  EModuleNotReady = class(EPyCommonException);
 
   EManagerUnavailable = class(EPyCommonException);
 
-  EPyPackageNotInstalled = class(EPyCommonException)
-  end;
+  EPyPackageNotInstalled = class(EPyCommonException);
 
-  EPyModuleInstallError = class(EPyCommonException)
-  end;
+  EPyModuleCheckInstalledError = class(EPyCommonException);
 
-  EPyModuleUninstallError = class(EPyCommonException)
-  end;
+  EPyModuleInstallError = class(EPyCommonException);
 
-  EPyParentModuleCircularReference = class(EPyCommonException)
-  end;
+  EPyModuleUninstallError = class(EPyCommonException);
 
-  EPyModuleNotImported = class(EPyCommonException)
-  end;
+  EPyParentModuleCircularReference = class(EPyCommonException);
 
-  EPySubModuleNotFound = class(EPyCommonException)
-  end;
+  EPyModuleNotImported = class(EPyCommonException);
 
-  EPyVarException = class(EPyCommonException)
-  end;
+  EPySubModuleNotFound = class(EPyCommonException);
 
-  EPyVarIsNotPython = class(EPyVarException)
-  end;
+  EPyVarException = class(EPyCommonException);
+
+  EPyVarIsNotPython = class(EPyVarException);
 
 resourcestring
   ErrPackageNotInstalled = 'Package %s not installed.';
