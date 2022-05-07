@@ -97,7 +97,11 @@ begin
     Exit(true)
   else begin    
     if WIFEXITED(LStatus) then begin
-      FExitCode := WEXITSTATUS(LStatus);      
+      FExitCode := WEXITSTATUS(LStatus);
+    end else if WIFSIGNALED(LStatus) then begin
+      FExitCode := WTERMSIG(LStatus);
+    end else if WIFSTOPPED(LStatus) then begin
+      FExitCode := WSTOPSIG(LStatus);
     end else begin
       FExitCode := EXIT_FAILURE;
     end;
@@ -120,7 +124,7 @@ function TExecCmdPosix.PeekMessage: string;
 var
   LBuffer: array[0..511] of UInt8;
   LCount: integer;
-begin   
+begin
   while True do begin
     LCount := __read(FRead.ReadDes, @LBuffer[0], SizeOf(LBuffer));
     if (LCount = -1) then begin     
@@ -202,7 +206,7 @@ begin
     while ((dup2(FRead.WriteDes, STDOUT_FILENO) = -1) and (errno = EINTR)) do begin end;
     while ((dup2(FRead.WriteDes, STDERR_FILENO) = -1) and (errno = EINTR)) do begin end;
     while ((dup2(FWrite.ReadDes, STDIN_FILENO) = -1) and (errno = EINTR)) do begin end;
-    __close(FRead.WriteDes); 
+    __close(FRead.WriteDes);
     __close(FRead.ReadDes);
     __close(FWrite.ReadDes);
 
@@ -215,15 +219,14 @@ begin
     //by a NULL pointer. (Thus, in the new program, argv[argc] will be
     //NULL.)
 
-    SetLength(LArg, Length(FArg) + 2);
-    LArg[0] := M.AsAnsi(PWideChar(ExtractFileName(FCmd))).ToPointer();
+    SetLength(LArg, Length(FArg) + 1);
     for I := Low(FArg) to High(FArg) do
-      LArg[I + 1] := M.AsAnsi(PWideChar(FArg[I] + #0)).ToPointer();
+      LArg[I] := M.AsAnsi(PWideChar(FArg[I]) + #0).ToPointer();
     LArg[High(LArg)] := PAnsiChar(nil);
 
     SetLength(LEnv, Length(FEnv) + 1);
     for I := Low(FEnv) to High(FEnv) do
-      LEnv[I] := M.AsAnsi(PWideChar(FEnv[I] + #0)).ToPointer();
+      LEnv[I] := M.AsAnsi(PWideChar(FEnv[I]) + #0).ToPointer();
     LEnv[High(LEnv)] := PAnsiChar(nil);
 
     if execve(M.AsAnsi(PWideChar(FCmd)).ToPointer(), PPAnsiChar(LArg), PPAnsiChar(LEnv)) = -1 then begin
@@ -232,7 +235,8 @@ begin
       Halt(EXIT_FAILURE);
   end else if (FPid > 0) then begin
     __close(FRead.WriteDes);
-    __close(FWrite.ReadDes); 
+    __close(FWrite.ReadDes);
+    __close(FWrite.WriteDes);
     Redirect(AReader, AWriter);
   end;      
   Result := Self;
@@ -261,13 +265,17 @@ begin
     else if (LWaitedPid = 0) then
       Sleep(100)
     else begin
-      if WIFEXITED(LStatus) then
-        FExitCode := WEXITSTATUS(LStatus)
-      else
-        FExitCode := EXIT_FAILURE;
-      Exit(FExitCode);
+      if WIFEXITED(LStatus) then begin
+        FExitCode := WEXITSTATUS(LStatus);
+      end else if WIFSIGNALED(LStatus) then begin
+        FExitCode := WTERMSIG(LStatus);
+      end else if WIFSTOPPED(LStatus) then begin
+        FExitCode := WSTOPSIG(LStatus);
+      end else begin
+        Exit(EXIT_FAILURE);
+      end;
     end;
-  until (LWaitedPid <> 0);
+  until not WIFEXITED(LStatus) and WIFSIGNALED(LStatus);
   
   Result := FExitCode;
 end;
