@@ -60,6 +60,9 @@ type
     function FindExecutable(): string;
   private
     procedure DoZipProgressEvt(Sender: TObject; FileName: string; Header: TZipHeader; Position: Int64);
+    {$IFDEF POSIX}
+    function FileIsExecutable(const AFilePath: string): boolean;
+    {$ENDIF POSIX}
   protected
     function EnvironmentExists(): boolean;
     /// <summary>
@@ -136,7 +139,9 @@ type
 implementation
 
 uses
-  System.IOUtils, System.Character, PyEnvironment.Notification
+  System.IOUtils, System.Character, System.StrUtils,
+  PyExecCmd,
+  PyEnvironment.Notification
   {$IFDEF POSIX}
   , Posix.SysStat, Posix.Stdlib, Posix.String_, Posix.Errno
   {$ENDIF}
@@ -169,9 +174,22 @@ begin
   Result := TDirectory.Exists(GetEnvironmentPath());
 end;
 
+{$IFDEF POSIX}
+function TPyCustomEmbeddableDistribution.FileIsExecutable(
+  const AFilePath: string): boolean;
+begin
+  Result := (TFileAttribute.faOwnerExecute in TFile.GetAttributes(AFilePath))
+    or (TFileAttribute.faGroupExecute in TFile.GetAttributes(AFilePath))
+    or (TFileAttribute.faOthersExecute in TFile.GetAttributes(AFilePath));
+end;
+{$ENDIF POSIX}
+
 function TPyCustomEmbeddableDistribution.FindExecutable: string;
 var
   LFiles: TArray<string>;
+  {$IFDEF POSIX}
+  LFile: string;
+  {$ENDIF POSIX}
 begin
   LFiles := [];
   {$IFDEF MSWINDOWS}
@@ -185,8 +203,20 @@ begin
     begin
       Result := Char.IsDigit(SearchRec.Name, Length(SearchRec.Name) - 1);
     end);
+
+  for LFile in LFiles do begin
+    if (TPath.GetFileName(LFile) = 'python3') and (FileIsExecutable(LFile)) then
+      Exit(LFile);
+  end;
+
   if Length(LFiles) > 0 then begin
-    Result := TPath.Combine(Result, ExtractFileName(LFiles[0]));
+    Result := LFiles[High(LFiles)];
+    if (TFileAttribute.faOwnerExecute in TFile.GetAttributes(Result))
+      or (TFileAttribute.faGroupExecute in TFile.GetAttributes(Result))
+      or (TFileAttribute.faOthersExecute in TFile.GetAttributes(Result)) then //Avoiding symlinks
+        Exit;
+
+    Result := LFiles[Low(LFiles)];
     if not TFile.Exists(Result) then
       Result := String.Empty;
   end else
@@ -198,6 +228,9 @@ function TPyCustomEmbeddableDistribution.FindSharedLibrary: string;
 var
   I: integer;
   LLibName: string;
+  LPath: string;
+  LSearch: string;
+  LFiles: TArray<string>;
 begin
   for I := Low(PYTHON_KNOWN_VERSIONS) to High(PYTHON_KNOWN_VERSIONS) do
     if PythonVersion.StartsWith(PYTHON_KNOWN_VERSIONS[I].RegVersion) then begin
@@ -206,14 +239,28 @@ begin
     end;
 
   {$IFDEF MSWINDOWS}
-  Result := GetEnvironmentPath();
+  LPath := GetEnvironmentPath();
   {$ELSE}
-  Result := TPath.Combine(GetEnvironmentPath(), 'lib');
+  LPath := TPath.Combine(GetEnvironmentPath(), 'lib');
   {$ENDIF}
 
-  Result := TPath.Combine(Result, LLibName);
-  if not TFile.Exists(Result) then
-    Result := String.Empty;
+  Result := TPath.Combine(LPath, LLibName);
+  if not TFile.Exists(Result) then begin
+    LSearch := LLibName.Replace(TPath.GetExtension(LLibName), '') + '*' + TPath.GetExtension(LLibName);
+    LFiles := TDirectory.GetFiles(
+      LPath,
+      LSearch, //Python <= 3.7 might contain a "m" as a sufix.
+      TSearchOption.soTopDirectoryOnly);
+    if Length(LFiles) > 0 then begin
+      Result := LFiles[Low(LFiles)];
+    end else
+      Result := String.Empty;
+  end;
+
+  {$IFDEF LINUX}
+  if TFile.Exists(Result + '.1.0') then //Targets directly to the so file instead of a symlink.
+    Result := Result + '.1.0';
+  {$ENDIF}
 end;
 
 procedure TPyCustomEmbeddableDistribution.LoadSettings;
@@ -229,12 +276,6 @@ begin
 end;
 
 procedure TPyCustomEmbeddableDistribution.Setup;
-{$IFDEF POSIX}
-const
-  EXECUTABLE_PERMISSION = '111';
-var
-  M: TMarshaller;
-{$ENDIF POSIX}
 begin
   inherited;
   if not EnvironmentExists() then begin
@@ -248,12 +289,6 @@ begin
   end;
 
   LoadSettings();
-
-  {$IFDEF POSIX}
-  var I := strtol(EXECUTABLE_PERMISSION, nil, 8);
-  if (chmod(M.AsAnsi(PWideChar(Executable)).ToPointer(), I) < 0) then
-    raise Exception.Create('chmod error');
-  {$ENDIF POSIX}
 end;
 
 { TPyEmbeddableDistribution }

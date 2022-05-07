@@ -52,7 +52,7 @@ implementation
 uses
   System.Types, System.IOUtils, System.Variants, VarPyth;
 
- {$R ..\..\..\resources\getpipscript.res}
+{$R ..\..\..\resources\getpipscript.res}
 
 { TPyEnvironmentAddOnGetPip }
 
@@ -66,12 +66,12 @@ var
   I: Integer;
   LOut: string;
 begin
-  inherited;
-
   if (ANotification <> AFTER_SETUP_NOTIFICATION) then
     Exit;
 
-  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run().Wait() = 0) then
+  inherited;
+
+  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run().Wait() = EXIT_SUCCESS) then
     Exit;
 
   //Patch the _pth file to work with site packages

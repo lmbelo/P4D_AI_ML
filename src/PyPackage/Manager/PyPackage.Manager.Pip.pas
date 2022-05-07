@@ -33,7 +33,7 @@ unit PyPackage.Manager.Pip;
 interface
 
 uses
-  PyCore, PyPackage,
+  PyCore, PyExecCmd, PyPackage,
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
@@ -45,13 +45,17 @@ type
   private
     FDefs: TPyPackageManagerDefs;
     FCmd: IPyPackageManagerCmdIntf;
+    //Utils
+    function FormatCmdError(const AExec: IExecCmd; const AOutput: string): string;
     //Builders
     function BuildOptsList(): TPyPackageManagerDefsOptsPipList;
+    function BuildCmd(): string;
+    function BuildArgv(const AIn: TArray<string>): TArray<string>;
     function BuildEnvp(): TArray<string>;
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
-    function IsInstalled(): boolean; reintroduce;
+    function IsInstalled(out AInstalled: boolean; out AOutput: string): boolean;
     function Install(out AOutput: string): boolean;
     function Uninstall(out AOutput: string): boolean;
   public
@@ -62,9 +66,9 @@ type
 implementation
 
 uses
-  System.Variants, System.SysUtils,
+  System.Variants, System.SysUtils, System.Generics.Collections,
   PythonEngine,
-  PyExecCmd, PyUtils, PyExceptions,
+  PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
   PyPackage.Manager.Cmd.Pip;
 
@@ -84,6 +88,12 @@ begin
   inherited;
 end;
 
+function TPyPackageManagerPip.FormatCmdError(const AExec: IExecCmd;
+  const AOutput: string): string;
+begin
+  Result := Format('Command error: %d - %s', [AExec.ExitCode, AOutput]);
+end;
+
 function TPyPackageManagerPip.GetCmd: IPyPackageManagerCmdIntf;
 begin
   Result := FCmd;
@@ -94,11 +104,36 @@ begin
   Result := FDefs;
 end;
 
+function TPyPackageManagerPip.BuildCmd: string;
+begin
+  Result := GetPythonEngine().ProgramName;
+end;
+
+function TPyPackageManagerPip.BuildArgv(
+  const AIn: TArray<string>): TArray<string>;
+begin
+  {$IFDEF MSWINDOWS}
+  Result := AIn;
+  {$ELSE}
+  Result := [GetPythonEngine().ProgramName] + AIn;
+  {$ENDIF MSWINDOWS}  
+end;
+
 function TPyPackageManagerPip.BuildEnvp: TArray<string>;
 begin
+  {$IFDEF MSWINDOWS}
+  Result := [];
+  {$ELSEIF DEFINED(OSX)}
+  Result := ['DYLD_LIBRARY_PATH=' + GetPythonEngine().DllPath
+            + ':'
+            + ExtractFileDir(GetPythonEngine().ProgramName),
+             'LD_LIBRARY_PATH=' + GetPythonEngine().DllPath,
+             'PATH=' + ExtractFilePath(GetPythonEngine().ProgramName)];
+  {$ELSEIF DEFINED(POSIX)}
   Result := ['LD_LIBRARY_PATH=' + GetPythonEngine().DllPath,
              'PYTHONHOME=' + GetPythonEngine().PythonHome,
              'PATH=' + ExtractFilePath(GetPythonEngine().ProgramName)];
+  {$ENDIF MSWINDOWS}
 end;
 
 function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
@@ -114,28 +149,25 @@ begin
   end;
 end;
 
-function TPyPackageManagerPip.IsInstalled(): boolean;
+function TPyPackageManagerPip.IsInstalled(out AInstalled: boolean; out AOutput: string): boolean;
 var
   LOpts: TPyPackageManagerDefsOptsPipList;
   LIn: TArray<string>;
-  LCode: integer;
-  LOut: string;
+  LExec: IExecCmd;
 begin
   LOpts := BuildOptsList();
   try
     LIn := ['-m', 'pip'] + FCmd.BuildListCmd(LOpts);
-    LCode := TPyExecCmdService
-              .Cmd(GetPythonEngine().ProgramName,
-                  LIn,
-                  BuildEnvp())
-                .Run(LOut)
-                  .Wait();
-    if LCode = EXIT_SUCCESS then
-      Result := LOut.Contains(FDefs.PackageName)
-    else
-      raise Exception.CreateFmt(
-        'Failed to validate %s installation.' + #13#10 + 'ErrorCode = %d - %s', [
-          FDefs.PackageName, LCode, LOut]);
+    LExec := TPyExecCmdService
+              .Cmd(BuildCmd(), BuildArgv(LIn), BuildEnvp())
+                .Run(AOutput);
+                
+    Result := (LExec.Wait() = EXIT_SUCCESS);            
+    if Result then begin
+      AInstalled := AOutput.Contains(FDefs.PackageName);
+    end else 
+      AInstalled := false;
+      AOutput := FormatCmdError(LExec, AOutput);
   finally
     LOpts.Free();
   end;
@@ -144,31 +176,35 @@ end;
 function TPyPackageManagerPip.Install(out AOutput: string): boolean;
 var
   LIn: TArray<string>;
+  LExec: IExecCmd;
 begin
   LIn := ['-m', 'pip']
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
 
-   Result := TPyExecCmdService
-    .Cmd(GetPythonEngine().ProgramName,
-         LIn + [FDefs.PackageName],
-         BuildEnvp())
-      .Run(AOutput)
-        .Wait() = EXIT_SUCCESS;
+  LExec := TPyExecCmdService
+    .Cmd(BuildCmd(), BuildArgv(LIn + [FDefs.PackageName]), BuildEnvp())
+      .Run(AOutput);
+      
+  Result := (LExec.Wait() = EXIT_SUCCESS);
+  if not Result then
+    AOutput := FormatCmdError(LExec, AOutput);
 end;
 
 function TPyPackageManagerPip.Uninstall(out AOutput: string): boolean;
 var
   LIn: TArray<string>;
+  LExec: IExecCmd;
 begin
   LIn := ['-m', 'pip']
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
 
-  Result := TPyExecCmdService
-    .Cmd(GetPythonEngine().ProgramName,
-         LIn + [FDefs.PackageName],
-         BuildEnvp())
-      .Run(AOutput)
-        .Wait() = EXIT_SUCCESS;
+  LExec := TPyExecCmdService
+    .Cmd(BuildCmd(), BuildArgv(LIn + [FDefs.PackageName]), BuildEnvp())
+      .Run(AOutput);
+      
+  Result := (LExec.Wait() = EXIT_SUCCESS);
+  if not Result then
+    AOutput := FormatCmdError(LExec, AOutput);
 end;
 
 end.

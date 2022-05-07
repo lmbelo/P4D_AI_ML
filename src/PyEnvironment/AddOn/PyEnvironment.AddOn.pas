@@ -64,7 +64,7 @@ type
   end;
 
   [ComponentPlatforms(pidAllPlatforms)]
-  TPyEnvironmentAddOnUser = class(TPyEnvironmentCustomAddOn);
+  TPyEnvironmentAddOn = class(TPyEnvironmentCustomAddOn);
 
   [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOns = class(TComponent)

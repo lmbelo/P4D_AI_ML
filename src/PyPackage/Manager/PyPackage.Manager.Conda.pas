@@ -50,7 +50,7 @@ type
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
-    function IsInstalled(): boolean; reintroduce;
+    function IsInstalled(out AInstalled: boolean; out AOutput: string): boolean; reintroduce;
     function Install(out AOutput: string): boolean;
     function Uninstall(out AOutput: string): boolean;
   public
@@ -107,8 +107,9 @@ begin
   Result := FDefs;
 end;
 
-function TPyPackageManagerConda.IsInstalled: boolean;
+function TPyPackageManagerConda.IsInstalled(out AInstalled: boolean; out AOutput: string): boolean;
 begin
+  raise Exception.Create('Will be refactored.');
   var LOpts := BuildOptsList();
   try
     var LIn := FCmd.BuildListCmd(LOpts);
@@ -122,6 +123,7 @@ end;
 
 function TPyPackageManagerConda.Install(out AOutput: string): boolean;
 begin
+  raise Exception.Create('Will be refactored.');
   //Using conda programmatically guarantees we're using the same Python interpreter
   //loaded by the application
   var LIn := FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsConda).InstallOptions);
@@ -133,6 +135,7 @@ end;
 
 function TPyPackageManagerConda.Uninstall(out AOutput: string): boolean;
 begin
+  raise Exception.Create('Will be refactored.');
   //Using conda programmatically guarantees we're using the same Python interpreter
   //loaded by the application
   var LIn := FCmd.BuildUninstallCmd((FDefs as TPyPackageManagerDefsConda).UninstallOptions);

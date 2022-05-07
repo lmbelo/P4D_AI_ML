@@ -47,7 +47,7 @@ type
 
     function Install(out AOutput: string): boolean;
     function Uninstall(out AOutput: string): boolean;
-    function IsInstalled(): boolean;
+    function IsInstalled(out AInstalled: boolean; out AOutput: string): boolean;
   end;
 
 implementation

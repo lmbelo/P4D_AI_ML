@@ -39,15 +39,21 @@ uses
   Classes,
   PyEnvironment,
   PyEnvironment.Embeddable, PyEnvironment.Local,
-  PyEnvironment.AddOn, PyEnvironment.AddOn.GetPip;
+  PyEnvironment.AddOn,
+  PyEnvironment.AddOn.GetPip,
+  PyEnvironment.AddOn.EnsurePip;
 
 procedure Register();
 begin
   RegisterComponents('Python - Environments', [
     //Environments
-    TPyEmbeddedEnvironment, TPyLocalEnvironment,
+    TPyEmbeddedEnvironment,
+    TPyLocalEnvironment,
     //Add-ons
-    TPyEnvironmentAddOns, TPyEnvironmentAddOnUser, TPyEnvironmentAddOnGetPip]);
+    TPyEnvironmentAddOns,
+    TPyEnvironmentAddOn,
+    TPyEnvironmentAddOnGetPip,
+    TPyEnvironmentAddOnEnsurePip]);
 end;
 
 end.
