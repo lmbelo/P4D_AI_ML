@@ -33,7 +33,9 @@ unit PyPackage.Manager.Pip;
 interface
 
 uses
-  PyCore, PyExecCmd, PyPackage,
+  PyExecCmd,
+  PyExecCmd.Common,
+  PyCore, PyPackage,
   PyPackage.Manager,
   PyPackage.Manager.Intf,
   PyPackage.Manager.Defs,
@@ -49,9 +51,6 @@ type
     function FormatCmdError(const AExec: IExecCmd; const AOutput: string): string;
     //Builders
     function BuildOptsList(): TPyPackageManagerDefsOptsPipList;
-    function BuildCmd(): string;
-    function BuildArgv(const AIn: TArray<string>): TArray<string>;
-    function BuildEnvp(): TArray<string>;
     //IPyPackageManager implementation
     function GetDefs(): TPyPackageManagerDefs;
     function GetCmd(): IPyPackageManagerCmdIntf;
@@ -66,7 +65,7 @@ type
 implementation
 
 uses
-  System.Variants, System.SysUtils, System.Generics.Collections,
+  System.Variants, System.SysUtils, System.IOUtils, System.Generics.Collections,
   PythonEngine,
   PyUtils, PyExceptions,
   PyPackage.Manager.Defs.Pip,
@@ -104,38 +103,6 @@ begin
   Result := FDefs;
 end;
 
-function TPyPackageManagerPip.BuildCmd: string;
-begin
-  Result := GetPythonEngine().ProgramName;
-end;
-
-function TPyPackageManagerPip.BuildArgv(
-  const AIn: TArray<string>): TArray<string>;
-begin
-  {$IFDEF MSWINDOWS}
-  Result := AIn;
-  {$ELSE}
-  Result := [GetPythonEngine().ProgramName] + AIn;
-  {$ENDIF MSWINDOWS}  
-end;
-
-function TPyPackageManagerPip.BuildEnvp: TArray<string>;
-begin
-  {$IFDEF MSWINDOWS}
-  Result := [];
-  {$ELSEIF DEFINED(OSX)}
-  Result := ['DYLD_LIBRARY_PATH=' + GetPythonEngine().DllPath
-            + ':'
-            + ExtractFileDir(GetPythonEngine().ProgramName),
-             'LD_LIBRARY_PATH=' + GetPythonEngine().DllPath,
-             'PATH=' + ExtractFilePath(GetPythonEngine().ProgramName)];
-  {$ELSEIF DEFINED(POSIX)}
-  Result := ['LD_LIBRARY_PATH=' + GetPythonEngine().DllPath,
-             'PYTHONHOME=' + GetPythonEngine().PythonHome,
-             'PATH=' + ExtractFilePath(GetPythonEngine().ProgramName)];
-  {$ENDIF MSWINDOWS}
-end;
-
 function TPyPackageManagerPip.BuildOptsList: TPyPackageManagerDefsOptsPipList;
 begin
   Result := TPyPackageManagerDefsOptsPipList.Create();
@@ -152,15 +119,20 @@ end;
 function TPyPackageManagerPip.IsInstalled(out AInstalled: boolean; out AOutput: string): boolean;
 var
   LOpts: TPyPackageManagerDefsOptsPipList;
-  LIn: TArray<string>;
   LExec: IExecCmd;
 begin
   LOpts := BuildOptsList();
   try
-    LIn := ['-m', 'pip'] + FCmd.BuildListCmd(LOpts);
     LExec := TPyExecCmdService
-              .Cmd(BuildCmd(), BuildArgv(LIn), BuildEnvp())
-                .Run(AOutput);
+              .Cmd(GetPythonEngine().ProgramName,
+                TPyExecCmdCommon.BuildArgv(
+                  GetPythonEngine().ProgramName,
+                  ['-m', 'pip'] + FCmd.BuildListCmd(LOpts)),
+                TPyExecCmdCommon.BuildEnvp(
+                  GetPythonEngine().PythonHome,
+                  GetPythonEngine().ProgramName,
+                  TPath.Combine(GetPythonEngine().DllPath, GetPythonEngine().DllName)))
+              .Run(AOutput);
                 
     Result := (LExec.Wait() = EXIT_SUCCESS);            
     if Result then begin
@@ -182,8 +154,15 @@ begin
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).InstallOptions);
 
   LExec := TPyExecCmdService
-    .Cmd(BuildCmd(), BuildArgv(LIn + [FDefs.PackageName]), BuildEnvp())
-      .Run(AOutput);
+             .Cmd(GetPythonEngine().ProgramName,
+               TPyExecCmdCommon.BuildArgv(
+                 GetPythonEngine().ProgramName,
+                 LIn + [FDefs.PackageName]),
+               TPyExecCmdCommon.BuildEnvp(
+                 GetPythonEngine().PythonHome,
+                 GetPythonEngine().ProgramName,
+                 TPath.Combine(GetPythonEngine().DllPath, GetPythonEngine().DllName)))
+             .Run(AOutput);
       
   Result := (LExec.Wait() = EXIT_SUCCESS);
   if not Result then
@@ -199,8 +178,15 @@ begin
     + FCmd.BuildInstallCmd((FDefs as TPyPackageManagerDefsPip).UninstallOptions);
 
   LExec := TPyExecCmdService
-    .Cmd(BuildCmd(), BuildArgv(LIn + [FDefs.PackageName]), BuildEnvp())
-      .Run(AOutput);
+             .Cmd(GetPythonEngine().ProgramName,
+               TPyExecCmdCommon.BuildArgv(
+                 GetPythonEngine().ProgramName,
+                 LIn + [FDefs.PackageName]),
+               TPyExecCmdCommon.BuildEnvp(
+                 GetPythonEngine().PythonHome,
+                 GetPythonEngine().ProgramName,
+                 TPath.Combine(GetPythonEngine().DllPath, GetPythonEngine().DllName)))
+             .Run(AOutput);
       
   Result := (LExec.Wait() = EXIT_SUCCESS);
   if not Result then
