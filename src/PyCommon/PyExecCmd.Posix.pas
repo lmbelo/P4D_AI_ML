@@ -247,7 +247,7 @@ var
   LReader: TReader;
   LWriter: TWriter;
 begin
-  Run(LReader, LWriter, []);
+  Result := Run(LReader, LWriter, []);
 end;
 
 function TExecCmdPosix.Wait: Integer;
@@ -263,7 +263,7 @@ begin
     if (LWaitedPid = -1) then
       raise EWaitFailed.Create('Failed waiting for process.')
     else if (LWaitedPid = 0) then
-      Sleep(100)
+      LWaitedPid := waitpid(FPid, @LStatus, WNOHANG)
     else begin
       if WIFEXITED(LStatus) then begin
         FExitCode := WEXITSTATUS(LStatus);
@@ -272,10 +272,10 @@ begin
       end else if WIFSTOPPED(LStatus) then begin
         FExitCode := WSTOPSIG(LStatus);
       end else begin
-        Exit(EXIT_FAILURE);
+        FExitCode := EXIT_FAILURE;
       end;
     end;
-  until not WIFEXITED(LStatus) and WIFSIGNALED(LStatus);
+  until (FExitCode <> INITIAL_EXIT_CODE);
   
   Result := FExitCode;
 end;
