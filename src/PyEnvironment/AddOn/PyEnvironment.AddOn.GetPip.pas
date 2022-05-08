@@ -34,15 +34,20 @@ interface
 
 uses
   System.SysUtils, System.Classes,
-  PyExecCmd,
   PyEnvironment.Distribution, PyEnvironment.Notification, PyEnvironment.AddOn;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
+  protected
+    procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); override;
   public
+    constructor Create(AOwner: TComponent); override;
+
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
       ADistribution: TPyDistribution); override;
+  published
+    property Triggers default [TPyEnvironmentaddOnTrigger.trAfterSetup];
   end;
 
   EPipSetupFailed = class(Exception);
@@ -50,11 +55,25 @@ type
 implementation
 
 uses
-  System.Types, System.IOUtils, System.Variants, VarPyth;
+  System.Types, System.IOUtils, System.Variants,
+  VarPyth,
+  PyExecCmd, PyExecCmd.Common;
 
 {$R ..\..\..\resources\getpipscript.res}
 
 { TPyEnvironmentAddOnGetPip }
+
+procedure TPyEnvironmentAddOnGetPip.SetTriggers(
+  const Value: TPyEnvironmentaddOnTriggers);
+begin
+  inherited SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+end;
+
+constructor TPyEnvironmentAddOnGetPip.Create(AOwner: TComponent);
+begin
+  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+  inherited;
+end;
 
 procedure TPyEnvironmentAddOnGetPip.Execute(ASender: TObject;
   ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
@@ -66,13 +85,16 @@ var
   I: Integer;
   LOut: string;
 begin
-  if (ANotification <> AFTER_SETUP_NOTIFICATION) then
-    Exit;
-
   inherited;
-
-  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run().Wait() = EXIT_SUCCESS) then
-    Exit;
+  if (TPyExecCmdService.Cmd(ADistribution.Executable,
+        TPyExecCmdCommon.BuildArgv(
+          ADistribution.Executable, ['-m', 'pip', '--version']),
+        TPyExecCmdCommon.BuildEnvp(
+          ADistribution.Home,
+          ADistribution.Executable,
+          ADistribution.SharedLibrary)
+      ).Run().Wait() = EXIT_SUCCESS) then
+        Exit;
 
   //Patch the _pth file to work with site packages
   LPths := TDirectory.GetFiles(
@@ -95,11 +117,16 @@ begin
   LResStream := TResourceStream.Create(HInstance, 'getpippy', RT_RCDATA);
   try
     LResStream.SaveToFile(LFileName);
-     if TPyExecCmdService
-      .Cmd(ADistribution.Executable, [LFileName])
-        .Run(LOut)
-          .Wait() <> EXIT_SUCCESS then
-            raise EPipSetupFailed.Create('Failed to setup PIP.' + #13#10 + LOut);
+    if TPyExecCmdService.Cmd(ADistribution.Executable,
+         TPyExecCmdCommon.BuildArgv(
+           ADistribution.Executable, [LFileName]),
+         TPyExecCmdCommon.BuildEnvp(
+           ADistribution.Home,
+           ADistribution.Executable,
+           ADistribution.SharedLibrary))
+       .Run(LOut)
+         .Wait() <> EXIT_SUCCESS then
+           raise EPipSetupFailed.Create('Failed to setup PIP.' + #13#10 + LOut);
   finally
     LResStream.Free();
   end;

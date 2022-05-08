@@ -40,6 +40,12 @@ type
   TPyEnvironmentCustomAddOn = class;
   TPyEnvironmentAddOns = class;
 
+  TPyEnvironmentaddOnTrigger = (
+    trBeforeSetup, trAfterSetup,
+    trBeforeActivate, trAfterActivate,
+    trBeforeDeactivate, trAfterDeactivate);
+  TPyEnvironmentaddOnTriggers = set of TPyEnvironmentaddOnTrigger;
+
   TPyEnvironmentAddOnExecute = procedure(ASender: TObject;
     ANotification: TEnvironmentNotification;
     ADistribution: TPyDistribution) of object;
@@ -52,14 +58,17 @@ type
   private
     FAddOns: TPyEnvironmentAddOns;
     FOnExecute: TPyEnvironmentAddOnExecute;
+    FTriggers: TPyEnvironmentaddOnTriggers;
     procedure SetAddOns(const Value: TPyEnvironmentAddOns);
   protected
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
+    procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); virtual;
   public
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
       ADistribution: TPyDistribution); virtual;
   published
     property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
+    property Triggers: TPyEnvironmentaddOnTriggers read FTriggers write SetTriggers;
     property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
   end;
 
@@ -70,9 +79,10 @@ type
   TPyEnvironmentAddOns = class(TComponent)
   private
     FList: TList<TPyEnvironmentCustomAddOn>;
-    FOnExecuteError: TPyEnvironmentAddOnExecuteError;
-  private
     FEnabled: boolean;
+    FOnExecuteError: TPyEnvironmentAddOnExecuteError;
+    function CanExecuteAddOn(const AAddOn: TPyEnvironmentCustomAddOn;
+      const ANotification: TEnvironmentNotification): boolean;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -123,7 +133,35 @@ begin
   end;
 end;
 
+procedure TPyEnvironmentCustomAddOn.SetTriggers(
+  const Value: TPyEnvironmentaddOnTriggers);
+begin
+  FTriggers := Value;
+end;
+
 { TPyEnvironmentAddOns }
+
+function TPyEnvironmentAddOns.CanExecuteAddOn(
+  const AAddOn: TPyEnvironmentCustomAddOn;
+  const ANotification: TEnvironmentNotification): boolean;
+begin
+  case ANotification of
+    BEFORE_SETUP_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trBeforeSetup in AAddOn.Triggers);
+    AFTER_SETUP_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trAfterSetup in AAddOn.Triggers);
+    BEFORE_ACTIVATE_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trBeforeActivate in AAddOn.Triggers);
+    AFTER_ACTIVATE_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trAfterActivate in AAddOn.Triggers);
+    BEFORE_DEACTIVATE_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trBeforeDeactivate in AAddOn.Triggers);
+    AFTER_DEACTIVATE_NOTIFICATION:
+      Result := (TPyEnvironmentaddOnTrigger.trAfterDeactivate in AAddOn.Triggers);
+    else
+      Result := false;
+  end;
+end;
 
 constructor TPyEnvironmentAddOns.Create(AOwner: TComponent);
 begin
@@ -148,7 +186,8 @@ begin
 
   for LAddOn in FList do begin
     try
-      LAddOn.Execute(ASender, ANotification, ADistribution);
+      if CanExecuteAddOn(LAddOn, ANotification) then
+        LAddOn.Execute(ASender, ANotification, ADistribution);
     except
       on E: Exception do
         if Assigned(FOnExecuteError) then begin

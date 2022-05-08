@@ -34,22 +34,42 @@ interface
 
 uses
   System.SysUtils, System.Classes,
-  PyExecCmd,
   PyEnvironment.Distribution, PyEnvironment.Notification, PyEnvironment.AddOn;
 
 type
   [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOnEnsurePip = class(TPyEnvironmentCustomAddOn)
+  protected
+    procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); override;
   public
+    constructor Create(AOwner: TComponent); override;
+
     procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
       ADistribution: TPyDistribution); override;
+  published
+    property Triggers default [TPyEnvironmentaddOnTrigger.trAfterSetup];
   end;
 
   EPipSetupFailed = class(Exception);
 
 implementation
 
+uses
+  PyExecCmd, PyExecCmd.Common;
+
 { TPyEnvironmentAddOnEnsurePip }
+
+procedure TPyEnvironmentAddOnEnsurePip.SetTriggers(
+  const Value: TPyEnvironmentaddOnTriggers);
+begin
+  inherited SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+end;
+
+constructor TPyEnvironmentAddOnEnsurePip.Create(AOwner: TComponent);
+begin
+  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+  inherited;
+end;
 
 procedure TPyEnvironmentAddOnEnsurePip.Execute(ASender: TObject;
   ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
@@ -57,12 +77,25 @@ var
   LOutput: string;
 begin
   inherited;
+  if (TPyExecCmdService.Cmd(ADistribution.Executable,
+        TPyExecCmdCommon.BuildArgv(
+          ADistribution.Executable, ['-m', 'pip', '--version']),
+        TPyExecCmdCommon.BuildEnvp(
+          ADistribution.Home,
+          ADistribution.Executable,
+          ADistribution.SharedLibrary)
+      ).Run().Wait() = EXIT_SUCCESS) then
+        Exit;
 
-  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run().Wait() = EXIT_SUCCESS) then
-    Exit;
-
-  if (TPyExecCmdService.Cmd(ADistribution.Executable, ['-m', 'pip', '--version']).Run(LOutput).Wait() = EXIT_FAILURE) then
-    raise EPipSetupFailed.Create('PIP setu has failed.' + #13#10 + LOutput);
+  if (TPyExecCmdService.Cmd(ADistribution.Executable,
+        TPyExecCmdCommon.BuildArgv(
+          ADistribution.Executable, ['-m', 'ensurepip']),
+        TPyExecCmdCommon.BuildEnvp(
+          ADistribution.Home,
+          ADistribution.Executable,
+          ADistribution.SharedLibrary)
+      ).Run(LOutput).Wait() <> EXIT_SUCCESS) then
+    raise EPipSetupFailed.Create('PIP setup has failed.' + #13#10 + LOutput);
 end;
 
 end.
