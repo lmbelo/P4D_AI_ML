@@ -145,6 +145,7 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="..\src\PyCommon\PyExecCmd.pas"/>
+        <DCCReference Include="..\src\PyCommon\PyExecCmd.Common.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

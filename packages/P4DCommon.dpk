@@ -33,6 +33,7 @@ requires
   rtl;
 
 contains
-  PyExecCmd in '..\src\PyCommon\PyExecCmd.pas';
+  PyExecCmd in '..\src\PyCommon\PyExecCmd.pas',
+  PyExecCmd.Common in '..\src\PyCommon\PyExecCmd.Common.pas';
 
 end.
