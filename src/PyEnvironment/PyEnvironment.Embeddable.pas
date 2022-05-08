@@ -204,10 +204,12 @@ begin
       Result := Char.IsDigit(SearchRec.Name, Length(SearchRec.Name) - 1);
     end);
 
+  {$IFDEF POSIX}
   for LFile in LFiles do begin
-    if (TPath.GetFileName(LFile) = 'python3') and (FileIsExecutable(LFile)) then
+    if (TPath.GetFileName(LFile) = 'python' + PythonVersion) and (FileIsExecutable(LFile)) then
       Exit(LFile);
   end;
+  {$ENDIF POSIX}
 
   if Length(LFiles) > 0 then begin
     Result := LFiles[High(LFiles)];
