@@ -33,7 +33,8 @@ unit PyEnvironment.Distribution;
 interface
 
 uses
-  System.Classes;
+  System.Classes,
+  PyEnvironment.Notification;
 
 type
   TPyDistribution = class abstract(TCollectionItem)
@@ -42,6 +43,8 @@ type
     FHome: string;
     FSharedLibrary: string;
     FExecutable: string;
+  protected
+    function GetNotifier<Notifier>(): IEnvironmentNotifier<Notifier>;
   public
     procedure Setup(); virtual; abstract;
   published
@@ -52,13 +55,32 @@ type
   end;
 
   TPyDistributionCollection = class abstract(TOwnedCollection)
+  protected
+    function GetNotifier<Notifier>(): IEnvironmentNotifier<Notifier>;
   public
     function LocateEnvironment(APythonVersion: string): TPyDistribution; virtual;
   end;
 
 implementation
 
+uses
+  System.SysUtils;
+
+{ TPyDistribution }
+
+function TPyDistribution.GetNotifier<Notifier>: IEnvironmentNotifier<Notifier>;
+begin
+  Result := (Collection as TPyDistributionCollection).GetNotifier<Notifier>;
+end;
+
 { TPyDistributionCollection }
+
+function TPyDistributionCollection.GetNotifier<Notifier>: IEnvironmentNotifier<Notifier>;
+begin
+  GetOwner().GetInterface(IEnvironmentNotifier<Notifier>, Result);
+  if not Assigned(Result) then
+    raise ENotificationCenterNotAvailable.Create('Notification center not available.');
+end;
 
 function TPyDistributionCollection.LocateEnvironment(
   APythonVersion: string): TPyDistribution;

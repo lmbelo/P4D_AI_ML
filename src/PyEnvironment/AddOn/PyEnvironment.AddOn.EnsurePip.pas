@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironment EnsurePIP plugin                        *)
+(*  Functionality:  PyEnvironment EnsurePIP add-on                        *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -41,11 +41,10 @@ type
   TPyEnvironmentAddOnEnsurePip = class(TPyEnvironmentCustomAddOn)
   protected
     procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); override;
+    procedure InternalExecute(const ATriggeredBy: TPyEnvironmentaddOnTrigger;
+      const ADistribution: TPyDistribution); override;
   public
     constructor Create(AOwner: TComponent); override;
-
-    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      ADistribution: TPyDistribution); override;
   published
     property Triggers default [TPyEnvironmentaddOnTrigger.trAfterSetup];
   end;
@@ -67,12 +66,13 @@ end;
 
 constructor TPyEnvironmentAddOnEnsurePip.Create(AOwner: TComponent);
 begin
-  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
   inherited;
+  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
 end;
 
-procedure TPyEnvironmentAddOnEnsurePip.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
+procedure TPyEnvironmentAddOnEnsurePip.InternalExecute(
+  const ATriggeredBy: TPyEnvironmentaddOnTrigger;
+  const ADistribution: TPyDistribution);
 var
   LOutput: string;
 begin

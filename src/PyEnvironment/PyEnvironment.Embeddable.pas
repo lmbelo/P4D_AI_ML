@@ -152,9 +152,9 @@ uses
 procedure TPyCustomEmbeddableDistribution.CreateEnvironment;
 begin
   //Unzip the embeddable package into the target directory.
-  TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_UNZIP_NOTIFICATION, Self);
+  GetNotifier<TPyCustomEnvironment>.NotifyAll(BEFORE_UNZIP_NOTIFICATION, Self);
   TZipFile.ExtractZipFile(FEmbeddablePackage, GetEnvironmentPath(), DoZipProgressEvt);
-  TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_UNZIP_NOTIFICATION, Self);
+  GetNotifier<TPyCustomEnvironment>.NotifyAll(AFTER_UNZIP_NOTIFICATION, Self);
 end;
 
 procedure TPyCustomEmbeddableDistribution.DoZipProgressEvt(Sender: TObject; FileName: string;
@@ -285,9 +285,9 @@ begin
       raise EEmbeddableNotFound.CreateFmt(
         'Embeddable package not found.' + #13#10 + '%s', [FEmbeddablePackage]);
 
-    TEnvironmentBroadcaster.Instance.NotifyAll(Self, BEFORE_CREATE_ENVIRONMENT_NOTIFICATION, Self);
+    GetNotifier<TPyCustomEnvironment>.NotifyAll(BEFORE_CREATE_ENVIRONMENT_NOTIFICATION, Self);
     CreateEnvironment();
-    TEnvironmentBroadcaster.Instance.NotifyAll(Self, AFTER_CREATE_ENVIRONMENT_NOTIFICATION, Self);
+    GetNotifier<TPyCustomEnvironment>.NotifyAll(AFTER_CREATE_ENVIRONMENT_NOTIFICATION, Self);
   end;
 
   LoadSettings();

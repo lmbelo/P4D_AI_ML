@@ -34,11 +34,13 @@ interface
 
 uses
   System.Classes, System.Generics.Collections, System.SysUtils,
-  PyEnvironment.Distribution, PyEnvironment.Notification;
+  PyEnvironment,
+  PyEnvironment.Notification,
+  PyEnvironment.Distribution;
 
 type
   TPyEnvironmentCustomAddOn = class;
-  TPyEnvironmentAddOns = class;
+//  TPyEnvironmentAddOns = class;
 
   TPyEnvironmentaddOnTrigger = (
     trBeforeSetup, trAfterSetup,
@@ -46,92 +48,59 @@ type
     trBeforeDeactivate, trAfterDeactivate);
   TPyEnvironmentaddOnTriggers = set of TPyEnvironmentaddOnTrigger;
 
-  TPyEnvironmentAddOnExecute = procedure(ASender: TObject;
-    ANotification: TEnvironmentNotification;
-    ADistribution: TPyDistribution) of object;
+  TPyEnvironmentAddOnExecute = procedure(const ASender: TObject;
+    const ATrigger: TPyEnvironmentaddOnTrigger;
+    const ADistribution: TPyDistribution) of object;
 
-  TPyEnvironmentAddOnExecuteError = procedure(ADistribution: TPyDistribution;
-    const AAddOn: TPyEnvironmentCustomAddOn;
-    AException: Exception) of object;
+//  TPyEnvironmentAddOnExecuteError = procedure(ADistribution: TPyDistribution;
+//    const AAddOn: TPyEnvironmentCustomAddOn;
+//    AException: Exception) of object;
 
-  TPyEnvironmentCustomAddOn = class(TComponent)
+  TPyEnvironmentAddOnExecuteError = procedure(const ASender: TObject;
+    const ADistribution: TPyDistribution; const AException: Exception) of object;
+
+  TPyEnvironmentCustomAddOn = class(TComponent, IEnvironmentNotified<TPyCustomEnvironment>)
   private
-    FAddOns: TPyEnvironmentAddOns;
+//    FAddOns: TPyEnvironmentAddOns;
+    FEnvironment: TPyCustomEnvironment;
     FOnExecute: TPyEnvironmentAddOnExecute;
     FTriggers: TPyEnvironmentaddOnTriggers;
-    procedure SetAddOns(const Value: TPyEnvironmentAddOns);
+    FOnExecuteError: TPyEnvironmentAddOnExecuteError;
+    procedure SetEnvironment(const Value: TPyCustomEnvironment);
+//    procedure SetAddOns(const Value: TPyEnvironmentAddOns);
+    //IEnvironmentNotified implementation
+    procedure NotifyUpdate(const ANotifier: TPyCustomEnvironment;
+      const ANotification: TEnvironmentNotification;
+      const AArgs: TObject);
   protected
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
+  protected
+    //Getters and Setters
     procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); virtual;
+  protected
+    function GetTriggerFromNotification(const ANotification: TEnvironmentNotification;
+      out ATrigger: TPyEnvironmentaddOnTrigger): boolean; overload;
+    function CanExecute(ATrigger: TPyEnvironmentaddOnTrigger): boolean; overload;
+
+
+    procedure InternalExecute(const ATriggeredBy: TPyEnvironmentaddOnTrigger;
+      const ADistribution: TPyDistribution); virtual; abstract;
   public
-    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      ADistribution: TPyDistribution); virtual;
+    procedure Execute(const ATrigger: TPyEnvironmentaddOnTrigger; const ADistribution: TPyDistribution);
   published
-    property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
+//    property AddOns: TPyEnvironmentAddOns read FAddOns write SetAddOns;
+    property Environment: TPyCustomEnvironment read FEnvironment write SetEnvironment;
     property Triggers: TPyEnvironmentaddOnTriggers read FTriggers write SetTriggers;
     property OnExecute: TPyEnvironmentAddOnExecute read FOnExecute write FOnExecute;
+    property OnExecuteError: TPyEnvironmentAddOnExecuteError read FOnExecuteError write FOnExecuteError;
   end;
 
   [ComponentPlatforms(pidAllPlatforms)]
   TPyEnvironmentAddOn = class(TPyEnvironmentCustomAddOn);
 
-  [ComponentPlatforms(pidAllPlatforms)]
-  TPyEnvironmentAddOns = class(TComponent)
-  private
-    FList: TList<TPyEnvironmentCustomAddOn>;
-    FEnabled: boolean;
-    FOnExecuteError: TPyEnvironmentAddOnExecuteError;
-    function CanExecuteAddOn(const AAddOn: TPyEnvironmentCustomAddOn;
-      const ANotification: TEnvironmentNotification): boolean;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy(); override;
-
-    procedure Add(AAddOn: TPyEnvironmentCustomAddOn);
-    procedure Remove(AAddOn: TPyEnvironmentCustomAddOn);
-
-    procedure Apply(ASender: TObject; ANotification: TEnvironmentNotification;
-      ADistribution: TPyDistribution);
-  published
-    property Enabled: boolean read FEnabled write FEnabled default true;
-    property OnExecuteError: TPyEnvironmentAddOnExecuteError
-      read FOnExecuteError write FOnExecuteError;
-  end;
-
 implementation
 
 { TPyEnvironmentCustomAddOn }
-
-procedure TPyEnvironmentCustomAddOn.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
-begin
-  if Assigned(FOnExecute) then
-    FOnExecute(ASender, ANotification, ADistribution);
-end;
-
-procedure TPyEnvironmentCustomAddOn.Notification(AComponent: TComponent;
-  AOperation: TOperation);
-begin
-  inherited;
-  if (AOperation = opRemove) and (AComponent = FAddOns) then begin
-    SetAddOns(nil);
-  end;
-end;
-
-procedure TPyEnvironmentCustomAddOn.SetAddOns(
-  const Value: TPyEnvironmentAddOns);
-begin
-  if Assigned(FAddOns) then begin
-    FAddOns.RemoveFreeNotification(Self);
-    FAddOns.Remove(Self);
-  end;
-
-  FAddOns := Value;
-  if Assigned(FAddOns) then begin
-    FAddOns.FreeNotification(Self);
-    FAddOns.Add(Self);
-  end;
-end;
 
 procedure TPyEnvironmentCustomAddOn.SetTriggers(
   const Value: TPyEnvironmentaddOnTriggers);
@@ -139,75 +108,89 @@ begin
   FTriggers := Value;
 end;
 
-{ TPyEnvironmentAddOns }
+procedure TPyEnvironmentCustomAddOn.SetEnvironment(
+  const Value: TPyCustomEnvironment);
+begin
+  if Assigned(FEnvironment) then begin
+    FEnvironment.RemoveFreeNotification(Self);
+    (FEnvironment as IEnvironmentNotifier<TPyCustomEnvironment>).RemoveListener(Self);
+  end;
 
-function TPyEnvironmentAddOns.CanExecuteAddOn(
-  const AAddOn: TPyEnvironmentCustomAddOn;
-  const ANotification: TEnvironmentNotification): boolean;
+  FEnvironment := Value;
+  if Assigned(FEnvironment) then begin
+    FEnvironment.FreeNotification(Self);
+    (FEnvironment as IEnvironmentNotifier<TPyCustomEnvironment>).AddListener(Self);
+  end;
+end;
+
+procedure TPyEnvironmentCustomAddOn.Notification(AComponent: TComponent;
+  AOperation: TOperation);
+begin
+  inherited;
+  if (AOperation = opRemove) and (AComponent = FEnvironment) then begin
+    SetEnvironment(nil);
+  end;
+end;
+
+procedure TPyEnvironmentCustomAddOn.NotifyUpdate(
+  const ANotifier: TPyCustomEnvironment;
+  const ANotification: TEnvironmentNotification; const AArgs: TObject);
+var
+  LTrigger: TPyEnvironmentaddOnTrigger;
+begin
+  if GetTriggerFromNotification(ANotification, LTrigger) then
+    Execute(LTrigger, (AArgs as TPyDistribution));
+end;
+
+function TPyEnvironmentCustomAddOn.GetTriggerFromNotification(
+  const ANotification: TEnvironmentNotification;
+  out ATrigger: TPyEnvironmentaddOnTrigger): boolean;
 begin
   case ANotification of
     BEFORE_SETUP_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trBeforeSetup in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trBeforeSetup;
     AFTER_SETUP_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trAfterSetup in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trAfterSetup;
     BEFORE_ACTIVATE_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trBeforeActivate in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trBeforeActivate;
     AFTER_ACTIVATE_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trAfterActivate in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trAfterActivate;
     BEFORE_DEACTIVATE_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trBeforeDeactivate in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trBeforeDeactivate;
     AFTER_DEACTIVATE_NOTIFICATION:
-      Result := (TPyEnvironmentaddOnTrigger.trAfterDeactivate in AAddOn.Triggers);
+      ATrigger := TPyEnvironmentaddOnTrigger.trAfterDeactivate;
     else
-      Result := false;
+      Exit(false);
   end;
+  Result := True;
 end;
 
-constructor TPyEnvironmentAddOns.Create(AOwner: TComponent);
+function TPyEnvironmentCustomAddOn.CanExecute(
+  ATrigger: TPyEnvironmentaddOnTrigger): boolean;
 begin
-  inherited;
-  FEnabled := true;
-  FList := TList<TPyEnvironmentCustomAddOn>.Create();
+  Result := (ATrigger in Triggers);
 end;
 
-destructor TPyEnvironmentAddOns.Destroy;
+procedure TPyEnvironmentCustomAddOn.Execute(
+  const ATrigger: TPyEnvironmentaddOnTrigger;
+  const ADistribution: TPyDistribution);
 begin
-  FList.Free();
-  inherited;
-end;
-
-procedure TPyEnvironmentAddOns.Apply(ASender: TObject;
-  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
-var
-  LAddOn: TPyEnvironmentCustomAddOn;
-begin
-  if not FEnabled then
+  if not CanExecute(ATrigger) then
     Exit;
 
-  for LAddOn in FList do begin
-    try
-      if CanExecuteAddOn(LAddOn, ANotification) then
-        LAddOn.Execute(ASender, ANotification, ADistribution);
-    except
-      on E: Exception do
-        if Assigned(FOnExecuteError) then begin
-          FOnExecuteError(ADistribution, LAddOn, E);
-        end else
-          raise;
+  if Assigned(FOnExecute) then
+    FOnExecute(Self, ATrigger, ADistribution);
+
+  try
+    InternalExecute(ATrigger, ADistribution);
+  except
+    on E: Exception do begin
+      if Assigned(FOnExecuteError) then
+        FOnExecuteError(Self, ADistribution, E)
+      else
+        raise;
     end;
   end;
-end;
-
-procedure TPyEnvironmentAddOns.Add(AAddOn: TPyEnvironmentCustomAddOn);
-begin
-  if not FList.Contains(AAddOn) then
-    FList.Add(AAddOn);
-end;
-
-procedure TPyEnvironmentAddOns.Remove(AAddOn: TPyEnvironmentCustomAddOn);
-begin
-  if FList.Contains(AAddOn) then
-    FList.Remove(AAddOn);
 end;
 
 end.

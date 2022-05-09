@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvironment.AddOnGetPip'                              *)
+(* Module:  Unit 'PyEnvironment.AddOn.GetPip'                             *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironment GetPip plugin                           *)
+(*  Functionality:  PyEnvironment GetPip add-on                           *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -41,11 +41,10 @@ type
   TPyEnvironmentAddOnGetPip = class(TPyEnvironmentCustomAddOn)
   protected
     procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); override;
+    procedure InternalExecute(const ATriggeredBy: TPyEnvironmentaddOnTrigger;
+      const ADistribution: TPyDistribution); override;
   public
     constructor Create(AOwner: TComponent); override;
-
-    procedure Execute(ASender: TObject; ANotification: TEnvironmentNotification;
-      ADistribution: TPyDistribution); override;
   published
     property Triggers default [TPyEnvironmentaddOnTrigger.trAfterSetup];
   end;
@@ -71,12 +70,13 @@ end;
 
 constructor TPyEnvironmentAddOnGetPip.Create(AOwner: TComponent);
 begin
-  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
   inherited;
+  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
 end;
 
-procedure TPyEnvironmentAddOnGetPip.Execute(ASender: TObject;
-  ANotification: TEnvironmentNotification; ADistribution: TPyDistribution);
+procedure TPyEnvironmentAddOnGetPip.InternalExecute(
+  const ATriggeredBy: TPyEnvironmentaddOnTrigger;
+  const ADistribution: TPyDistribution);
 var
   LResStream: TResourceStream;
   LFileName: string;
@@ -86,6 +86,7 @@ var
   LOut: string;
 begin
   inherited;
+
   if (TPyExecCmdService.Cmd(ADistribution.Executable,
         TPyExecCmdCommon.BuildArgv(
           ADistribution.Executable, ['-m', 'pip', '--version']),

@@ -33,52 +33,43 @@ unit PyEnvironment.Notification;
 interface
 
 uses
-  System.Classes, System.Generics.Collections;
+  System.Classes, System.SysUtils, System.Generics.Collections;
 
 type
   TEnvironmentNotification = byte;
 
-  TOnReceiveNotification = procedure(ANotifier: TObject;
-    ANotification: TEnvironmentNotification; const AArgs: TObject) of object;
-
-  TOnSendNotification = procedure(ANotification: TEnvironmentNotification;
-    var ABroadcast: boolean; const AArgs: TObject) of object;
-
-  IEnvironmentNotified = interface
+  IEnvironmentNotified<Notifier> = interface
     ['{D528B694-C4C4-4A96-BF40-2153CCC80243}']
-    procedure NotifyUpdate(ANotifier: TObject; ANotification: TEnvironmentNotification;
+    procedure NotifyUpdate(const ANotifier: Notifier;
+      const ANotification: TEnvironmentNotification;
       const AArgs: TObject);
   end;
 
-  IEnvironmentNotifier = interface
+  IEnvironmentNotifier<Notifier> = interface
     ['{6214AB2E-4BD6-472E-B3A1-B6FCB46B1798}']
-    procedure AddListener(const AListener: IEnvironmentNotified);
-    procedure RemoveListener(const AListener: IEnvironmentNotified);
+    procedure AddListener(const AListener: IEnvironmentNotified<Notifier>);
+    procedure RemoveListener(const AListener: IEnvironmentNotified<Notifier>);
 
-    procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
+    procedure NotifyAll(const ANotification: TEnvironmentNotification;
       const AArgs: TObject);
   end;
 
-  TEnvironmentBroadcaster = class(TInterfacedPersistent, IEnvironmentNotifier)
+  TEnvironmentBroadcaster<Notifier> = class(TInterfacedPersistent, IEnvironmentNotifier<Notifier>)
   private
-    class var FInstance: TEnvironmentBroadcaster;
-  private
-    class constructor Create();
-    class destructor Destroy();
-  private
-    FListeners: TList<IEnvironmentNotified>;
+    FNotifier: Notifier;
+    FListeners: TList<IEnvironmentNotified<Notifier>>;
   public
-    constructor Create();
+    constructor Create(const ANotifier: Notifier);
     destructor Destroy(); override;
 
-    procedure AddListener(const AListener: IEnvironmentNotified);
-    procedure RemoveListener(const AListener: IEnvironmentNotified);
+    procedure AddListener(const AListener: IEnvironmentNotified<Notifier>);
+    procedure RemoveListener(const AListener: IEnvironmentNotified<Notifier>);
 
-    procedure NotifyAll(ANotifier: TObject; ANotification: TEnvironmentNotification;
+    procedure NotifyAll(const ANotification: TEnvironmentNotification;
       const AArgs: TObject);
-
-    class property Instance: TEnvironmentBroadcaster read FInstance write FInstance;
   end;
+
+  ENotificationCenterNotAvailable = class(Exception);
 
 const
   BEFORE_SETUP_NOTIFICATION = $0;
@@ -96,45 +87,37 @@ implementation
 
 { TEnvironmentBroadcaster }
 
-class constructor TEnvironmentBroadcaster.Create;
+constructor TEnvironmentBroadcaster<Notifier>.Create(const ANotifier: Notifier);
 begin
-  FInstance := TEnvironmentBroadcaster.Create();
+  inherited Create();
+  FNotifier := ANotifier;
+  FListeners := TList<IEnvironmentNotified<Notifier>>.Create();
 end;
 
-class destructor TEnvironmentBroadcaster.Destroy;
-begin
-  FInstance.Free();
-end;
-
-constructor TEnvironmentBroadcaster.Create;
-begin
-  FListeners := TList<IEnvironmentNotified>.Create();
-end;
-
-destructor TEnvironmentBroadcaster.Destroy;
+destructor TEnvironmentBroadcaster<Notifier>.Destroy;
 begin
   FListeners.Free();
 end;
 
-procedure TEnvironmentBroadcaster.AddListener(
-  const AListener: IEnvironmentNotified);
+procedure TEnvironmentBroadcaster<Notifier>.AddListener(
+  const AListener: IEnvironmentNotified<Notifier>);
 begin
   FListeners.Add(AListener);
 end;
 
-procedure TEnvironmentBroadcaster.RemoveListener(
-  const AListener: IEnvironmentNotified);
+procedure TEnvironmentBroadcaster<Notifier>.RemoveListener(
+  const AListener: IEnvironmentNotified<Notifier>);
 begin
   FListeners.Remove(AListener);
 end;
 
-procedure TEnvironmentBroadcaster.NotifyAll(ANotifier: TObject;
-  ANotification: TEnvironmentNotification; const AArgs: TObject);
+procedure TEnvironmentBroadcaster<Notifier>.NotifyAll(
+  const ANotification: TEnvironmentNotification; const AArgs: TObject);
 var
-  LListener: IEnvironmentNotified;
+  LListener: IEnvironmentNotified<Notifier>;
 begin
   for LListener in FListeners do begin
-    LListener.NotifyUpdate(ANotifier, ANotification, AArgs);
+    LListener.NotifyUpdate(FNotifier, ANotification, AArgs);
   end;
 end;
 

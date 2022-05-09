@@ -50,7 +50,6 @@ begin
     TPyEmbeddedEnvironment,
     TPyLocalEnvironment,
     //Add-ons
-    TPyEnvironmentAddOns,
     TPyEnvironmentAddOn,
     TPyEnvironmentAddOnGetPip,
     TPyEnvironmentAddOnEnsurePip]);
