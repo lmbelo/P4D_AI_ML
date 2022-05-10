@@ -201,22 +201,6 @@
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>TPYENVIRONMENTADDONGETPIP_PNG</ResourceId>
         </RcItem>
-        <RcItem Include="..\images\png\128x128\add_ons.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS128_PNG</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\png\16x16\add_ons.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS16_PNG</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\png\32x32\add_ons.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS32_PNG</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\png\24x24\add_ons.png">
-            <ResourceType>RCDATA</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS_PNG</ResourceId>
-        </RcItem>
         <RcItem Include="..\images\png\16x16\add_on.png">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>TPYENVIRONMENTADDON16_PNG</ResourceId>
@@ -281,22 +265,6 @@
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>TPYENVIRONMENTADDON</ResourceId>
         </RcItem>
-        <RcItem Include="..\images\bmp\24\add_ons.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\bmp\32\add_ons.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS32</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\bmp\128\add_ons.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS128</ResourceId>
-        </RcItem>
-        <RcItem Include="..\images\bmp\16\add_ons.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>TPYENVIRONMENTADDONS16</ResourceId>
-        </RcItem>
         <RcItem Include="..\images\bmp\128\embbeded.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>TPYEMBEDDEDENVIRONMENT128</ResourceId>
@@ -344,6 +312,134 @@
         <RcItem Include="..\images\bmp\24\get_pip.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>TPYENVIRONMENTADDONGETPIP</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\embbeded_37.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment37128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\embbeded_310.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment31032</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\embbeded_310.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment31016</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\embbeded_310.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment310</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\embbeded_310.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment310128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\embbeded_310.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment310128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\embbeded_310.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment310_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\embbeded_310.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment31032_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\embbeded_310.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment31016_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\embbeded_37.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3716</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\embbeded_37.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3732</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\embbeded_37.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment37</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\embbeded_37.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment37128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\embbeded_37.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3716_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\embbeded_37.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3732_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\embbeded_37.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment37_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\embbeded_38.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3816</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\embbeded_38.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3832</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\embbeded_38.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment38</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\embbeded_38.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment38128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\embbeded_38.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3816_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\embbeded_38.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3832_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\embbeded_38.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment38_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\embbeded_38.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment38128_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\16\embbeded_39.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3916</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\32\embbeded_39.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3932</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\24\embbeded_39.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment39</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\bmp\128\embbeded_39.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment39128</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\16x16\embbeded_39.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3916_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\32x32\embbeded_39.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment3932_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\24x24\embbeded_39.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment39_PNG</ResourceId>
+        </RcItem>
+        <RcItem Include="..\images\png\128x128\embbeded_39.png">
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>TPyEmbeddedResEnvironment39128_PNG</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

@@ -117,13 +117,102 @@
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.pas"/>
         <DCCReference Include="..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.GetPip.pas"/>
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Local.pas"/>
-        <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Embeddable.pas"/>
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Distribution.pas"/>
         <DCCReference Include="..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.pas"/>
         <DCCReference Include="..\src\PyEnvironment\PyEnvironment.Notification.pas"/>
         <DCCReference Include="..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.EnsurePip.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python37.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python38.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python39.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python310.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.pas"/>
+        <DCCReference Include="..\src\PyEnvironment\Embeddable\PyEnvironment.Embeddable.pas"/>
         <RcCompile Include="..\resources\getpipscript.rc">
             <Form>res_script.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-windows-3.7-amd64.rc">
+            <Form>python3-windows-3.7.9-amd64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-windows-3.7-win32.rc">
+            <Form>python3-windows-3.7.9-win32..res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-android-3.7-arm.rc">
+            <Form>python3-android-3.7-arm.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-android-3.7-arm64.rc">
+            <Form>python3-android-3.7-arm64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-linux-3.7-x86_64.rc">
+            <Form>python3-linux-3.7-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-macos-3.7-universal2.rc">
+            <Form>python3-macos-3.7-universal2.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python37\python3-macos-3.7-x86_64.rc">
+            <Form>python3-macos-3.7-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-android-3.8-arm.rc">
+            <Form>python3-android-3.8-arm.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-android-3.8-arm64.rc">
+            <Form>python3-android-3.8-arm64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-linux-3.8-x86_64.rc">
+            <Form>python3-linux-3.8-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-macos-3.8-universal2.rc">
+            <Form>python3-macos-3.8-universal2.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-macos-3.8-x86_64.rc">
+            <Form>python3-macos-3.8-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-windows-3.8-amd64.rc">
+            <Form>python3-windows-3.8-amd64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python38\python3-windows-3.8-win32.rc">
+            <Form>python3-windows-3.8-win32.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-android-3.9-arm.rc">
+            <Form>python3-android-3.9-arm.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-android-3.9-arm64.rc">
+            <Form>python3-android-3.9-arm64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-linux-3.9-x86_64.rc">
+            <Form>python3-linux-3.9-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-macos-3.9-universal2.rc">
+            <Form>python3-macos-3.9-universal2.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-macos-3.9-x86_64.rc">
+            <Form>python3-macos-3.9-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-windows-3.9-amd64.rc">
+            <Form>python3-windows-3.9-amd64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python39\python3-windows-3.9-win32.rc">
+            <Form>python3-windows-3.9-win32.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-android-3.10-arm.rc">
+            <Form>python3-android-3.10-arm.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-android-3.10-arm64.rc">
+            <Form>python3-android-3.10-arm64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-linux-3.10-x86_64.rc">
+            <Form>python3-linux-3.10-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-macos-3.10-universal2.rc">
+            <Form>python3-macos-3.10-universal2.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-macos-3.10-x86_64.rc">
+            <Form>python3-macos-3.10-x86_64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-windows-3.10-amd64.rc">
+            <Form>python3-windows-3.10-amd64.res</Form>
+        </RcCompile>
+        <RcCompile Include="..\resources\python310\python3-windows-3.10-win32.rc">
+            <Form>python3-windows-3.10-win32.res</Form>
         </RcCompile>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

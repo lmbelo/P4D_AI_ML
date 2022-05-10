@@ -70,8 +70,8 @@ end;
 
 constructor TPyEnvironmentAddOnGetPip.Create(AOwner: TComponent);
 begin
-  inherited;
   SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+  inherited;
 end;
 
 procedure TPyEnvironmentAddOnGetPip.InternalExecute(

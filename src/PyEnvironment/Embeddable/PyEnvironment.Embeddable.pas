@@ -79,8 +79,9 @@ type
     function GetEnvironmentPath(): string;
   public
     procedure Setup(); override;
-  published
+  public
     property EmbeddablePackage: string read FEmbeddablePackage write FEmbeddablePackage;
+  published
     property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
     property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
@@ -92,9 +93,13 @@ type
     procedure LoadSettings(); override;
   public
     property Scanned: boolean read FScanned write FScanned;
+  published
+    property EmbeddablePackage;
   end;
 
-  TPyEmbeddableCollection = class(TPyDistributionCollection);
+  TPyEmbeddableCustomCollection = class(TPyDistributionCollection);
+
+  TPyEmbeddableCollection = class(TPyEmbeddableCustomCollection);
 
   TPyCustomEmbeddedEnvironment = class(TPyEnvironment)
   private
@@ -131,6 +136,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
   published
+    property Distributions;
     property Scanner: TScanner read FScanner write SetScanner;
   end;
 

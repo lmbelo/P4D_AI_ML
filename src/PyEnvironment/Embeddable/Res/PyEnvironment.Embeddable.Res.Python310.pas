@@ -1,14 +1,15 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvReg'         Copyright (c) 2021                    *)
+(* Module:  Unit 'PyEnvironment.Embeddable.Python310'                     *)
 (*                                                                        *)
+(*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
 (*                                  lucas.belo@live.com                   *)
 (*                                  Brazil                                *)
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironments Components registration                *)
+(*  Functionality:  PyEnvironment Embeddable as a Resource                *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -27,43 +28,30 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvReg;
+unit PyEnvironment.Embeddable.Res.Python310;
 
 interface
 
-procedure Register();
+uses
+  System.Classes,
+  PyEnvironment.Embeddable.Res;
+
+type
+  [ComponentPlatforms(pidAllPlatforms)]
+  TPyEmbeddedResEnvironment310 = class(TPyCustomEmbeddedResEnvironment)
+  protected
+    procedure SetPythonVersion(const Value: string); override;
+  end;
+
+{$I python310.inc}
 
 implementation
 
-uses
-  Classes,
-  PyEnvironment,
-  PyEnvironment.Embeddable,
-  PyEnvironment.Embeddable.Res.Python37,
-  PyEnvironment.Embeddable.Res.Python38,
-  PyEnvironment.Embeddable.Res.Python39,
-  PyEnvironment.Embeddable.Res.Python310,
+{ TPyEmbeddedResEnvironment310 }
 
-  PyEnvironment.Local,
-  PyEnvironment.AddOn,
-  PyEnvironment.AddOn.GetPip,
-  PyEnvironment.AddOn.EnsurePip;
-
-procedure Register();
+procedure TPyEmbeddedResEnvironment310.SetPythonVersion(const Value: string);
 begin
-  RegisterComponents('Python - Environments', [
-    //Embeddable Environments
-    TPyEmbeddedEnvironment,
-    TPyEmbeddedResEnvironment37,
-    TPyEmbeddedResEnvironment38,
-    TPyEmbeddedResEnvironment39,
-    TPyEmbeddedResEnvironment310,
-    //Local Environment
-    TPyLocalEnvironment,
-    //Add-ons
-    TPyEnvironmentAddOn,
-    TPyEnvironmentAddOnGetPip,
-    TPyEnvironmentAddOnEnsurePip]);
+  inherited SetPythonVersion('3.10');
 end;
 
 end.

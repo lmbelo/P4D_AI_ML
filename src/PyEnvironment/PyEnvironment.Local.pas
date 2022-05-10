@@ -64,6 +64,7 @@ type
     function CreateCollection(): TPyDistributionCollection; override;
     procedure Prepare(); override;
   published
+    property Distributions;
     property FilePath: string read FFilePath write FFilePath;
   end;
 

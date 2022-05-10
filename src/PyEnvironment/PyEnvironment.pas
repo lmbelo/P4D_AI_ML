@@ -55,6 +55,7 @@ type
     procedure Loaded(); override;
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
   protected
+    procedure SetPythonVersion(const Value: string); virtual;
     function CreateCollection(): TPyDistributionCollection; virtual; abstract;
     procedure Prepare(); virtual;
     procedure InternalNotifyAll(ANotification: TEnvironmentNotification;
@@ -69,13 +70,12 @@ type
   public
     property Distributions: TPyDistributionCollection read FDistributions write SetEnvironments;
     property AutoLoad: boolean read FAutoLoad write FAutoLoad;
-    property PythonVersion: string read FPythonVersion write FPythonVersion;
+    property PythonVersion: string read FPythonVersion write SetPythonVersion;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
   end;
 
   TPyEnvironment = class(TPyCustomEnvironment)
   published
-    property Distributions;
     property AutoLoad;
     property PythonVersion;
     property PythonEngine;
@@ -209,6 +209,11 @@ begin
         FPythonEngine.AutoLoad := false;
     end;
   end;
+end;
+
+procedure TPyCustomEnvironment.SetPythonVersion(const Value: string);
+begin
+  FPythonVersion := Value;
 end;
 
 end.

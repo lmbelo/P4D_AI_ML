@@ -147,6 +147,7 @@
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="Python.dcp"/>
         <DCCReference Include="p4dcommon.dcp"/>
+        <DCCReference Include="p4denvironment.dcp"/>
         <DCCReference Include="..\src\PyPackage\PyCommon.pas"/>
         <DCCReference Include="..\src\PyPackage\PyModule.pas"/>
         <DCCReference Include="..\src\PyPackage\PyPackage.pas"/>

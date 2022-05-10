@@ -1,6 +1,6 @@
 (**************************************************************************)
 (*                                                                        *)
-(* Module:  Unit 'PyEnvironment.AddOn.EnsurePip'                          *)
+(* Module:  Unit 'PyEnvironment.Embeddable.Res'                           *)
 (*                                                                        *)
 (*                                  Copyright (c) 2021                    *)
 (*                                  Lucas Moura Belo - lmbelo             *)
@@ -9,7 +9,7 @@
 (*                                                                        *)
 (* Project page:                    https://github.com/lmbelo/P4D_AI_ML   *)
 (**************************************************************************)
-(*  Functionality:  PyEnvironment EnsurePIP add-on                        *)
+(*  Functionality:  PyEnvironment Embeddable as a Resource                *)
 (*                                                                        *)
 (*                                                                        *)
 (**************************************************************************)
@@ -28,74 +28,86 @@
 (* confidential or legal reasons, everyone is free to derive a component  *)
 (* or to generate a diff file to my or other original sources.            *)
 (**************************************************************************)
-unit PyEnvironment.AddOn.EnsurePip;
+unit PyEnvironment.Embeddable.Res;
 
 interface
 
 uses
-  System.SysUtils, System.Classes,
-  PyEnvironment.Distribution, PyEnvironment.Notification, PyEnvironment.AddOn;
+  System.Classes,
+  PyEnvironment.Distribution,
+  PyEnvironment.Embeddable;
 
 type
-  [ComponentPlatforms(pidAllPlatforms)]
-  TPyEnvironmentAddOnEnsurePip = class(TPyEnvironmentCustomAddOn)
+  TPyCustomEmbeddableResDistribution = class(TPyCustomEmbeddableDistribution)
+  end;
+
+  TPyEmbeddableCustomResCollection = class(TPyEmbeddableCustomCollection);
+
+  TPyCustomEmbeddedResEnvironment = class(TPyCustomEmbeddedEnvironment)
+  private
+    FEnvironmentPath: string;
   protected
-    procedure SetTriggers(const Value: TPyEnvironmentaddOnTriggers); override;
-    procedure InternalExecute(const ATriggeredBy: TPyEnvironmentaddOnTrigger;
-      const ADistribution: TPyDistribution); override;
+    function CreateCollection(): TPyDistributionCollection; override;
+    procedure Prepare(); override;
+
+    function GetResName(): string; virtual;
   public
     constructor Create(AOwner: TComponent); override;
   published
-    property Triggers default [TPyEnvironmentaddOnTrigger.trAfterSetup];
+    property EnvironmentPath: string read FEnvironmentPath write FEnvironmentPath;
   end;
-
-  EPipSetupFailed = class(Exception);
 
 implementation
 
 uses
-  PyExecCmd, PyExecCmd.Common;
+  System.SysUtils, System.Types, System.IOUtils, System.Character;
 
-{ TPyEnvironmentAddOnEnsurePip }
+{ TPyCustomEmbeddedResEnvironment }
 
-procedure TPyEnvironmentAddOnEnsurePip.SetTriggers(
-  const Value: TPyEnvironmentaddOnTriggers);
+constructor TPyCustomEmbeddedResEnvironment.Create(AOwner: TComponent);
 begin
-  inherited SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
-end;
-
-constructor TPyEnvironmentAddOnEnsurePip.Create(AOwner: TComponent);
-begin
-  SetTriggers([TPyEnvironmentaddOnTrigger.trAfterSetup]);
+  SetPythonVersion(String.Empty);
   inherited;
 end;
 
-procedure TPyEnvironmentAddOnEnsurePip.InternalExecute(
-  const ATriggeredBy: TPyEnvironmentaddOnTrigger;
-  const ADistribution: TPyDistribution);
+function TPyCustomEmbeddedResEnvironment.CreateCollection: TPyDistributionCollection;
+begin
+  Result := TPyEmbeddableCustomResCollection.Create(Self, TPyCustomEmbeddableResDistribution);
+end;
+
+function TPyCustomEmbeddedResEnvironment.GetResName: string;
 var
-  LOutput: string;
+  I: Integer;
 begin
-  inherited;
-  if (TPyExecCmdService.Cmd(ADistribution.Executable,
-        TPyExecCmdCommon.BuildArgv(
-          ADistribution.Executable, ['-m', 'pip', '--version']),
-        TPyExecCmdCommon.BuildEnvp(
-          ADistribution.Home,
-          ADistribution.Executable,
-          ADistribution.SharedLibrary)
-      ).Run().Wait() = EXIT_SUCCESS) then
-        Exit;
+  Result := String.Empty;
+  for I := Low(PythonVersion) to High(PythonVersion) do
+    if Char.IsDigit(PythonVersion, I - 1) then
+      Result := Result + PythonVersion[I];
+  Result := 'python' + Result;
+end;
 
-  if (TPyExecCmdService.Cmd(ADistribution.Executable,
-        TPyExecCmdCommon.BuildArgv(
-          ADistribution.Executable, ['-m', 'ensurepip']),
-        TPyExecCmdCommon.BuildEnvp(
-          ADistribution.Home,
-          ADistribution.Executable,
-          ADistribution.SharedLibrary)
-      ).Run(LOutput).Wait() <> EXIT_SUCCESS) then
-    raise EPipSetupFailed.Create('PIP setup has failed.' + #13#10 + LOutput);
+procedure TPyCustomEmbeddedResEnvironment.Prepare;
+var
+  LResName: string;
+  LEmbeddablePath: string;
+  LResStream: TResourceStream;
+  LDistribution: TPyCustomEmbeddableResDistribution;
+begin
+  LResName := GetResName();
+  LEmbeddablePath := TPath.Combine(TPath.GetTempPath(), LResName);
+  LResStream := TResourceStream.Create(HInstance, LResName, RT_RCDATA);
+  try
+    LResStream.SaveToFile(LEmbeddablePath);
+
+    LDistribution := TPyCustomEmbeddableResDistribution(Distributions.Add());
+    LDistribution.PythonVersion := PythonVersion;
+    LDistribution.EnvironmentPath := TPath.Combine(EnvironmentPath, PythonVersion);
+    LDistribution.EmbeddablePackage := LEmbeddablePath;
+    LDistribution.OnZipProgress := OnZipProgress;
+  finally
+    LResStream.Free();
+  end;
+  inherited;
 end;
 
 end.

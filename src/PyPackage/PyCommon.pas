@@ -32,19 +32,29 @@ unit PyCommon;
 interface
 
 uses
-  System.Classes, PythonEngine, System.SysUtils;
+  System.Classes,
+  PyEnvironment,
+  PyEnvironment.Notification,
+  PythonEngine;
 
 type
   //P4D AI&ML extension
-  TPyCommon = class(TComponent)
+  TPyCommon = class(TComponent, IEnvironmentNotified<TPyEnvironment>)
   private
     FPythonEngine: TPythonEngine;
+    FPyEnvironment: TPyEnvironment;
+    procedure SetPyEnvironment(const APyEnvironment: TPyEnvironment);
+    procedure SetPythonEngine(const APythonEngine: TPythonEngine);
   protected
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
-    procedure SetPythonEngine(const APythonEngine: TPythonEngine);
     procedure EngineLoaded(); virtual;
     function IsReady(): boolean; virtual;
+    //IEnvironmentNotifier<TPyCustomEnvironment> implementation
+    procedure NotifyUpdate(const ANotifier: TPyEnvironment;
+      const ANotification: TEnvironmentNotification;
+      const AArgs: TObject); virtual;
   public
+    property PyEnvironment: TPyEnvironment read FPyEnvironment write SetPyEnvironment;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
   end;
 
@@ -82,6 +92,29 @@ begin
   inherited;
   if (AOperation = opRemove) and (AComponent = FPythonEngine) then begin
     FPythonEngine := nil;
+  end;
+end;
+
+procedure TPyCommon.NotifyUpdate(const ANotifier: TPyEnvironment;
+  const ANotification: TEnvironmentNotification; const AArgs: TObject);
+begin
+  //
+end;
+
+procedure TPyCommon.SetPyEnvironment(const APyEnvironment: TPyEnvironment);
+begin
+  if (APyEnvironment <> FPyEnvironment) then begin
+    if Assigned(FPyEnvironment) then begin
+      FPyEnvironment.RemoveFreeNotification(Self);
+      (FPyEnvironment as IEnvironmentNotifier<TPyEnvironment>).RemoveListener(Self);
+    end;
+    FPyEnvironment := APyEnvironment;
+    if Assigned(FPyEnvironment) then begin
+      FPyEnvironment.FreeNotification(Self);
+      (FPyEnvironment as IEnvironmentNotifier<TPyEnvironment>).AddListener(Self);
+      if Assigned(FPyEnvironment.PythonEngine) then
+        SetPythonEngine(FPyEnvironment.PythonEngine);
+    end;
   end;
 end;
 

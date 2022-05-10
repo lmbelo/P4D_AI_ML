@@ -38,10 +38,15 @@ contains
   PyEnvironment in '..\src\PyEnvironment\PyEnvironment.pas',
   PyEnvironment.AddOn.GetPip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.GetPip.pas',
   PyEnvironment.Local in '..\src\PyEnvironment\PyEnvironment.Local.pas',
-  PyEnvironment.Embeddable in '..\src\PyEnvironment\PyEnvironment.Embeddable.pas',
   PyEnvironment.Distribution in '..\src\PyEnvironment\PyEnvironment.Distribution.pas',
   PyEnvironment.AddOn in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.pas',
   PyEnvironment.Notification in '..\src\PyEnvironment\PyEnvironment.Notification.pas',
-  PyEnvironment.AddOn.EnsurePip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.EnsurePip.pas';
+  PyEnvironment.AddOn.EnsurePip in '..\src\PyEnvironment\AddOn\PyEnvironment.AddOn.EnsurePip.pas',
+  PyEnvironment.Embeddable.Res.Python37 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python37.pas',
+  PyEnvironment.Embeddable.Res.Python38 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python38.pas',
+  PyEnvironment.Embeddable.Res.Python39 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python39.pas',
+  PyEnvironment.Embeddable.Res.Python310 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python310.pas',
+  PyEnvironment.Embeddable.Res in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.pas',
+  PyEnvironment.Embeddable in '..\src\PyEnvironment\Embeddable\PyEnvironment.Embeddable.pas';
 
 end.
