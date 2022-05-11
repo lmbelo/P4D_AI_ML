@@ -105,6 +105,7 @@ type
   private
     FOnZipProgress: TZipProgress;
   published
+    property Async;
     property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
@@ -167,7 +168,12 @@ procedure TPyCustomEmbeddableDistribution.DoZipProgressEvt(Sender: TObject; File
   Header: TZipHeader; Position: Int64);
 begin
   if Assigned(FOnZipProgress) then
-    FOnZipProgress(Sender, Self, FileName, Header, Position);
+    if (TThread.Current.ThreadID <> MainThreadID) then
+      TThread.Queue(nil, procedure() begin
+        FOnZipProgress(Sender, Self, FileName, Header, Position);
+      end)
+    else
+      FOnZipProgress(Sender, Self, FileName, Header, Position);
 end;
 
 function TPyCustomEmbeddableDistribution.EmbeddableExists: boolean;
