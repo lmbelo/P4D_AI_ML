@@ -1,4 +1,4 @@
-unit PyExecCmd.Posix;
+unit PyCommon.ExecCmd.Posix;
 
 {$WEAKPACKAGEUNIT}
 
@@ -8,7 +8,7 @@ uses
   Posix.Base, Posix.Fcntl, Posix.Unistd, Posix.SysWait, Posix.Stdlib,
   Posix.Stdio, Posix.SysTypes, Posix.Signal, Posix.Errno, Posix.SysStat,
   Posix.String_,
-  PyExecCmd;
+  PyCommon.ExecCmd;
 
 type
   TStreamHandle = pointer;
@@ -140,7 +140,8 @@ begin
   end;
 end;
 
-procedure TExecCmdPosix.Redirect(out AReader: PyExecCmd.TReader; out AWriter: PyExecCmd.TWriter);
+procedure TExecCmdPosix.Redirect(out AReader: PyCommon.ExecCmd.TReader;
+  out AWriter: PyCommon.ExecCmd.TWriter);
 var
   LBuffer: string;
   M: TMarshaller;
@@ -184,7 +185,8 @@ begin
   until LOutput.IsEmpty();
 end;
 
-function TExecCmdPosix.Run(out AReader: PyExecCmd.TReader; out AWriter: PyExecCmd.TWriter;
+function TExecCmdPosix.Run(out AReader: PyCommon.ExecCmd.TReader;
+  out AWriter: PyCommon.ExecCmd.TWriter;
   const ARedirections: TRedirections): IExecCmd;
 var
   M: TMarshaller;
