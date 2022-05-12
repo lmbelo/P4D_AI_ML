@@ -51,10 +51,14 @@ class function TPyPathHandler.ResolvePath(const APath: string): string;
 var
   LFilePath: string;
 begin
-  LFilePath := TPath.GetDirectoryName(GetModuleName(HInstance));
-  if (APath <> ExpandFileName(APath)) then
-    Result := TPath.Combine(LFilePath, APath)
-  else
+  if (APath <> ExpandFileName(APath)) then begin
+    {$IFDEF ANDROID}
+    LFilePath := TPath.GetDocumentsPath();
+    {$ELSE}
+    LFilePath := TPath.GetDirectoryName(GetModuleName(HInstance));
+    {$ENDIF}
+    Result := TPath.Combine(LFilePath, APath);
+  end else
     Result := APath;
 end;
 
