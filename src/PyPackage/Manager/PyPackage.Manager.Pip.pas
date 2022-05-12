@@ -33,8 +33,8 @@ unit PyPackage.Manager.Pip;
 interface
 
 uses
-  PyExecCmd,
-  PyExecCmd.Common,
+  PyCommon.ExecCmd,
+  PyCommon.ExecCmd.Args,
   PyCore, PyPackage,
   PyPackage.Manager,
   PyPackage.Manager.Intf,

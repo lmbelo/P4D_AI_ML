@@ -6,7 +6,7 @@
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>168083</TargetedPlatforms>
         <AppType>Package</AppType>
     </PropertyGroup>
@@ -144,8 +144,9 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="..\src\PyCommon\PyExecCmd.pas"/>
-        <DCCReference Include="..\src\PyCommon\PyExecCmd.Common.pas"/>
+        <DCCReference Include="..\src\PyCommon\PyCommon.Path.pas"/>
+        <DCCReference Include="..\src\PyCommon\ExecCmd\PyCommon.ExecCmd.Args.pas"/>
+        <DCCReference Include="..\src\PyCommon\ExecCmd\PyCommon.ExecCmd.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

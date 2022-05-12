@@ -39,7 +39,8 @@ type
   TPyModuleBase = class(TPyCommonCustomModule)
   private
     FAutoImport: boolean;
-    function CanImport(): boolean;
+    FBeforeImport: TNotifyEvent;
+    FAfterImport: TNotifyEvent;
   protected
     //Get methods
     function GetPyModuleName(): string; virtual; abstract;
@@ -50,15 +51,15 @@ type
     procedure DesignLoaded(); virtual;
     //Module routines
     procedure EngineLoaded(); override;
+    function CanImport(): boolean;
     procedure ImportModule(); reintroduce; virtual;
     procedure CheckImported();
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
-
+    //Module import routines
     function IsImported(): boolean;
     procedure Import();
-
     //Helper methods
     function AsVariant(): variant;
   public
@@ -66,6 +67,9 @@ type
   published
     property PyModuleName: string read GetPyModuleName;
     property AutoImport: boolean read FAutoImport write FAutoImport default true;
+    //Events
+    property BeforeImport: TNotifyEvent read FBeforeImport write FBeforeImport;
+    property AfterImport: TNotifyEvent read FAfterImport write FAfterImport;
   end;
 
   TPyModule = class(TPyModuleBase)
@@ -138,14 +142,23 @@ begin
 end;
 
 procedure TPyModuleBase.ImportModule;
+var
+  LImport: string;
+  LPyParent: TPyModuleBase;
 begin
-  var LImport := PyModuleName;
-  var LPyParent := PyParent;
+  if Assigned(FBeforeImport) then
+    FBeforeImport(Self);
+
+  LImport := PyModuleName;
+  LPyParent := PyParent;
   while Assigned(LPyParent) do begin
     LImport := LPyParent.PyModuleName + '.' + LImport;
     LPyParent := LPyParent.PyParent;
   end;
   inherited ImportModule(LImport);
+
+  if Assigned(FAfterImport) then
+    FAfterImport(Self);
 end;
 
 procedure TPyModuleBase.Loaded;

@@ -56,7 +56,7 @@ implementation
 uses
   System.Types, System.IOUtils, System.Variants,
   VarPyth,
-  PyExecCmd, PyExecCmd.Common;
+  PyCommon.ExecCmd, PyCommon.ExecCmd.Args;
 
 {$R ..\..\..\resources\getpipscript.res}
 

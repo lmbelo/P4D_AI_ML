@@ -73,7 +73,7 @@ type
 implementation
 
 uses
-  System.IOUtils, PythonEngine;
+  System.IOUtils, PythonEngine, PyCommon.Path;
 
 { TPyLocalDistribution }
 
@@ -95,11 +95,13 @@ var
   I: Integer;
   LPythonVersion: TJSONValue;
   LDistribution: TJSONValue;
+  LFilePath: string;
 begin
-  if not TFile.Exists(FFilePath) then
-    raise EFileNotFoundException.CreateFmt('File not found.' + #13#10 + '%s', [FFilePath]);
+  LFilePath := TPyPathHandler.ResolvePath(FFilePath);
+  if not TFile.Exists(LFilePath) then
+    raise EFileNotFoundException.CreateFmt('File not found.' + #13#10 + '%s', [LFilePath]);
 
-  LPythonVersions := TJSONObject.ParseJSONValue(TFile.ReadAllText(FFilePath));
+  LPythonVersions := TJSONObject.ParseJSONValue(TFile.ReadAllText(LFilePath));
   try
     if not (Assigned(LPythonVersions) and (LPythonVersions is TJSONArray)) then
       raise EInvalidFileStructure.Create('Invalid file structure.');
@@ -126,8 +128,11 @@ begin
 end;
 
 procedure TPyLocalEnvironment.Prepare;
+var
+  LFilePath: string;
 begin
-  if not TFile.Exists(FFilePath) then
+  LFilePath := TPyPathHandler.ResolvePath(FFilePath);
+  if not TFile.Exists(LFilePath) then
     raise Exception.Create('File not found.');
 
   EnumerateEnvironments(

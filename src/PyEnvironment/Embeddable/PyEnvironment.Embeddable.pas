@@ -147,7 +147,8 @@ implementation
 
 uses
   System.IOUtils, System.Character, System.StrUtils,
-  PyExecCmd,
+  PyCommon.Path,
+  PyCommon.ExecCmd,
   PyEnvironment.Notification
   {$IFDEF POSIX}
   , Posix.SysStat, Posix.Stdlib, Posix.String_, Posix.Errno
@@ -279,14 +280,14 @@ end;
 
 procedure TPyCustomEmbeddableDistribution.LoadSettings;
 begin
-  Home := ExpandFileName(GetEnvironmentPath());
-  SharedLibrary := ExpandFileName(FindSharedLibrary());
-  Executable := ExpandFileName(FindExecutable());
+  Home := TPyPathHandler.ResolvePath(GetEnvironmentPath());
+  SharedLibrary := TPyPathHandler.ResolvePath(FindSharedLibrary());
+  Executable := TPyPathHandler.ResolvePath(FindExecutable());
 end;
 
 function TPyCustomEmbeddableDistribution.GetEnvironmentPath: string;
 begin
-  Result := EnvironmentPath;
+  Result := TPyPathHandler.ResolvePath(EnvironmentPath);
 end;
 
 procedure TPyCustomEmbeddableDistribution.Setup;
@@ -345,7 +346,10 @@ begin
         LDistribution := TPyEmbeddableDistribution(Distributions.Add());
         LDistribution.Scanned := true;
         LDistribution.PythonVersion := APyVersionInfo.RegVersion;
-        LDistribution.EnvironmentPath := TPath.Combine(FScanner.EnvironmentPath, APyVersionInfo.RegVersion);
+        LDistribution.EnvironmentPath := TPath.Combine(
+          TPyPathHandler.ResolvePath(
+            FScanner.EnvironmentPath),
+          APyVersionInfo.RegVersion);
         LDistribution.EmbeddablePackage := AEmbeddablePackage;
         LDistribution.OnZipProgress := FOnZipProgress;
       end);

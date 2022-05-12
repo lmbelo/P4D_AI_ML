@@ -60,7 +60,8 @@ type
 implementation
 
 uses
-  System.SysUtils, System.Types, System.IOUtils, System.Character;
+  System.SysUtils, System.Types, System.IOUtils, System.Character,
+  PyCommon.Path;
 
 { TPyCustomEmbeddedResEnvironment }
 
@@ -101,7 +102,9 @@ begin
 
     LDistribution := TPyCustomEmbeddableResDistribution(Distributions.Add());
     LDistribution.PythonVersion := PythonVersion;
-    LDistribution.EnvironmentPath := TPath.Combine(EnvironmentPath, PythonVersion);
+    LDistribution.EnvironmentPath := TPath.Combine(
+      TPyPathHandler.ResolvePath(EnvironmentPath),
+      PythonVersion);
     LDistribution.EmbeddablePackage := LEmbeddablePath;
     LDistribution.OnZipProgress := OnZipProgress;
   finally

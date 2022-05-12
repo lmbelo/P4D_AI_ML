@@ -32,8 +32,13 @@ unit PyPackage;
 interface
 
 uses
-  System.SysUtils, System.Rtti, System.Classes, System.Generics.Collections,
-  PyCore, PyCommon, PyModule,
+  System.SysUtils, System.Rtti, System.Classes, System.Threading,
+  System.Generics.Collections,
+  PyCore,
+  PyEnvironment,
+  PyEnvironment.Notification,
+  PyCommon,
+  PyModule,
   PyPackage.Model,
   PyPackage.Manager.ManagerKind,
   PyPackage.Manager.Managers,
@@ -125,6 +130,7 @@ type
     FBeforeUninstall: TNotifyEvent;
     FOnUninstallError: TOnUninstallpackageError;
     FAfterUninstall: TNotifyEvent;
+    FDesignLoadedSchedule: boolean;
     //Getters and Setters
     procedure SetManagers(const Value: TPyManagers);
     //Internal delegations
@@ -136,9 +142,19 @@ type
     procedure RaiseNotInstalled;
     //Utils
     function GetPackageManager(const AManagerKind: TPyPackageManagerKind): IPyPackageManager;
+    //Exception handlers
+    procedure HandleAutoLoadException(const AException: Exception;
+      const AExceptionAddr: Pointer);
+    //Event handlers
+    procedure DoBeforeInstall;
+    procedure DoAfterInstall;
+    procedure DoInstallError(const AOutput: string);
   protected
     procedure DesignLoaded(); override;
     function GetPyModuleName(): string; override;
+    procedure NotifyUpdate(const ANotifier: TPyEnvironment;
+      const ANotification: TEnvironmentNotification;
+      const AArgs: TObject); override;
   protected
     procedure Prepare(const AModel: TPyPackageModel); virtual; abstract;
   protected
@@ -150,10 +166,13 @@ type
     destructor Destroy(); override;
     //Setup routines
     procedure Install();
+    function InstallAsync(): ITask;
+
     procedure Uninstall();
     function IsInstalled(): boolean;
   published
     property PythonEngine;
+    property PyEnvironment;
     property ManagerKind: TPyPackageManagerKind read FManagerKind write FManagerKind;
     property Managers: TPyManagers read FManagers write SetManagers;
     property AutoInstall: boolean read FAutoInstall write FAutoInstall default true;
@@ -301,9 +320,13 @@ end;
 
 procedure TPyManagedPackage.DesignLoaded;
 begin
-  if FAutoInstall then
-    InstallPackage();
-  inherited;
+  if Assigned(PyEnvironment) and PyEnvironment.Async then
+    FDesignLoadedSchedule := true
+  else begin
+    if FAutoInstall then
+      InstallPackage();
+    inherited;
+  end;
 end;
 
 destructor TPyManagedPackage.Destroy;
@@ -333,6 +356,21 @@ begin
   Result := FModel.PackageName;
 end;
 
+procedure TPyManagedPackage.HandleAutoLoadException(const AException: Exception;
+  const AExceptionAddr: Pointer);
+var
+  LExcept: Exception;
+begin
+  if (TThread.Current.ThreadID <> MainThreadID) then
+    TThread.Synchronize(nil, procedure() begin
+      ShowException(AException, AExceptionAddr);
+    end)
+  else begin
+    LExcept := AcquireExceptionObject() as Exception;
+    raise LExcept;
+  end;
+end;
+
 procedure TPyManagedPackage.Install;
 begin
   InstallPackage();
@@ -352,6 +390,65 @@ begin
       'An error ocurred while verifing %s installation.'
     + #13#10
     + '%s', [PyModuleName, LOutput]);
+end;
+
+procedure TPyManagedPackage.DoInstallError(const AOutput: string);
+begin
+  if Assigned(FOnInstallError) then
+    if (TThread.CurrentThread.ThreadID <> MainThreadID) then
+      TThread.Synchronize(nil, procedure() begin
+        FOnInstallError(Self, AOutput);
+      end)
+    else
+      FOnInstallError(Self, AOutput);
+end;
+
+procedure TPyManagedPackage.DoAfterInstall;
+begin
+  if Assigned(FAfterInstall) then
+    if (TThread.CurrentThread.ThreadID <> MainThreadID) then
+      TThread.Synchronize(nil, procedure() begin
+        FAfterInstall(Self);
+      end)
+    else
+      FAfterInstall(Self);
+end;
+
+procedure TPyManagedPackage.DoBeforeInstall;
+begin
+  if Assigned(FBeforeInstall) then
+    if (TThread.CurrentThread.ThreadID <> MainThreadID) then
+      TThread.Synchronize(nil, procedure() begin
+        FBeforeInstall(Self);
+      end)
+    else
+      FBeforeInstall(Self);
+end;
+
+procedure TPyManagedPackage.NotifyUpdate(const ANotifier: TPyEnvironment;
+  const ANotification: TEnvironmentNotification; const AArgs: TObject);
+var
+  LTask: ITask;
+begin
+  inherited;
+  if (ANotification = AFTER_ACTIVATE_NOTIFICATION) then
+    if FDesignLoadedSchedule and FAutoInstall then begin
+      FDesignLoadedSchedule := false;
+      TTask.Run(procedure() begin
+        LTask := InstallAsync();
+        try
+          LTask.Wait();
+          if (LTask.Status in [TTaskStatus.Completed]) then
+            TThread.Queue(nil, procedure() begin
+              if AutoImport and CanImport() then
+                Import();
+            end);
+        except
+          on E: Exception do
+            HandleAutoLoadException(E, ExceptAddr);
+        end;
+      end);
+    end;
 end;
 
 procedure TPyManagedPackage.RaiseNotInstalled;
@@ -392,21 +489,26 @@ begin
   Result := GetPackageManager(ManagerKind).Uninstall(AOutput);
 end;
 
+function TPyManagedPackage.InstallAsync: ITask;
+begin
+  Result := TTask.Run(procedure() begin
+    InstallPackage();
+  end);
+end;
+
 procedure TPyManagedPackage.InstallPackage;
 var
   LOutput: string;
 begin
   if IsReady() then
     if not IsInstalled() then begin
-      if Assigned(FBeforeInstall) then
-        FBeforeInstall(Self);
+      DoBeforeInstall;
 
       if InternalInstall(LOutput) then begin
-        if Assigned(FAfterInstall) then
-          FAfterInstall(Self);
+        DoAfterInstall;
       end else
       if Assigned(FOnInstallError) then
-        FOnInstallError(Self, LOutput)
+        DoInstallError(LOutput)
       else
         RaiseInstallationError(LOutput);
     end;

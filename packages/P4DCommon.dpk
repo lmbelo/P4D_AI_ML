@@ -33,7 +33,8 @@ requires
   rtl;
 
 contains
-  PyExecCmd in '..\src\PyCommon\PyExecCmd.pas',
-  PyExecCmd.Common in '..\src\PyCommon\PyExecCmd.Common.pas';
+  PyCommon.Path in '..\src\PyCommon\PyCommon.Path.pas',
+  PyCommon.ExecCmd.Args in '..\src\PyCommon\ExecCmd\PyCommon.ExecCmd.Args.pas',
+  PyCommon.ExecCmd in '..\src\PyCommon\ExecCmd\PyCommon.ExecCmd.pas';
 
 end.

@@ -122,6 +122,10 @@ type
 
 implementation
 
+uses
+  System.IOUtils,
+  PyCommon.Path;
+
 { TPyCustomEnvironment }
 
 constructor TPyCustomEnvironment.Create(AOwner: TComponent);
@@ -184,10 +188,10 @@ begin
     Exit();
 
   FPythonEngine.UseLastKnownVersion := false;
-  FPythonEngine.PythonHome := ExpandFileName(LDistribution.Home);
-  FPythonEngine.ProgramName := ExpandFileName(LDistribution.Executable);
-  FPythonEngine.DllPath := ExpandFileName(ExtractFilePath(LDistribution.SharedLibrary));
-  FPythonEngine.DllName := ExtractFileName(LDistribution.SharedLibrary);
+  FPythonEngine.PythonHome := TPyPathHandler.ResolvePath(LDistribution.Home);
+  FPythonEngine.ProgramName := TPyPathHandler.ResolvePath(LDistribution.Executable);
+  FPythonEngine.DllPath := TPath.GetDirectoryName(TPyPathHandler.ResolvePath(LDistribution.SharedLibrary));
+  FPythonEngine.DllName := TPath.GetFileName(LDistribution.SharedLibrary);
   FPythonEngine.LoadDll();
 
   Result := FPythonEngine.IsHandleValid();

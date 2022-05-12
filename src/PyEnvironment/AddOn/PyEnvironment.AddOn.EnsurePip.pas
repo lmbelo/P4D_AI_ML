@@ -54,7 +54,7 @@ type
 implementation
 
 uses
-  PyExecCmd, PyExecCmd.Common;
+  PyCommon.ExecCmd, PyCommon.ExecCmd.Args;
 
 { TPyEnvironmentAddOnEnsurePip }
 
