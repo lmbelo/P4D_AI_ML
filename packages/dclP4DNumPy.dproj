@@ -109,7 +109,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_DcuOutput>..\lib</DCC_DcuOutput>
+        <DCC_DcuOutput>..\lib\$(Platform)\$(Config)</DCC_DcuOutput>
         <BRCC_OutputDir>..\resources\</BRCC_OutputDir>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
@@ -237,14 +237,6 @@
                     <Source Name="MainSource">dclP4DNumPy.dpk</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DPyPackage280.bpl">P4D AI&amp;ML extension for Python packages</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DNumPy280.bpl">P4D AI&amp;ML extension for Python packages - NumPy</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DScikitLearn280.bpl">P4D AI&amp;ML extension for Python packages - Scikit-learn</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DPyTorch280.bpl">P4D AI&amp;ML extension for Python packages - PyTorch</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclMatplotLib280.bpl">P4D AI&amp;ML extension for Python packages - MatplotLib</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DTensorFlow280.bpl">P4D AI&amp;ML extension for Python packages - TensorFlow</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DOpenCV280.bpl">P4D AI&amp;ML extension for Python packages - TensorFlow</Excluded_Packages>
-                    <Excluded_Packages Name="C:\Users\Public\Documents\Embarcadero\Studio\22.0\Bpl\dclP4DEnvironment280.bpl">P4D AI&amp;ML - Python environments</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>

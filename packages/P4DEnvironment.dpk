@@ -47,6 +47,11 @@ contains
   PyEnvironment.Embeddable.Res.Python39 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python39.pas',
   PyEnvironment.Embeddable.Res.Python310 in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.Python310.pas',
   PyEnvironment.Embeddable.Res in '..\src\PyEnvironment\Embeddable\Res\PyEnvironment.Embeddable.Res.pas',
-  PyEnvironment.Embeddable in '..\src\PyEnvironment\Embeddable\PyEnvironment.Embeddable.pas';
+  PyEnvironment.Embeddable in '..\src\PyEnvironment\Embeddable\PyEnvironment.Embeddable.pas',
+  PyEnvironment.Task in '..\src\PyEnvironment\Task\PyEnvironment.Task.pas',
+  PyEnvironment.Task.Model in '..\src\PyEnvironment\Task\PyEnvironment.Task.Model.pas',
+  PyEnvironment.Task.List in '..\src\PyEnvironment\Task\PyEnvironment.Task.List.pas',
+  PyEnvironment.Task.Runner.Serial in '..\src\PyEnvironment\Task\Runner\PyEnvironment.Task.Runner.Serial.pas',
+  PyEnvironment.Task.Runner in '..\src\PyEnvironment\Task\Runner\PyEnvironment.Task.Runner.pas';
 
 end.
