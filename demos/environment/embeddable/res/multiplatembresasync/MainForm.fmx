@@ -1,0 +1,118 @@
+object Form2: TForm2
+  Left = 0
+  Top = 0
+  Caption = 'Form2'
+  ClientHeight = 480
+  ClientWidth = 640
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCloseQuery = FormCloseQuery
+  DesignerMasterStyle = 0
+  object StatusBar1: TStatusBar
+    Position.Y = 458.000000000000000000
+    ShowSizeGrip = True
+    Size.Width = 640.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    object lbMsg: TLabel
+      Align = Left
+      Margins.Left = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Size.Width = 113.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+    end
+    object lbDesc: TLabel
+      Align = Client
+      Margins.Right = 25.000000000000000000
+      Size.Width = 492.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+    end
+  end
+  object mmScriptInput: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Lines.Strings = (
+      'import sys'
+      'print(sys.executable)')
+    Align = Client
+    Size.Width = 640.000000000000000000
+    Size.Height = 149.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 6
+    Viewport.Width = 636.000000000000000000
+    Viewport.Height = 145.000000000000000000
+  end
+  object ToolBar1: TToolBar
+    Align = Bottom
+    Position.Y = 418.000000000000000000
+    Size.Width = 640.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 7
+    object btnExecute: TButton
+      Align = Center
+      Enabled = False
+      StyleLookup = 'playtoolbutton'
+      TabOrder = 0
+      Text = 'btnExecute'
+      OnClick = btnExecuteClick
+    end
+  end
+  object mmOutput: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ReadOnly = True
+    Align = Top
+    Size.Width = 640.000000000000000000
+    Size.Height = 265.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'memostyle'
+    TabOrder = 8
+    Viewport.Width = 636.000000000000000000
+    Viewport.Height = 261.000000000000000000
+  end
+  object Splitter1: TSplitter
+    Align = Top
+    Cursor = crVSplit
+    MinSize = 20.000000000000000000
+    Position.Y = 265.000000000000000000
+    Size.Width = 640.000000000000000000
+    Size.Height = 4.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'splitterstyle'
+  end
+  object PythonEngine1: TPythonEngine
+    AutoLoad = False
+    IO = PythonGUIInputOutput1
+    Left = 144
+    Top = 104
+  end
+  object PythonGUIInputOutput1: TPythonGUIInputOutput
+    UnicodeIO = True
+    RawOutput = False
+    Output = mmOutput
+    Left = 144
+    Top = 160
+  end
+  object PyEmbeddedResEnvironment3101: TPyEmbeddedResEnvironment310
+    BeforeSetup = PyEmbeddedResEnvironment3101BeforeSetup
+    AfterSetup = PyEmbeddedResEnvironment3101AfterSetup
+    BeforeActivate = PyEmbeddedResEnvironment3101BeforeActivate
+    AfterActivate = PyEmbeddedResEnvironment3101AfterActivate
+    AutoLoad = True
+    PythonVersion = '3.10'
+    PythonEngine = PythonEngine1
+    Async = True
+    TaskRunner.OnCompleteAll = PyEmbeddedResEnvironment3101TaskRunnerCompleteAll
+    TaskRunner.OnTerminate = PyEmbeddedResEnvironment3101TaskRunnerTerminate
+    OnZipProgress = PyEmbeddedResEnvironment3101ZipProgress
+    Left = 344
+    Top = 144
+  end
+end
