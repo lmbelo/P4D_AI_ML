@@ -239,7 +239,7 @@ begin
       Result := String.Empty;
   end else
     Result := String.Empty;
-  {$IFEND}
+  {$ENDIF}
 end;
 
 function TPyCustomEmbeddableDistribution.FindSharedLibrary: string;
