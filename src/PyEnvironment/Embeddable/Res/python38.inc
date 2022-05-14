@@ -15,11 +15,10 @@
 
 {$IFDEF MACOS}
   {$IFDEF MACOS64}
-    {$IFDEF CPU386}
-    {$R ..\..\..\resources\python3-macos-3.8-x86_64.res}
-    {$ENDIF CPU386}
     {$IFDEF CPUARM}
     {$R ..\..\..\resources\python3-macos-3.8-universal2.res}
+    {$ELSE}
+    {$R ..\..\..\resources\python3-macos-3.8-x86_64.res}
     {$ENDIF CPUARM}
   {$ENDIF MACOS64}
 {$ENDIF MACOS}
