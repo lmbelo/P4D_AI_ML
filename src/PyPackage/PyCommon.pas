@@ -39,7 +39,7 @@ uses
 
 type
   //P4D AI&ML extension
-  TPyCommon = class(TComponent, IEnvironmentNotified<TPyEnvironment>)
+  TPyCommon = class(TComponent)
   private
     FPythonEngine: TPythonEngine;
     FPyEnvironment: TPyEnvironment;
@@ -49,10 +49,6 @@ type
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
     procedure EngineLoaded(); virtual;
     function IsReady(): boolean; virtual;
-    //IEnvironmentNotifier<TPyCustomEnvironment> implementation
-    procedure NotifyUpdate(const ANotifier: TPyEnvironment;
-      const ANotification: TEnvironmentNotification;
-      const AArgs: TObject); virtual;
   public
     property PyEnvironment: TPyEnvironment read FPyEnvironment write SetPyEnvironment;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
@@ -95,23 +91,15 @@ begin
   end;
 end;
 
-procedure TPyCommon.NotifyUpdate(const ANotifier: TPyEnvironment;
-  const ANotification: TEnvironmentNotification; const AArgs: TObject);
-begin
-  //
-end;
-
 procedure TPyCommon.SetPyEnvironment(const APyEnvironment: TPyEnvironment);
 begin
   if (APyEnvironment <> FPyEnvironment) then begin
     if Assigned(FPyEnvironment) then begin
       FPyEnvironment.RemoveFreeNotification(Self);
-      (FPyEnvironment as IEnvironmentNotifier<TPyEnvironment>).RemoveListener(Self);
     end;
     FPyEnvironment := APyEnvironment;
     if Assigned(FPyEnvironment) then begin
       FPyEnvironment.FreeNotification(Self);
-      (FPyEnvironment as IEnvironmentNotifier<TPyEnvironment>).AddListener(Self);
       if Assigned(FPyEnvironment.PythonEngine) then
         SetPythonEngine(FPyEnvironment.PythonEngine);
     end;
