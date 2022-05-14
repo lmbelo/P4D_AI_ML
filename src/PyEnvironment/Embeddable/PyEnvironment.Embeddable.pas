@@ -105,7 +105,6 @@ type
   private
     FOnZipProgress: TZipProgress;
   published
-    property Async;
     property OnZipProgress: TZipProgress read FOnZipProgress write FOnZipProgress;
   end;
 
@@ -191,9 +190,11 @@ end;
 function TPyCustomEmbeddableDistribution.FileIsExecutable(
   const AFilePath: string): boolean;
 begin
+  {$WARN SYMBOL_PLATFORM OFF}
   Result := (TFileAttribute.faOwnerExecute in TFile.GetAttributes(AFilePath))
     or (TFileAttribute.faGroupExecute in TFile.GetAttributes(AFilePath))
     or (TFileAttribute.faOthersExecute in TFile.GetAttributes(AFilePath));
+  {$WARN SYMBOL_PLATFORM ON}
 end;
 {$ENDIF POSIX}
 
@@ -224,12 +225,14 @@ begin
   end;
   {$ENDIF POSIX}
 
+  {$WARN SYMBOL_PLATFORM OFF}
   if Length(LFiles) > 0 then begin
     Result := LFiles[High(LFiles)];
     if (TFileAttribute.faOwnerExecute in TFile.GetAttributes(Result))
       or (TFileAttribute.faGroupExecute in TFile.GetAttributes(Result))
       or (TFileAttribute.faOthersExecute in TFile.GetAttributes(Result)) then //Avoiding symlinks
         Exit;
+  {$WARN SYMBOL_PLATFORM ON}
 
     Result := LFiles[Low(LFiles)];
     if not TFile.Exists(Result) then
