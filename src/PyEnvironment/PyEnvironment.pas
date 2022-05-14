@@ -35,50 +35,66 @@ uses
   System.Classes, System.SysUtils, System.Threading, System.Generics.Collections,
   PythonEngine,
   PyEnvironment.Distribution,
-  PyEnvironment.Notification;
+  PyEnvironment.Notification,
+  PyEnvironment.Task,
+  PyEnvironment.Task.Runner,
+  PyEnvironment.Task.Runner.Serial;
 
 type
   TPyEnvironmentBeforeSetup = procedure(Sender: TObject; const APythonVersion: string) of object;
   TPyEnvironmentAfterSetup = procedure(Sender: TObject; const APythonVersion: string) of object;
-
   TPyEnvironmentBeforeActivate = procedure(Sender: TObject; const APythonVersion: string) of object;
   TPyEnvironmentAfterActivate = procedure(Sender: TObject; const APythonVersion: string; const AActivated: boolean) of object;
-
   TPyEnvironmentBeforeDeactivate = procedure(Sender: TObject; const APythonVersion: string) of object;
   TPyEnvironmentAfterDeactivate = procedure(Sender: TObject; const APythonVersion: string) of object;
+  TPyEnvironmentReady = procedure(Sender: TObject; const APythonVersion: string) of object;
 
-  TPyCustomEnvironment = class(TComponent, IEnvironmentNotifier<TPyCustomEnvironment>)
+  TPyCustomEnvironment = class(TComponent, IEnvironmentNotifier<TPyCustomEnvironment>, IPyEnvironmentTaskCollection)
   private
     FDistributions: TPyDistributionCollection;
     FAutoLoad: boolean;
     FPythonEngine: TPythonEngine;
     FPythonVersion: string;
-    FEnvironmentNotifier: IEnvironmentNotifier<TPyCustomEnvironment>;
     FAsync: boolean;
+    //Events
     FBeforeSetup: TPyEnvironmentBeforeSetup;
     FAfterSetup: TPyEnvironmentAfterSetup;
     FBeforeActivate: TPyEnvironmentBeforeActivate;
     FAfterActivate: TPyEnvironmentAfterActivate;
     FBeforeDeactivate: TPyEnvironmentBeforeDeactivate;
     FAfterDeactivate: TPyEnvironmentAfterDeactivate;
+    //Delegators
+    FEnvironmentNotifier: IEnvironmentNotifier<TPyCustomEnvironment>;
+    FEnvironmentTaskList: IPyEnvironmentTaskCollection;
+    FEnvironmentTaskRunner: TPyEnvironmentTaskRunnerSerial;
+    FOnReady: TPyEnvironmentReady;
     procedure SetEnvironments(const ADistributions: TPyDistributionCollection);
     procedure SetPythonEngine(const APythonEngine: TPythonEngine);
     procedure DoAutoLoad;
+    //Hooked routines
     procedure InternalSetup(APythonVersion: string);
-    //Exception handlers
-    procedure HandleAutoLoadException(const AException: Exception;
-      const AExceptionAddr: Pointer);
+    function InternalActivate(APythonVersion: string): boolean;
+    procedure InternalDeactivate();
+    //Install and Import task
+    function CreateSetupAndActivateTasks(): IFuture<boolean>;
+    procedure ScheduleSetupAndActivateTasks();
     //Events handlers
+    procedure DoInit;
     procedure DoBeforeSetup(APythonVersion: string);
     procedure DoAfterSetup(APythonVersion: string; const ADistribution: TPyDistribution);
     procedure DoBeforeActivate(APythonVersion: string);
     procedure DoAfterActivate(APythonVersion: string; const ADistribution: TPyDistribution; var Result: Boolean);
     procedure DoBeforeDeactivate;
     procedure DoAfterDeactivate;
+    procedure DoInternalReady;
+    procedure DoFinalize();
   protected
     property EnvironmentNotifier: IEnvironmentNotifier<TPyCustomEnvironment>
       read FEnvironmentNotifier
       implements IEnvironmentNotifier<TPyCustomEnvironment>;
+    property EnvironmentTaskList: IPyEnvironmentTaskCollection
+      read FEnvironmentTaskList
+      implements IPyEnvironmentTaskCollection;
   protected
     procedure Loaded(); override;
     procedure Notification(AComponent: TComponent; AOperation: TOperation); override;
@@ -86,8 +102,11 @@ type
     procedure SetPythonVersion(const Value: string); virtual;
     function CreateCollection(): TPyDistributionCollection; virtual; abstract;
     procedure Prepare(); virtual;
+    //IEnvironmentNotifier<TPyCustomEnvironment> delegation
     procedure InternalNotifyAll(ANotification: TEnvironmentNotification;
-      ADistribution: TPyDistribution); virtual;
+      ADistribution: TPyDistribution); dynamic;
+    //IPyEnvironmentTask delegation
+    procedure InternalRunTasks(ANotification: TEnvironmentNotification); dynamic;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
@@ -103,28 +122,43 @@ type
     property PythonVersion: string read FPythonVersion write SetPythonVersion;
     property PythonEngine: TPythonEngine read FPythonEngine write SetPythonEngine;
     property Async: boolean read FAsync write FAsync;
+    property TaskRunner: TPyEnvironmentTaskRunnerSerial read FEnvironmentTaskRunner;
   published
-    //Events
     property BeforeSetup: TPyEnvironmentBeforeSetup read FBeforeSetup write FBeforeSetup;
     property AfterSetup: TPyEnvironmentAfterSetup read FAfterSetup write FAfterSetup;
     property BeforeActivate: TPyEnvironmentBeforeActivate read FBeforeActivate write FBeforeActivate;
     property AfterActivate: TPyEnvironmentAfterActivate read FAfterActivate write FAfterActivate;
     property BeforeDeactivate: TPyEnvironmentBeforeDeactivate read FBeforeDeactivate write FBeforeDeactivate;
     property AfterDeactivate: TPyEnvironmentAfterDeactivate read FAfterDeactivate write FAfterDeactivate;
+    property OnReady: TPyEnvironmentReady read FOnReady write FOnReady;
   end;
 
   TPyEnvironment = class(TPyCustomEnvironment)
+  private
+  protected
+    procedure DefineProperties(Filer: TFiler); override;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
+    function GetChildOwner: TComponent; override;
   published
     property AutoLoad;
     property PythonVersion;
     property PythonEngine;
+    property Async;
+    property TaskRunner;
   end;
 
 implementation
 
 uses
+  TypInfo,
   System.IOUtils,
-  PyCommon.Path;
+  PyCommon.Path,
+  PyEnvironment.Task.Model,
+  PyEnvironment.Task.List;
+
+type
+  __TReader = class(TReader);
+  __TWriter = class(TWriter);
 
 { TPyCustomEnvironment }
 
@@ -132,11 +166,20 @@ constructor TPyCustomEnvironment.Create(AOwner: TComponent);
 begin
   FDistributions := CreateCollection();
   FEnvironmentNotifier := TEnvironmentBroadcaster<TPyCustomEnvironment>.Create(Self);
+  FEnvironmentTaskList := TPyEnvironmentTaskList.Create();
+  FEnvironmentTaskRunner := TPyEnvironmentTaskRunnerSerial.Create(Self, FEnvironmentTaskList);
+  with (FEnvironmentTaskRunner as IInterfaceComponentReference) do begin
+    GetComponent().FreeNotification(Self);
+  end;
   inherited;
 end;
 
 destructor TPyCustomEnvironment.Destroy;
 begin
+  DoFinalize();
+  FEnvironmentTaskRunner.Cancel(true);
+  if not (csDesigning in ComponentState) then
+    FEnvironmentTaskRunner.Wait();
   FDistributions.Free();
   inherited;
 end;
@@ -149,15 +192,55 @@ begin
       and Assigned(FPythonEngine)
         and not (PythonVersion.IsEmpty) then
           DoAutoLoad();
+  DoInit();
 end;
 
 procedure TPyCustomEnvironment.Notification(AComponent: TComponent;
   AOperation: TOperation);
 begin
   inherited;
-  if (AOperation = opRemove) and (AComponent = FPythonEngine) then begin
-    FPythonEngine := nil;
+  if (AOperation = opRemove) then begin
+    if (AComponent = FPythonEngine) then
+      FPythonEngine := nil;
+
+    if Assigned(FEnvironmentTaskRunner)
+      and (AComponent = (FEnvironmentTaskRunner as IInterfaceComponentReference).GetComponent()) then
+        FEnvironmentTaskRunner := nil;
   end;
+end;
+
+function TPyCustomEnvironment.CreateSetupAndActivateTasks: IFuture<boolean>;
+var
+  LTask: TFuture<boolean>;
+begin
+  LTask := FEnvironmentTaskList.CreateTask(function(): boolean
+    begin
+      try
+        Setup(FPythonVersion);
+
+        LTask.CheckCanceled();
+
+        TThread.Queue(nil, procedure() begin
+          Activate(FPythonVersion);
+        end);
+      finally
+        LTask := nil; //Avoid memory leak of the nested LTask var
+      end;
+      Result := true;
+    end);
+  Result := LTask;
+end;
+
+procedure TPyCustomEnvironment.ScheduleSetupAndActivateTasks;
+var
+  LTask: IFuture<boolean>;
+begin
+  LTask := CreateSetupAndActivateTasks();
+
+  FEnvironmentTaskList.AddTask(
+    INIT_NOTIFICATION,
+    TPyEnvironmentTaskModel.Create(
+      LTask.Id, LTask, INIT_NOTIFICATION, false));
 end;
 
 procedure TPyCustomEnvironment.Setup(APythonVersion: string);
@@ -173,6 +256,97 @@ begin
 end;
 
 function TPyCustomEnvironment.Activate(APythonVersion: string): boolean;
+begin
+  Result := InternalActivate(APythonVersion);
+end;
+
+procedure TPyCustomEnvironment.Deactivate;
+begin
+  InternalDeactivate();
+end;
+
+procedure TPyCustomEnvironment.DoInternalReady;
+begin
+  InternalNotifyAll(INTERNAL_READY_NOTIFICATION, nil);
+  InternalRunTasks(INTERNAL_READY_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoAfterDeactivate;
+begin
+  if Assigned(FAfterDeactivate) then
+    FAfterDeactivate(Self, FPythonEngine.RegVersion);
+
+  InternalNotifyAll(AFTER_DEACTIVATE_NOTIFICATION, nil);
+  InternalRunTasks(AFTER_DEACTIVATE_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoBeforeDeactivate;
+begin
+  if Assigned(FBeforeDeactivate) then
+    FBeforeDeactivate(Self, FPythonEngine.RegVersion);
+
+  InternalNotifyAll(BEFORE_DEACTIVATE_NOTIFICATION, nil);
+  InternalRunTasks(BEFORE_DEACTIVATE_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoAfterActivate(APythonVersion: string; const ADistribution: TPyDistribution; var Result: Boolean);
+begin
+  if Assigned(FAfterActivate) then
+    FAfterActivate(Self, APythonVersion, Result);
+
+  InternalNotifyAll(AFTER_ACTIVATE_NOTIFICATION, ADistribution);
+  InternalRunTasks(AFTER_ACTIVATE_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoBeforeActivate(APythonVersion: string);
+begin
+  if Assigned(FBeforeDeactivate) then
+    FBeforeDeactivate(Self, APythonVersion);
+
+  InternalNotifyAll(BEFORE_ACTIVATE_NOTIFICATION, nil);
+  InternalRunTasks(BEFORE_ACTIVATE_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoAfterSetup(APythonVersion: string; const ADistribution: TPyDistribution);
+begin
+  if Assigned(FAfterSetup) then
+    FAfterSetup(Self, APythonVersion);
+
+  InternalNotifyAll(AFTER_SETUP_NOTIFICATION, ADistribution);
+  InternalRunTasks(AFTER_SETUP_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoBeforeSetup(APythonVersion: string);
+begin
+  if Assigned(FBeforeSetup) then
+    FBeforeSetup(Self, APythonVersion);
+
+  InternalNotifyAll(BEFORE_SETUP_NOTIFICATION, nil);
+  InternalRunTasks(BEFORE_SETUP_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoFinalize;
+begin
+  InternalNotifyAll(FINALIZE_NOTIFICATION, nil);
+end;
+
+procedure TPyCustomEnvironment.DoInit;
+begin
+  InternalNotifyAll(INIT_NOTIFICATION, nil);
+  InternalRunTasks(INIT_NOTIFICATION);
+end;
+
+procedure TPyCustomEnvironment.DoAutoLoad;
+begin
+  if FAsync then
+    ScheduleSetupAndActivateTasks()
+  else begin
+    Setup(FPythonVersion);
+    Activate(FPythonVersion);
+  end;
+end;
+
+function TPyCustomEnvironment.InternalActivate(APythonVersion: string): boolean;
 var
   LDistribution: TPyDistribution;
 begin
@@ -197,9 +371,11 @@ begin
   Result := FPythonEngine.IsHandleValid();
 
   DoAfterActivate(APythonVersion, LDistribution, Result);
+
+  DoInternalReady;
 end;
 
-procedure TPyCustomEnvironment.Deactivate;
+procedure TPyCustomEnvironment.InternalDeactivate;
 begin
   DoBeforeDeactivate;
 
@@ -215,98 +391,17 @@ begin
   DoAfterDeactivate;
 end;
 
-procedure TPyCustomEnvironment.DoAfterDeactivate;
-begin
-  if Assigned(FAfterDeactivate) then
-    FAfterDeactivate(Self, FPythonEngine.RegVersion);
-
-  InternalNotifyAll(AFTER_DEACTIVATE_NOTIFICATION, nil);
-end;
-
-procedure TPyCustomEnvironment.DoBeforeDeactivate;
-begin
-  if Assigned(FBeforeDeactivate) then
-    FBeforeDeactivate(Self, FPythonEngine.RegVersion);
-
-  InternalNotifyAll(BEFORE_DEACTIVATE_NOTIFICATION, nil);
-end;
-
-procedure TPyCustomEnvironment.DoAfterActivate(APythonVersion: string; const ADistribution: TPyDistribution; var Result: Boolean);
-begin
-  if Assigned(FAfterActivate) then
-    FAfterActivate(Self, APythonVersion, Result);
-
-  InternalNotifyAll(AFTER_ACTIVATE_NOTIFICATION, ADistribution);
-end;
-
-procedure TPyCustomEnvironment.DoBeforeActivate(APythonVersion: string);
-begin
-  if Assigned(FBeforeDeactivate) then
-    FBeforeDeactivate(Self, APythonVersion);
-
-  InternalNotifyAll(BEFORE_ACTIVATE_NOTIFICATION, nil);
-end;
-
-procedure TPyCustomEnvironment.DoAfterSetup(APythonVersion: string; const ADistribution: TPyDistribution);
-begin
-  if Assigned(FAfterSetup) then
-    FAfterSetup(Self, APythonVersion);
-
-  InternalNotifyAll(AFTER_SETUP_NOTIFICATION, ADistribution);
-end;
-
-procedure TPyCustomEnvironment.DoBeforeSetup(APythonVersion: string);
-begin
-  if Assigned(FBeforeSetup) then
-    FBeforeSetup(Self, APythonVersion);
-
-  InternalNotifyAll(BEFORE_SETUP_NOTIFICATION, nil);
-end;
-
-procedure TPyCustomEnvironment.DoAutoLoad;
-begin
-  if FAsync then begin
-    TTask.Run(procedure()
-    var
-      LTask: ITask;
-    begin
-      LTask := SetupAsync(FPythonVersion);
-      try
-        LTask.Wait();
-        if (LTask.Status in [TTaskStatus.Completed]) then
-          TThread.Queue(nil, procedure() begin
-            Activate(FPythonVersion);
-          end);
-      except
-        on E: Exception do
-          HandleAutoLoadException(E, ExceptAddr);
-      end;
-    end);
-  end else begin
-    Setup(FPythonVersion);
-    Activate(FPythonVersion);
-  end;
-end;
-
-procedure TPyCustomEnvironment.HandleAutoLoadException(
-  const AException: Exception; const AExceptionAddr: Pointer);
-var
-  LExcept: Exception;
-begin
-  if (TThread.Current.ThreadID <> MainThreadID) then
-    TThread.Synchronize(nil, procedure() begin
-      ShowException(AException, AExceptionAddr);
-    end)
-  else begin
-    LExcept := AcquireExceptionObject() as Exception;
-    raise LExcept;
-  end;
-end;
-
 procedure TPyCustomEnvironment.InternalNotifyAll(ANotification: TEnvironmentNotification;
   ADistribution: TPyDistribution);
 begin
   FEnvironmentNotifier.NotifyAll(ANotification, ADistribution);
+end;
+
+procedure TPyCustomEnvironment.InternalRunTasks(
+  ANotification: TEnvironmentNotification);
+begin
+  if Assigned(FEnvironmentTaskRunner) then
+    FEnvironmentTaskRunner.Run(ANotification);
 end;
 
 procedure TPyCustomEnvironment.InternalSetup(APythonVersion: string);
@@ -367,5 +462,32 @@ procedure TPyCustomEnvironment.SetPythonVersion(const Value: string);
 begin
   FPythonVersion := Value;
 end;
+
+{ TPyEnvironment }
+
+procedure TPyEnvironment.DefineProperties(Filer: TFiler);
+begin
+  inherited;
+end;
+
+function TPyEnvironment.GetChildOwner: TComponent;
+begin
+  Result := Self;
+end;
+
+procedure TPyEnvironment.GetChildren(Proc: TGetChildProc; Root: TComponent);
+//var
+//  I: Integer;
+begin
+  inherited GetChildren(Proc, Root);
+//  for I := 0 to ComponentCount - 1 do
+//    Proc(Components[I]);
+end;
+
+initialization
+  RegisterClass(TPyEnvironment);
+
+finalization
+  UnRegisterClass(TPyEnvironment);
 
 end.
