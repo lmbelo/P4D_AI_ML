@@ -54,7 +54,7 @@ type
       const AArgs: TObject);
   end;
 
-  TEnvironmentBroadcaster<Notifier> = class(TInterfacedPersistent, IEnvironmentNotifier<Notifier>)
+  TEnvironmentBroadcaster<Notifier> = class(TInterfacedObject, IEnvironmentNotifier<Notifier>)
   private
     FNotifier: Notifier;
     FListeners: TList<IEnvironmentNotified<Notifier>>;
@@ -72,16 +72,25 @@ type
   ENotificationCenterNotAvailable = class(Exception);
 
 const
-  BEFORE_SETUP_NOTIFICATION = $0;
-  AFTER_SETUP_NOTIFICATION = $1;
-  BEFORE_ACTIVATE_NOTIFICATION = $2;
-  AFTER_ACTIVATE_NOTIFICATION = $3;
-  BEFORE_DEACTIVATE_NOTIFICATION = $4;
-  AFTER_DEACTIVATE_NOTIFICATION = $5;
-  BEFORE_CREATE_ENVIRONMENT_NOTIFICATION = $6;
-  AFTER_CREATE_ENVIRONMENT_NOTIFICATION = $7;
-  BEFORE_UNZIP_NOTIFICATION = $8;
-  AFTER_UNZIP_NOTIFICATION = $9;
+  /// <summary>
+  ///   Tell the environment clients we are running async and they might schedule their tasks.
+  /// </summary>
+  INIT_NOTIFICATION = $0;
+  BEFORE_SETUP_NOTIFICATION = $1;
+  AFTER_SETUP_NOTIFICATION = $2;
+  BEFORE_ACTIVATE_NOTIFICATION = $3;
+  AFTER_ACTIVATE_NOTIFICATION = $4;
+  BEFORE_DEACTIVATE_NOTIFICATION = $5;
+  AFTER_DEACTIVATE_NOTIFICATION = $6;
+  BEFORE_CREATE_ENVIRONMENT_NOTIFICATION = $7;
+  AFTER_CREATE_ENVIRONMENT_NOTIFICATION = $8;
+  BEFORE_UNZIP_NOTIFICATION = $9;
+  AFTER_UNZIP_NOTIFICATION = $A;
+  INTERNAL_READY_NOTIFICATION = $B;
+  FINALIZE_NOTIFICATION = $FF;
+
+type
+  TPyEnvironmentNotifications = INIT_NOTIFICATION..FINALIZE_NOTIFICATION;
 
 implementation
 
