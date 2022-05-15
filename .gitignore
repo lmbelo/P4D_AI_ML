@@ -40,6 +40,7 @@
 *.Patch
 *.#00
 *.pch
+*.deployproj
 
 # Output Folders  #
 ###################
@@ -48,3 +49,5 @@ Win64/
 OSX32/
 __history/
 __recovery/
+Release/
+packages/AndroidManifest.template.xml

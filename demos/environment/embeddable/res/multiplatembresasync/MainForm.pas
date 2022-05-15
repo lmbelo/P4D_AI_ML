@@ -22,6 +22,8 @@ type
     PythonGUIInputOutput1: TPythonGUIInputOutput;
     Splitter1: TSplitter;
     PyEmbeddedResEnvironment3101: TPyEmbeddedResEnvironment310;
+    lblOSVersion: TLabel;
+    lblInformation: TLabel;
     procedure PyEmbeddedResEnvironment3101BeforeSetup(Sender: TObject;
       const APythonVersion: string);
     procedure PyEmbeddedResEnvironment3101AfterSetup(Sender: TObject;
@@ -40,6 +42,7 @@ type
     procedure PyEmbeddedResEnvironment3101TaskRunnerCompleteAll(
       const ASender: TObject;
       const ATasks: TArray<PyEnvironment.Task.Model.TPyEnvironmentTaskModel>);
+    procedure FormCreate(Sender: TObject);
   private
     FClose: Boolean;
     procedure UpdateInstallationStatus(const AStatus, ADescription: string);
@@ -114,6 +117,13 @@ begin
   PyEmbeddedResEnvironment3101.TaskRunner.Cancel(true);
   CanClose := not PyEmbeddedResEnvironment3101.TaskRunner.IsRunning();
   FClose := not CanClose;
+end;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+  lblOSVersion.Text := TOSVersion.ToString;
+  lblInformation.Text := Format('%d-bit | RTL: %f | Compiler: %f',
+    [SizeOf(Integer)*16, RTLVersion, CompilerVersion]);
 end;
 
 procedure TForm2.UpdateInstallationStatus(const AStatus, ADescription: string);
