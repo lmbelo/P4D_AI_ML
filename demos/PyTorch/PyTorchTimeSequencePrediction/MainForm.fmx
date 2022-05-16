@@ -43,8 +43,9 @@ object Form1: TForm1
     end
   end
   object PythonEngine1: TPythonEngine
+    AutoLoad = False
     IO = PythonGUIInputOutput1
-    Left = 408
+    Left = 368
     Top = 16
   end
   object PythonGUIInputOutput1: TPythonGUIInputOutput
@@ -56,17 +57,42 @@ object Form1: TForm1
   end
   object NumPy1: TNumPy
     PythonEngine = PythonEngine1
+    PyEnvironment = PyEmbeddedResEnvironment3101
+    ManagerKind = pip
     Left = 512
     Top = 88
   end
   object PyTorch1: TPyTorch
     PythonEngine = PythonEngine1
+    PyEnvironment = PyEmbeddedResEnvironment3101
+    ManagerKind = pip
     Left = 512
     Top = 152
   end
   object MatplotLib1: TMatplotLib
     PythonEngine = PythonEngine1
+    PyEnvironment = PyEmbeddedResEnvironment3101
+    ManagerKind = pip
     Left = 512
     Top = 214
+  end
+  object PyEmbeddedResEnvironment3101: TPyEmbeddedResEnvironment310
+    AutoLoad = True
+    PythonVersion = '3.10'
+    PythonEngine = PythonEngine1
+    Async = True
+    Left = 368
+    Top = 80
+  end
+  object PyEnvironmentAddOnEnsurePip1: TPyEnvironmentAddOnEnsurePip
+    Environment = PyEmbeddedResEnvironment3101
+    Left = 368
+    Top = 184
+  end
+  object PyEnvironmentAddOn1: TPyEnvironmentAddOn
+    Environment = PyEmbeddedResEnvironment3101
+    Triggers = []
+    Left = 384
+    Top = 272
   end
 end

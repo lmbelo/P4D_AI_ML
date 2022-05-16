@@ -51,3 +51,4 @@ __history/
 __recovery/
 Release/
 packages/AndroidManifest.template.xml
+*.user

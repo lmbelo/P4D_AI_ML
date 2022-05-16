@@ -36,7 +36,9 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.Memo.Types,
   FMX.StdCtrls, FMX.Layouts, FMX.Controls.Presentation, FMX.ScrollBox, FMX.Memo,
   PythonEngine, FMX.PythonGUIInputOutput, PyTorch, PyCommon, PyModule,
-  PyPackage, NumPy, MatplotLib;
+  PyPackage, NumPy, MatplotLib, PyEnvironment, PyEnvironment.Embeddable,
+  PyEnvironment.Embeddable.Res, PyEnvironment.Embeddable.Res.Python310,
+  PyEnvironment.AddOn, PyEnvironment.AddOn.EnsurePip;
 
 type
   //Original reference: https://github.com/pytorch/examples/tree/master/time_sequence_prediction
@@ -50,6 +52,9 @@ type
     PyTorch1: TPyTorch;
     btnTrain: TButton;
     MatplotLib1: TMatplotLib;
+    PyEmbeddedResEnvironment3101: TPyEmbeddedResEnvironment310;
+    PyEnvironmentAddOnEnsurePip1: TPyEnvironmentAddOnEnsurePip;
+    PyEnvironmentAddOn1: TPyEnvironmentAddOn;
     procedure btnGenerateClick(Sender: TObject);
     procedure btnTrainClick(Sender: TObject);
   private
