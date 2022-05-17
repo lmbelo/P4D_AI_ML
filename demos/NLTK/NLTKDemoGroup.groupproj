@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A084866B-5A4C-4C05-A031-CEDCF5941A13}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="NLTKBasics\nltk_basics.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\packages\P4DNLTK.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\..\packages\dclP4DNLTK.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="nltk_basics">
+        <MSBuild Projects="NLTKBasics\nltk_basics.dproj"/>
+    </Target>
+    <Target Name="nltk_basics:Clean">
+        <MSBuild Projects="NLTKBasics\nltk_basics.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="nltk_basics:Make">
+        <MSBuild Projects="NLTKBasics\nltk_basics.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="P4DNLTK">
+        <MSBuild Projects="..\..\packages\P4DNLTK.dproj"/>
+    </Target>
+    <Target Name="P4DNLTK:Clean">
+        <MSBuild Projects="..\..\packages\P4DNLTK.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="P4DNLTK:Make">
+        <MSBuild Projects="..\..\packages\P4DNLTK.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclP4DNLTK">
+        <MSBuild Projects="..\..\packages\dclP4DNLTK.dproj"/>
+    </Target>
+    <Target Name="dclP4DNLTK:Clean">
+        <MSBuild Projects="..\..\packages\dclP4DNLTK.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclP4DNLTK:Make">
+        <MSBuild Projects="..\..\packages\dclP4DNLTK.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="nltk_basics;P4DNLTK;dclP4DNLTK"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="nltk_basics:Clean;P4DNLTK:Clean;dclP4DNLTK:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="nltk_basics:Make;P4DNLTK:Make;dclP4DNLTK:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

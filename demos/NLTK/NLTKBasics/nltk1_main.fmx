@@ -1,0 +1,121 @@
+object Form16: TForm16
+  Left = 0
+  Top = 0
+  Caption = 'Form16'
+  ClientHeight = 480
+  ClientWidth = 648
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object Button1: TButton
+    Position.X = 10.000000000000000000
+    Position.Y = 66.000000000000000000
+    TabOrder = 4
+    Text = 'Tokenize'
+    OnClick = Button1Click
+  end
+  object StatusBar1: TStatusBar
+    Position.Y = 458.000000000000000000
+    ShowSizeGrip = True
+    Size.Width = 648.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    object lbMsg: TLabel
+      Align = Left
+      Margins.Left = 10.000000000000000000
+      Position.X = 10.000000000000000000
+      Size.Width = 113.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+    end
+    object lbDesc: TLabel
+      Align = Client
+      Margins.Right = 25.000000000000000000
+      Size.Width = 500.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+    end
+  end
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Lines.Strings = (
+      'At eight o'#39'clock on Thursday morning'
+      '... Arthur didn'#39't feel very good.')
+    Anchors = [akLeft, akTop, akRight]
+    Position.X = 10.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 630.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 11
+    Viewport.Width = 626.000000000000000000
+    Viewport.Height = 46.000000000000000000
+  end
+  object ListBox1: TListBox
+    Anchors = [akLeft, akTop, akRight]
+    Position.X = 8.000000000000000000
+    Position.Y = 96.000000000000000000
+    Size.Width = 632.000000000000000000
+    Size.Height = 354.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    DisableFocusEffect = True
+    DefaultItemStyles.ItemStyle = ''
+    DefaultItemStyles.GroupHeaderStyle = ''
+    DefaultItemStyles.GroupFooterStyle = ''
+    Viewport.Width = 628.000000000000000000
+    Viewport.Height = 350.000000000000000000
+  end
+  object NLTK1: TNLTK
+    PythonEngine = PythonEngine1
+    PyEnvironment = PyEmbeddedResEnvironment3101
+    ManagerKind = pip
+    Left = 368
+    Top = 136
+  end
+  object PyEmbeddedResEnvironment3101: TPyEmbeddedResEnvironment310
+    BeforeSetup = PyEmbeddedResEnvironment3101BeforeSetup
+    AfterSetup = PyEmbeddedResEnvironment3101AfterSetup
+    BeforeActivate = PyEmbeddedResEnvironment3101BeforeActivate
+    AfterActivate = PyEmbeddedResEnvironment3101AfterActivate
+    AutoLoad = True
+    PythonVersion = '3.10'
+    PythonEngine = PythonEngine1
+    Async = True
+    OnZipProgress = PyEmbeddedResEnvironment3101ZipProgress
+    Left = 464
+    Top = 240
+  end
+  object PyEnvironmentAddOnEnsurePip1: TPyEnvironmentAddOnEnsurePip
+    Environment = PyEmbeddedResEnvironment3101
+    Left = 464
+    Top = 328
+  end
+  object PythonEngine1: TPythonEngine
+    AutoLoad = False
+    Left = 456
+    Top = 160
+  end
+  object PythonGUIInputOutput1: TPythonGUIInputOutput
+    UnicodeIO = True
+    RawOutput = False
+    Left = 368
+    Top = 208
+  end
+  object PythonType1: TPythonType
+    Engine = PythonEngine1
+    Prefix = 'Create'
+    Services.Basic = [bsRepr, bsStr, bsGetAttrO, bsSetAttrO]
+    Services.InplaceNumber = []
+    Services.Number = []
+    Services.Sequence = []
+    Services.Mapping = []
+    Left = 368
+    Top = 296
+  end
+end
