@@ -10,7 +10,7 @@ uses
   PyEnvironment.Embeddable.Res.Python310, PyCommon, PyModule, PyPackage,
   NLTK, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Edit, System.Generics.Collections,
   FMX.PythonGUIInputOutput, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
-  FMX.Layouts, FMX.ListBox, VarPyth, NumPy;
+  FMX.Layouts, FMX.ListBox, VarPyth, NumPy, PyEnvironment.Task.Model;
 
 type
   TForm16 = class(TForm)
@@ -41,6 +41,9 @@ type
     procedure PyEmbeddedResEnvironment3101ZipProgress(Sender: TObject;
       ADistribution: TPyCustomEmbeddableDistribution; FileName: string;
       Header: TZipHeader; Position: Int64);
+    procedure PyEmbeddedResEnvironment3101TaskRunnerCompleteAll(
+      const ASender: TObject;
+      const ATasks: TArray<PyEnvironment.Task.Model.TPyEnvironmentTaskModel>);
   private
     { Private declarations }
     procedure UpdateInstallationStatus(const AStatus, ADescription: string);
@@ -52,6 +55,9 @@ var
   Form16: TForm16;
 
 implementation
+
+uses
+  PyCommon.ExecCmd;
 
 {$R *.fmx}
 
@@ -70,6 +76,12 @@ end;
 procedure TForm16.Button1Click(Sender: TObject);
 begin
   with NLTK1 do begin
+    nltk.download('punkt');
+    nltk.download('averaged_perceptron_tagger');
+    nltk.download('maxent_ne_chunker');
+    nltk.download('words');
+    nltk.download('treebank');
+
     var tokens := nltk.word_tokenize(memo1.lines.Text);
     VarPyToStrings(tokens, ListBox1.Items);
 
@@ -110,6 +122,13 @@ procedure TForm16.PyEmbeddedResEnvironment3101BeforeSetup(Sender: TObject;
   const APythonVersion: string);
 begin
   UpdateInstallationStatus(Format('Python %s', [APythonVersion]), 'Setting up...');
+end;
+
+procedure TForm16.PyEmbeddedResEnvironment3101TaskRunnerCompleteAll(
+  const ASender: TObject;
+  const ATasks: TArray<PyEnvironment.Task.Model.TPyEnvironmentTaskModel>);
+begin
+  Button1.Enabled := true;
 end;
 
 procedure TForm16.PyEmbeddedResEnvironment3101ZipProgress(Sender: TObject;

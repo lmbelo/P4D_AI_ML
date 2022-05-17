@@ -9,6 +9,7 @@ object Form16: TForm16
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
   object Button1: TButton
+    Enabled = False
     Position.X = 10.000000000000000000
     Position.Y = 66.000000000000000000
     TabOrder = 4
@@ -117,14 +118,15 @@ object Form16: TForm16
     PythonVersion = '3.10'
     PythonEngine = PythonEngine1
     Async = True
+    TaskRunner.OnCompleteAll = PyEmbeddedResEnvironment3101TaskRunnerCompleteAll
     OnZipProgress = PyEmbeddedResEnvironment3101ZipProgress
     Left = 192
     Top = 256
   end
   object PyEnvironmentAddOnEnsurePip1: TPyEnvironmentAddOnEnsurePip
     Environment = PyEmbeddedResEnvironment3101
-    Left = 280
-    Top = 320
+    Left = 192
+    Top = 312
   end
   object PythonEngine1: TPythonEngine
     AutoLoad = False
