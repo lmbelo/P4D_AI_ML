@@ -8,9 +8,9 @@ uses
   PythonEngine, PyEnvironment.AddOn, PyEnvironment.AddOn.EnsurePip,
   PyEnvironment, PyEnvironment.Embeddable, PyEnvironment.Embeddable.Res,
   PyEnvironment.Embeddable.Res.Python310, PyCommon, PyModule, PyPackage,
-  NLTK, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Edit,
+  NLTK, FMX.Controls.Presentation, FMX.StdCtrls, FMX.Edit, System.Generics.Collections,
   FMX.PythonGUIInputOutput, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo,
-  FMX.Layouts, FMX.ListBox, VarPyth;
+  FMX.Layouts, FMX.ListBox, VarPyth, NumPy;
 
 type
   TForm16 = class(TForm)
@@ -26,6 +26,9 @@ type
     Memo1: TMemo;
     ListBox1: TListBox;
     PythonType1: TPythonType;
+    NumPy1: TNumPy;
+    ListBox2: TListBox;
+    ListBox3: TListBox;
     procedure Button1Click(Sender: TObject);
     procedure PyEmbeddedResEnvironment3101AfterActivate(Sender: TObject;
       const APythonVersion: string; const AActivated: Boolean);
@@ -52,16 +55,33 @@ implementation
 
 {$R *.fmx}
 
+// This is a new method in VarPyth, but I'll put it here just in case....
+function VarPyToStrings(const AValue : Variant; const AStrings: TStrings): Integer;
+begin
+  Assert(Assigned(AStrings));
+  if VarIsPythonList(AValue) then
+    GetPythonEngine.PyListToStrings(
+      ExtractPythonObjectFrom(AValue), AStrings)
+  else
+    raise Exception.Create('Python List expected: ' + _type(AValue));
+  Result := AStrings.Count;
+end;
+
 procedure TForm16.Button1Click(Sender: TObject);
 begin
-  var tokens := NLTK1.nltk.word_tokenize(memo1.lines.Text);
+  with NLTK1 do begin
+    var tokens := nltk.word_tokenize(memo1.lines.Text);
+    VarPyToStrings(tokens, ListBox1.Items);
 
-  if VarIsPythonList(Tokens) then
-    PythonEngine1.PyListToStrings(ExtractPythonObjectFrom(Tokens), ListBox1.Items);
+    var tagged := nltk.pos_tag(tokens);
+    VarPyToStrings(tagged, ListBox2.Items);
 
-  var tagged := NLTK1.nltk.pos_tag(tokens);
-  var entities := NLTK1.nltk.chunk.ne_chunk(tagged);
-
+    var entities := nltk.chunk.ne_chunk(tagged);
+    VarPyToStrings(entities, ListBox3.Items);
+    var t := nltk.corpus.treebank.parsed_sents('wsj_0001.mrg');
+    for var i in VarPyIterate(t) do
+     // i.draw(); // Requires Tkinter....
+  end;
 end;
 
 procedure TForm16.PyEmbeddedResEnvironment3101AfterActivate(
